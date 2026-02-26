@@ -34998,3 +34998,5003 @@ function addSmartButtonStyles() {
         /* Animations */
         @keyframes pulse-warning {
             0% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.7); }
+     70% { box-shadow: 0 0 0 15px rgba(243, 156, 18, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0); }
+        }
+        
+        @keyframes pulse-urgent {
+            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(231, 76, 60, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+        }
+        
+        @keyframes pulse-new {
+            0% { box-shadow: 0 0 0 0 rgba(155, 89, 182, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(155, 89, 182, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(155, 89, 182, 0); }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        /* Dashboard Styles */
+        .dashboard-header {
+            padding: 20px;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-header {
+                padding: 15px;
+            }
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                gap: 12px;
+            }
+        }
+        
+        .header-icon {
+            font-size: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .header-icon {
+                font-size: 32px;
+            }
+        }
+        
+        .header-text {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+        }
+        
+        .header-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        @media (max-width: 768px) {
+            .header-title {
+                font-size: 18px;
+            }
+        }
+        
+        .header-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        @media (max-width: 768px) {
+            .header-subtitle {
+                font-size: 13px;
+            }
+        }
+        
+        .close-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .close-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 18px;
+            }
+        }
+        
+        .dashboard-content {
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-content {
+                max-height: 70vh;
+                padding: 15px;
+            }
+        }
+        
+        .section {
+            margin-bottom: 25px;
+        }
+        
+        @media (max-width: 768px) {
+            .section {
+                margin-bottom: 20px;
+            }
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .section-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 15px;
+            }
+        }
+        
+        .farm-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .farm-info {
+                padding: 12px;
+            }
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+            flex-wrap: wrap;
+        }
+        
+        @media (max-width: 768px) {
+            .info-row {
+                font-size: 13px;
+                margin-bottom: 6px;
+            }
+        }
+        
+        .info-label {
+            color: #666;
+            flex-shrink: 0;
+        }
+        
+        .info-value {
+            font-weight: 500;
+            color: #2c3e50;
+            text-align: right;
+            max-width: 60%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        @media (max-width: 768px) {
+            .info-value {
+                max-width: 55%;
+            }
+        }
+        
+        .progress-container {
+            margin: 20px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .progress-container {
+                margin: 15px 0;
+            }
+        }
+        
+        .progress-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .progress-label {
+                font-size: 13px;
+            }
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            text-align: right;
+        }
+        
+        .status-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid;
+        }
+        
+        @media (max-width: 768px) {
+            .status-card {
+                padding: 12px;
+            }
+        }
+        
+        .status-message {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            word-break: break-word;
+        }
+        
+        @media (max-width: 768px) {
+            .status-message {
+                font-size: 14px;
+            }
+        }
+        
+        .status-detail {
+            font-size: 14px;
+            color: #666;
+            word-break: break-word;
+        }
+        
+        @media (max-width: 768px) {
+            .status-detail {
+                font-size: 13px;
+            }
+        }
+        
+        .upgrade-card {
+            padding: 20px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        @media (max-width: 768px) {
+            .upgrade-card {
+                padding: 15px;
+                gap: 12px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+        
+        .upgrade-icon {
+            font-size: 40px;
+            flex-shrink: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .upgrade-icon {
+                font-size: 32px;
+            }
+        }
+        
+        .upgrade-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .upgrade-title {
+            font-weight: bold;
+            font-size: 16px;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            word-break: break-word;
+        }
+        
+        @media (max-width: 768px) {
+            .upgrade-title {
+                font-size: 15px;
+            }
+        }
+        
+        .upgrade-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            word-break: break-word;
+        }
+        
+        @media (max-width: 768px) {
+            .upgrade-subtitle {
+                font-size: 13px;
+            }
+        }
+        
+        .upgrade-features {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+        
+        .upgrade-price {
+            font-weight: bold;
+            color: #27ae60;
+            font-size: 18px;
+        }
+        
+        @media (max-width: 768px) {
+            .upgrade-price {
+                font-size: 16px;
+            }
+        }
+        
+        .upgrade-btn {
+            background: #2c5530;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .upgrade-btn {
+                width: 100%;
+                padding: 12px;
+                font-size: 14px;
+            }
+        }
+        
+        .upgrade-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .actions-grid {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .quick-action {
+            border: none;
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 70px;
+        }
+        
+        @media (max-width: 768px) {
+            .quick-action {
+                padding: 12px;
+                min-height: 60px;
+            }
+        }
+        
+        .quick-action:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .action-icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .action-icon {
+                font-size: 22px;
+            }
+        }
+        
+        .action-title {
+            font-size: 12px;
+            font-weight: bold;
+            word-break: break-word;
+        }
+        
+        .support-grid {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .support-option {
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+            text-decoration: none;
+            transition: transform 0.2s;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 60px;
+        }
+        
+        @media (max-width: 768px) {
+            .support-option {
+                padding: 12px;
+                min-height: 55px;
+            }
+        }
+        
+        .support-option:hover {
+            transform: translateY(-2px);
+        }
+        
+        .support-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .support-icon {
+                font-size: 22px;
+            }
+        }
+        
+        .support-text {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .support-title {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .support-detail {
+            font-size: 14px;
+            font-weight: bold;
+            word-break: break-word;
+        }
+        
+        @media (max-width: 768px) {
+            .support-detail {
+                font-size: 13px;
+            }
+        }
+        
+        .dashboard-footer {
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-footer {
+                padding-top: 15px;
+                margin-top: 15px;
+            }
+        }
+        
+        .footer-text {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .footer-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        @media (max-width: 768px) {
+            .footer-actions {
+                gap: 8px;
+            }
+        }
+        
+        .footer-btn {
+            padding: 8px 15px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+        
+        @media (max-width: 768px) {
+            .footer-btn {
+                padding: 6px 12px;
+                font-size: 11px;
+                flex: 1;
+                min-width: 120px;
+            }
+        }
+        
+        /* Scrollbar styling */
+        .dashboard-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .dashboard-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        
+        .dashboard-content::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+        
+        .dashboard-content::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        
+        /* Mobile-specific improvements */
+        @media (max-width: 768px) {
+            /* Improve touch targets */
+            .quick-action,
+            .support-option,
+            .upgrade-btn,
+            .footer-btn {
+                -webkit-tap-highlight-color: transparent;
+            }
+            
+            /* Prevent zoom on input */
+            input, select, textarea {
+                font-size: 16px;
+            }
+        }
+        
+        /* Landscape mode adjustments */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .dashboard-content {
+                max-height: 50vh;
+            }
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .dashboard-content {
+                background: #1a1a1a;
+                color: #ffffff;
+            }
+            
+            .farm-info,
+            .status-card {
+                background: #2d2d2d;
+            }
+            
+            .info-label,
+            .progress-label,
+            .progress-text,
+            .status-detail,
+            .upgrade-subtitle,
+            .upgrade-features,
+            .footer-text {
+                color: #b3b3b3;
+            }
+            
+            .info-value,
+            .section-title,
+            .status-message,
+            .upgrade-title {
+                color: #ffffff;
+            }
+            
+            .footer-btn {
+                background: #2d2d2d;
+                border-color: #404040;
+                color: #ffffff;
+            }
+            
+            .dashboard-content::-webkit-scrollbar-track {
+                background: #2d2d2d;
+            }
+            
+            .dashboard-content::-webkit-scrollbar-thumb {
+                background: #404040;
+            }
+            
+            .dashboard-content::-webkit-scrollbar-thumb:hover {
+                background: #555555;
+            }
+        }
+    `;
+    
+    const styleEl = document.createElement('style');
+    styleEl.id = 'smart-status-styles';
+    styleEl.textContent = styles;
+    document.head.appendChild(styleEl);
+}
+
+/**
+ * Helper functions
+ */
+function refreshStatus() {
+    const dashboard = document.getElementById('smartDashboard');
+    if (dashboard) dashboard.remove();
+    setTimeout(showSmartStatusDashboard, 100);
+}
+
+function showFullReport() {
+    if (typeof showSupportContact === 'function') {
+        const dashboard = document.getElementById('smartDashboard');
+        if (dashboard) dashboard.remove();
+        showSupportContact();
+    }
+}
+
+function closeSmartDashboard() {
+    const dashboard = document.getElementById('smartDashboard');
+    if (dashboard) {
+        dashboard.remove();
+        document.body.style.overflow = '';
+    }
+}
+
+/**
+ * Initialize the smart button
+ */
+function initializeSmartStatusButton() {
+    // Remove any existing floating buttons first
+    ['smartStatusButton', 'subscriptionStatusBtn', 'floatingSupportBtn'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.remove();
+    });
+    
+    // Add resize listener for responsiveness
+    window.addEventListener('resize', debounce(() => {
+        const btn = document.getElementById('smartStatusButton');
+        if (btn) {
+            // Update button position/size on resize
+            if (window.innerWidth <= 768) {
+                btn.style.width = '55px';
+                btn.style.height = '55px';
+                btn.style.bottom = '15px';
+                btn.style.right = '15px';
+                btn.style.fontSize = '22px';
+            } else {
+                btn.style.width = '60px';
+                btn.style.height = '60px';
+                btn.style.bottom = '20px';
+                btn.style.right = '20px';
+                btn.style.fontSize = '24px';
+            }
+        }
+    }, 250));
+    
+    // Wait for farmProfile to be ready
+    const checkInterval = setInterval(() => {
+        if (farmProfile) {
+            clearInterval(checkInterval);
+            createSmartStatusButton();
+            console.log('🎯 Smart status button initialized');
+        }
+    }, 500);
+    
+    // Timeout after 10 seconds
+    setTimeout(() => {
+        clearInterval(checkInterval);
+        if (!farmProfile) {
+            console.log('⚠️ Farm profile not ready, creating default button');
+            createSmartStatusButton();
+        }
+    }, 500);
+}
+
+/**
+ * Update button periodically
+ */
+function startStatusUpdates() {
+    // Update button every minute
+    setInterval(() => {
+        const btn = document.getElementById('smartStatusButton');
+        if (btn) {
+            createSmartStatusButton();
+        }
+    }, 600);
+    
+    // Also update when subscription changes
+    if (typeof farmProfile !== 'undefined') {
+        const originalProfile = JSON.stringify(farmProfile);
+        setInterval(() => {
+            const currentProfile = JSON.stringify(farmProfile);
+            if (currentProfile !== originalProfile) {
+                createSmartStatusButton();
+            }
+        }, 500);
+    }
+}
+
+/**
+ * Utility function: Debounce
+ */
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+function getDetailedLicenseStatus() {
+    const now = new Date();
+    const status = {
+        type: 'unknown',
+        message: '',
+        trialUsed: false,
+        hasSubscription: false,
+        daysLeft: 0,
+        hoursLeft: 0,
+        minutesLeft: 0,
+        recommendedAction: 'activation code',
+        recommendedPackage: 'Silver',
+        isExpired: false,
+        canRenew: false,
+        expiryDate: null,
+        startDate: null,
+        packageName: 'None',
+        subscriptionActive: false
+    };
+    
+    // CHECK 1: Is app permanently activated? (Highest priority)
+    if (farmProfile && farmProfile.activated) {
+        status.type = 'activated';
+        status.message = '✅ PERMANENTLY ACTIVATED\n   - Full access granted\n   - No expiration\n   - All features unlocked';
+        status.recommendedAction = 'support or upgrade inquiry';
+        status.recommendedPackage = 'N/A - Already activated';
+        return status;
+    }
+    
+    // CHECK 2: Do we have ANY subscription? (Medium priority)
+    const subscription = JSON.parse(localStorage.getItem('farmSubscription') || 'null');
+    
+    if (subscription && subscription.package) {
+        // We have a subscription record
+        status.hasSubscription = true;
+        status.packageName = subscription.package;
+        
+        // Check if subscription has endDate
+        if (subscription.endDate) {
+            const endDate = new Date(subscription.endDate);
+            
+            if (!isNaN(endDate.getTime())) {
+                const timeLeft = endDate - now;
+                
+                if (timeLeft > 0) {
+                    // ✅ SUBSCRIPTION IS ACTIVE AND VALID
+                    const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                    const hoursLeft = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    
+                    status.type = 'subscription_active';
+                    status.daysLeft = daysLeft;
+                    status.hoursLeft = hoursLeft;
+                    status.expiryDate = endDate;
+                    status.startDate = subscription.startDate ? new Date(subscription.startDate) : null;
+                    status.subscriptionActive = true;
+                    
+                    // IMPORTANT: If subscription is active, IGNORE trial status
+                    let statusMessage = `✅ SUBSCRIPTION ACTIVE (Trial bypassed)\n`;
+                    statusMessage += `   - Package: ${subscription.package.toUpperCase()}\n`;
+                    statusMessage += `   - Started: ${status.startDate ? status.startDate.toLocaleDateString() : 'Recently'}\n`;
+                    statusMessage += `   - Expires: ${endDate.toLocaleDateString()}\n`;
+                    statusMessage += `   - Time left: ${daysLeft} days, ${hoursLeft} hours\n`;
+                    statusMessage += `   - Status: Full Platinum access\n`;
+                    statusMessage += `   - ⚠️ Trial is IGNORED (subscription takes priority)`;
+                    
+                    status.message = statusMessage;
+                    status.recommendedAction = 'subscription management';
+                    status.recommendedPackage = subscription.package;
+                    
+                    return status;
+                } else {
+                    // Subscription expired
+                    status.type = 'subscription_expired';
+                    status.isExpired = true;
+                    status.expiryDate = endDate;
+                    
+                    const daysExpired = Math.floor(Math.abs(timeLeft) / (1000 * 60 * 60 * 24));
+                    
+                    status.message = `❌ SUBSCRIPTION EXPIRED\n` +
+                                   `   - Package: ${subscription.package.toUpperCase()}\n` +
+                                   `   - Expired: ${endDate.toLocaleDateString()}\n` +
+                                   `   - Days expired: ${daysExpired} days\n` +
+                                   `   - Status: Limited access`;
+                    
+                    status.recommendedAction = 'immediate renewal';
+                    status.recommendedPackage = subscription.package;
+                    status.canRenew = true;
+                    
+                    return status;
+                }
+            }
+        } else {
+            // Subscription exists but no endDate (shouldn't happen, but handle it)
+            status.type = 'subscription_active';
+            status.subscriptionActive = true;
+            
+            status.message = `✅ SUBSCRIPTION ACTIVE (No expiry date)\n` +
+                           `   - Package: ${subscription.package.toUpperCase()}\n` +
+                           `   - Status: Full access (indefinite)\n` +
+                           `   - ⚠️ Trial is IGNORED`;
+            
+            status.recommendedAction = 'subscription verification';
+            status.recommendedPackage = subscription.package;
+            
+            return status;
+        }
+    }
+    
+    // CHECK 3: Only check trial if NO subscription exists
+    if (farmProfile && farmProfile.trialStart) {
+        const trialStart = new Date(farmProfile.trialStart);
+        const trialEnd = new Date(trialStart.getTime() + 7 * 24 * 60 * 60 * 1000);
+        const timeLeft = trialEnd - now;
+        
+        status.startDate = trialStart;
+        status.expiryDate = trialEnd;
+        status.trialUsed = true;
+        
+        if (timeLeft > 0) {
+            // Trial is active (and no subscription)
+            const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hoursLeft = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const daysUsed = 7 - daysLeft;
+            
+            status.type = 'trial_active';
+            status.daysLeft = daysLeft;
+            status.hoursLeft = hoursLeft;
+            
+            status.message = `⏳ TRIAL ACTIVE (No subscription)\n` +
+                           `   - Started: ${trialStart.toLocaleDateString()}\n` +
+                           `   - Days used: ${daysUsed} of 7 days\n` +
+                           `   - Time left: ${daysLeft} days, ${hoursLeft} hours\n` +
+                           `   - Expires: ${trialEnd.toLocaleDateString()}\n` +
+                           `   - Status: Full access (trial mode)`;
+            
+            if (daysLeft <= 1) {
+                status.recommendedAction = 'activate before trial ends';
+                status.message += `\n   - ⚠️ Trial ending tomorrow!`;
+            } else if (daysLeft <= 3) {
+                status.recommendedAction = 'activate soon';
+                status.message += `\n   - Trial ending in ${daysLeft} days`;
+            } else {
+                status.recommendedAction = 'consider activation';
+            }
+            
+            status.recommendedPackage = 'Silver (recommended for trial users)';
+            
+            return status;
+        } else {
+            // Trial expired (and no subscription)
+            status.type = 'trial_expired';
+            status.isExpired = true;
+            const daysExpired = Math.floor(Math.abs(timeLeft) / (1000 * 60 * 60 * 24));
+            
+            status.message = `⚠️ TRIAL EXPIRED (No subscription)\n` +
+                           `   - Started: ${trialStart.toLocaleDateString()}\n` +
+                           `   - Expired: ${trialEnd.toLocaleDateString()}\n` +
+                           `   - Days expired: ${daysExpired} days\n` +
+                           `   - Status: Read-only mode`;
+            
+            status.recommendedAction = 'immediate activation';
+            status.recommendedPackage = 'Silver or Gold';
+            
+            return status;
+        }
+    }
+    
+    // CHECK 4: No license found at all
+    status.type = 'no_license';
+    status.message = `❌ NO LICENSE FOUND\n` +
+                   `   - No trial started\n` +
+                   `   - No subscription active\n` +
+                   `   - No activation applied\n` +
+                   `   - Status: Limited functionality`;
+    status.recommendedAction = 'new activation code';
+    status.recommendedPackage = 'Silver (starter package)';
+    
+    return status;
+}
+function getUpgradeRecommendations(subscription, licenseStatus) {
+    if (!subscription || !subscription.isActive) {
+        // No subscription - recommend Silver
+        const farmSize = farmProfile?.hectares || 'small';
+        return `
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-icon">🚀</div>
+                    <div class="section-title">Recommended Upgrade</div>
+                </div>
+                <div class="upgrade-card" style="background: linear-gradient(135deg, #f8f9fa, #e9ecef);">
+                    <div class="upgrade-icon">🥈</div>
+                    <div class="upgrade-content">
+                        <div class="upgrade-title">Silver Package</div>
+                        <div class="upgrade-subtitle">Perfect for ${farmSize} hectare farms</div>
+                        <div class="upgrade-features">
+                            • POS System • Inventory • Basic Reports
+                        </div>
+                        <div class="upgrade-price">From P99/month</div>
+                    </div>
+                    <button onclick="window.showActivationModal ? showActivationModal() : alert('Contact support to activate: 76781005')" class="upgrade-btn">Get Started</button>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Already have subscription - recommend next level
+    const currentPackage = subscription.package;
+    let nextPackage = '';
+    let recommendation = '';
+    
+    if (currentPackage === 'silver') {
+        nextPackage = 'gold';
+        recommendation = 'Gold adds advanced analytics and POS/ Retail Store management';
+    } else if (currentPackage === 'gold') {
+        nextPackage = 'platinum';
+        recommendation = 'Platinum includes 💸POS & 🧑‍🌾Employees/Staff Management modules and export features';
+    } else {
+        // Already platinum
+        return `
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-icon">🏆</div>
+                    <div class="section-title">Premium Member</div>
+                </div>
+                <div class="upgrade-card" style="background: linear-gradient(135deg, #FFD70020, #FFD70010); border: 2px solid #FFD700;">
+                    <div class="upgrade-icon">🏅</div>
+                    <div class="upgrade-content">
+                        <div class="upgrade-title">You're at the Top!</div>
+                        <div class="upgrade-subtitle">Platinum package includes all features</div>
+                        <div class="upgrade-features">
+                            Enjoy premium support and all advanced features
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    const packageInfo = SUBSCRIPTION_PACKAGES[nextPackage];
+    if (!packageInfo) return '';
+    
+    const featuresList = packageInfo.features.available.slice(0, 3).map(f => `• ${getFeatureName(f)}`).join('<br>');
+    
+    return `
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">📈</div>
+                <div class="section-title">Consider Upgrading</div>
+            </div>
+            <div class="upgrade-card" style="background: linear-gradient(135deg, ${packageInfo.color}15, ${packageInfo.color}05);">
+                <div class="upgrade-icon">${packageInfo.emoji}</div>
+                <div class="upgrade-content">
+                    <div class="upgrade-title">${packageInfo.name} Package</div>
+                    <div class="upgrade-subtitle">${recommendation}</div>
+                    <div class="upgrade-features">
+                        ${featuresList}
+                    </div>
+                    <div class="upgrade-price">${packageInfo.price}</div>
+                </div>
+                <button onclick="window.showUpgradeOptions ? showUpgradeOptions('${nextPackage}') : alert('Contact support to upgrade: 76781005')" class="upgrade-btn">Upgrade Now</button>
+            </div>
+        </div>
+    `;
+}
+
+
+function getCurrentSubscription() {
+    const subscription = JSON.parse(localStorage.getItem('farmSubscription') || 'null');
+    
+    if (!subscription || !subscription.package) {
+        return null;
+    }
+    
+    const now = new Date();
+    const result = {
+        package: subscription.package,
+        isActive: false,
+        daysLeft: 0,
+        hoursLeft: 0,
+        expiryDate: null,
+        isExpired: false
+    };
+    
+    if (subscription.endDate) {
+        const endDate = new Date(subscription.endDate);
+        
+        if (!isNaN(endDate.getTime())) {
+            const timeLeft = endDate - now;
+            result.expiryDate = endDate;
+            
+            if (timeLeft > 0) {
+                result.isActive = true;
+                result.daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                result.hoursLeft = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            } else {
+                result.isExpired = true;
+            }
+        }
+    }
+    
+    return result;
+}
+// =============================================
+// UPDATED: FARM DATA QUERY FUNCTIONS
+// =============================================
+
+/**
+ * Query farm data from various possible sources
+ */
+function queryFarmData() {
+    console.log('🔍 Querying farm data from available sources...');
+    
+    // Source 1: Check window.farmProfile
+    if (window.farmProfile && typeof window.farmProfile === 'object') {
+        console.log('✅ Found farmProfile in window');
+        return window.farmProfile;
+    }
+    
+    // Source 2: Check localStorage
+    try {
+        const storedProfile = localStorage.getItem('farmProfile');
+        if (storedProfile) {
+            console.log('✅ Found farmProfile in localStorage');
+            return JSON.parse(storedProfile);
+        }
+    } catch (e) {
+        console.warn('Could not parse localStorage farmProfile:', e);
+    }
+    
+    // Source 3: Check for any global farm data variables
+    const possibleNames = [
+        'farmData', 'farmerData', 'userFarm', 'farmInfo',
+        'currentFarm', 'myFarm', 'agricProfile'
+    ];
+    
+    for (const name of possibleNames) {
+        if (window[name] && typeof window[name] === 'object') {
+            console.log(`✅ Found farm data in window.${name}`);
+            return window[name];
+        }
+    }
+    
+    // Source 4: Look for data in the DOM
+    const farmDataScript = document.querySelector('script[type="application/json"][data-farm]');
+    if (farmDataScript) {
+        try {
+            console.log('✅ Found farm data in DOM script');
+            return JSON.parse(farmDataScript.textContent);
+        } catch (e) {
+            console.warn('Could not parse DOM farm data:', e);
+        }
+    }
+    
+    // Source 5: Check for common app state patterns
+    if (window.appState && window.appState.farm) {
+        console.log('✅ Found farm data in appState');
+        return window.appState.farm;
+    }
+    
+    console.log('❌ No farm data found in any source');
+    return null;
+}
+
+/**
+ * Get subscription data with fallbacks
+ */
+function querySubscriptionData() {
+    console.log('🔍 Querying subscription data...');
+    
+    // Check localStorage first (common pattern)
+    try {
+        const storedSub = localStorage.getItem('farmSubscription');
+        if (storedSub) {
+            const sub = JSON.parse(storedSub);
+            console.log('✅ Found subscription in localStorage:', sub);
+            return sub;
+        }
+    } catch (e) {
+        console.warn('Could not parse localStorage subscription:', e);
+    }
+    
+    // Check farmProfile for subscription
+    const farmData = queryFarmData();
+    if (farmData && farmData.subscription) {
+        console.log('✅ Found subscription in farmProfile');
+        return farmData.subscription;
+    }
+    
+    console.log('❌ No subscription data found');
+    return null;
+}
+
+// =============================================
+// PRECISE DATA LOCATION FUNCTIONS
+// =============================================
+
+/**
+ * Get farm profile from localStorage (primary source)
+ */
+function getFarmProfileFromStorage() {
+    try {
+        const savedProfile = localStorage.getItem('fa_farmProfile');
+        if (savedProfile) {
+            console.log('✅ Found farmProfile in localStorage (fa_farmProfile)');
+            return JSON.parse(savedProfile);
+        }
+    } catch (e) {
+        console.error('❌ Error parsing farmProfile:', e);
+    }
+    return null;
+}
+
+/**
+ * Get farm data from localStorage
+ */
+function getFarmDataFromStorage() {
+    try {
+        const savedData = localStorage.getItem('fa_data');
+        if (savedData) {
+            console.log('✅ Found farmData in localStorage (fa_data)');
+            return JSON.parse(savedData);
+        }
+    } catch (e) {
+        console.error('❌ Error parsing farmData:', e);
+    }
+    return null;
+}
+
+/**
+ * Get subscription data from localStorage
+ */
+function getSubscriptionFromStorage() {
+    try {
+        const savedSubscription = localStorage.getItem('farmSubscription');
+        if (savedSubscription) {
+            console.log('✅ Found subscription in localStorage (farmSubscription)');
+            return JSON.parse(savedSubscription);
+        }
+    } catch (e) {
+        console.error('❌ Error parsing subscription:', e);
+    }
+    return null;
+}
+
+/**
+ * Get trial data from localStorage
+ */
+function getTrialDataFromStorage() {
+    try {
+        const savedTrial = localStorage.getItem('fa_farmProfile');
+        if (savedTrial) {
+            console.log('✅ Found trial data in localStorage (fa_farmProfile)');
+            return JSON.parse(savedTrial);
+        }
+    } catch (e) {
+        console.error('❌ Error parsing trial data:', e);
+    }
+    return null;
+}
+
+/**
+ * Combined data query - gets ALL available data
+ */
+function getAllFarmData() {
+    const result = {
+        profile: null,
+        data: null,
+        subscription: null,
+        trial: null,
+        combined: {}
+    };
+    
+    // Get all data sources
+    result.profile = getFarmProfileFromStorage();
+    result.data = getFarmDataFromStorage();
+    result.subscription = getSubscriptionFromStorage();
+    result.trial = getTrialDataFromStorage();
+    
+    // Merge all data into combined object
+    result.combined = {
+        ...(result.profile || {}),
+        ...(result.data || {}),
+        subscription: result.subscription,
+        trial: result.trial
+    };
+    
+    console.log('📊 All farm data loaded:', {
+        hasProfile: !!result.profile,
+        hasData: !!result.data,
+        hasSubscription: !!result.subscription,
+        hasTrial: !!result.trial
+    });
+    
+    return result;
+}
+
+// =============================================
+// UPDATED SMART STATUS BUTTON
+// =============================================
+
+function createSmartStatusButton() {
+    console.log('🎨 Creating farm data status button...');
+    
+    // Remove existing button
+    const existingBtn = document.getElementById('smartStatusButton');
+    if (existingBtn) existingBtn.remove();
+    
+    // Get ALL farm data
+    const allData = getAllFarmData();
+    const combinedData = allData.combined;
+    
+    console.log('📋 Combined data structure:', combinedData);
+    
+    // If absolutely no data found
+    if (!allData.profile && !allData.data && !allData.subscription) {
+        console.log('❌ No farm data found in any storage location');
+        return createDataNotFoundButton();
+    }
+    
+    // Get status information
+    const status = getDetailedLicenseStatus();
+    const subscription = getCurrentSubscription();
+    
+    // Extract key information with fallbacks
+    const farmName = combinedData.farmName || 
+                    combinedData.name || 
+                    allData.profile?.farmName || 
+                    'Unnamed Farm';
+    
+    const farmerName = combinedData.farmerName || 
+                      combinedData.farmer || 
+                      allData.profile?.farmerName || 
+                      'Unknown Farmer';
+    
+    const hectares = combinedData.hectares || 
+                    combinedData.area || 
+                    allData.profile?.hectares || 
+                    allData.data?.hectares || 
+                    0;
+    
+    const location = combinedData.location || 
+                    combinedData.address || 
+                    combinedData.region || 
+                    allData.profile?.location || 
+                    allData.data?.location || 
+                    'Location not set';
+    
+    const contact = combinedData.contact || 
+                   combinedData.phone || 
+                   combinedData.mobile || 
+                   allData.profile?.contact || 
+                   'Not set';
+    
+    const crops = Array.isArray(combinedData.mainCrops) ? combinedData.mainCrops.join(', ') :
+                 combinedData.mainCrops || 
+                 allData.profile?.mainCrops?.join(', ') || 
+                 allData.data?.crops || 
+                 'Not specified';
+    
+    console.log('📊 Extracted farm info:', {
+        farmName, farmerName, hectares, location, contact, crops
+    });
+    
+    // Determine button appearance based on status
+    let buttonColor = '#3498db';
+    let buttonIcon = '🔍';
+    let buttonText = farmName.length > 10 ? farmName.substring(0, 8) + '...' : farmName;
+    let pulseAnimation = '';
+    let badge = '';
+    
+    // Status-based styling
+    if (subscription && subscription.isActive) {
+        buttonColor = subscription.color || '#27ae60'; // Green
+        buttonIcon = '✅';
+        badge = subscription.package?.charAt(0) || 'P'; // P for Platinum, G for Gold, S for Silver
+        if (subscription.daysLeft <= 7) {
+            buttonColor = '#f39c12'; // Orange
+            buttonIcon = '⏰';
+            badge = '!' + badge;
+            pulseAnimation = 'pulse-warning';
+        }
+    } else if (status.type === 'trial_active') {
+        buttonColor = '#f39c12'; // Orange
+        buttonIcon = '⏳';
+        badge = 'T'; // T for Trial
+        if (status.daysLeft <= 3) {
+            buttonColor = '#e74c3c'; // Red
+            buttonIcon = '🚨';
+            badge = '!' + badge;
+            pulseAnimation = 'pulse-urgent';
+        }
+    } else if (status.type === 'trial_expired') {
+        buttonColor = '#e74c3c'; // Red
+        buttonIcon = '⚠️';
+        badge = 'TE'; // TE for Trial Expired
+        pulseAnimation = 'pulse-urgent';
+    } else if (status.type === 'activated') {
+        buttonColor = '#9b59b6'; // Purple
+        buttonIcon = '🔓';
+        badge = 'A'; // A for Activated
+    }
+    
+    // Create button
+    const button = document.createElement('button');
+    button.id = 'smartStatusButton';
+    button.innerHTML = `${buttonIcon}<span class="badge">${badge}</span>`;
+    button.title = `${farmName}\nFarmer: ${farmerName}\n${hectares} hectares\n${location}\nClick for complete details`;
+    
+    // Apply styles
+    Object.assign(button.style, {
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        width: '60px',
+        height: '60px',
+        background: buttonColor,
+        color: 'white',
+        border: 'none',
+        borderRadius: '50%',
+        cursor: 'pointer',
+        fontSize: '20px',
+        boxShadow: '0 6px 20px rgba(0,0,0,0.3)',
+        zIndex: '10000',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+        lineHeight: '1.2'
+    });
+    
+    if (pulseAnimation) {
+        button.style.animation = `${pulseAnimation} 2s infinite`;
+    }
+    
+    // Badge styling
+    const badgeStyle = document.createElement('style');
+    badgeStyle.textContent = `
+        #smartStatusButton .badge {
+            font-size: 10px;
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+    `;
+    document.head.appendChild(badgeStyle);
+    
+    // Mobile responsive
+    if (window.innerWidth <= 768) {
+        button.style.width = '55px';
+        button.style.height = '55px';
+        button.style.bottom = '15px';
+        button.style.right = '15px';
+        button.style.fontSize = '18px';
+    }
+    
+    // Hover effects
+    button.addEventListener('mouseenter', () => {
+        button.style.transform = 'scale(1.1) rotate(5deg)';
+        button.style.boxShadow = '0 10px 30px rgba(0,0,0,0.4)';
+    });
+    
+    button.addEventListener('mouseleave', () => {
+        button.style.transform = 'scale(1) rotate(0deg)';
+        button.style.boxShadow = '0 6px 20px rgba(0,0,0,0.3)';
+    });
+    
+    // Touch feedback for mobile
+    button.addEventListener('touchstart', () => {
+        button.style.transform = 'scale(0.95)';
+    }, { passive: true });
+    
+    button.addEventListener('touchend', () => {
+        button.style.transform = 'scale(1)';
+    }, { passive: true });
+    
+    // Click handler - show detailed farm data
+    button.onclick = function(e) {
+        e.stopPropagation();
+        showDetailedFarmDataDashboard(allData, status, subscription);
+    };
+    
+    // Add to page
+    document.body.appendChild(button);
+    
+    console.log(`✅ Farm data button created for: ${farmName}`);
+    return button;
+}
+
+// =============================================
+// DETAILED FARM DATA DASHBOARD
+// =============================================
+
+function showDetailedFarmDataDashboard(allData, status, subscription) {
+    console.log('📊 Showing detailed farm data dashboard...');
+    
+    // Remove existing dashboard
+    const existing = document.getElementById('farmDataDashboard');
+    if (existing) {
+        existing.remove();
+        return;
+    }
+    
+    const combinedData = allData.combined;
+    
+    // Prepare all data for display
+    const displayData = {
+        // Farm Information
+        farmName: combinedData.farmName || combinedData.name || 'Unnamed Farm',
+        farmerName: combinedData.farmerName || combinedData.farmer || 'Unknown',
+        hectares: combinedData.hectares || combinedData.area || 0,
+        location: combinedData.location || combinedData.address || combinedData.region || 'Not set',
+        contact: combinedData.contact || combinedData.phone || combinedData.mobile || 'Not set',
+        email: combinedData.email || 'Not set',
+        
+        // Crops and Production
+        crops: Array.isArray(combinedData.mainCrops) ? combinedData.mainCrops.join(', ') : 
+              combinedData.mainCrops || 'Not specified',
+        cropTypes: combinedData.cropTypes || combinedData.crops || [],
+        estimatedYield: combinedData.estimatedYield || combinedData.yield || 'Not estimated',
+        
+        // Trial Information
+        trialStart: combinedData.trialStart || allData.trial?.startDate,
+        trialEnd: combinedData.trialEnd || allData.trial?.endDate,
+        trialDaysUsed: combinedData.trialDaysUsed,
+        
+        // Subscription Information
+        subscriptionPackage: subscription?.package || combinedData.subscription?.package || 'None',
+        subscriptionStart: subscription?.startDate || combinedData.subscription?.startDate,
+        subscriptionEnd: subscription?.endDate || combinedData.subscription?.endDate,
+        subscriptionActive: subscription?.isActive || false,
+        subscriptionDaysLeft: subscription?.daysLeft || 0,
+        
+        // Storage Keys (for debugging)
+        storageKeys: {
+            profile: localStorage.getItem('fa_farmProfile') ? 'fa_farmProfile ✓' : 'fa_farmProfile ✗',
+            data: localStorage.getItem('fa_data') ? 'fa_data ✓' : 'fa_data ✗',
+            subscription: localStorage.getItem('farmSubscription') ? 'farmSubscription ✓' : 'farmSubscription ✗',
+            trial: localStorage.getItem('fa_farmProfile') ? 'fa_farmProfile ✓' : 'fa_farmProfile ✓'
+        }
+    };
+    
+    // Format dates
+    const formatDate = (dateString) => {
+        if (!dateString) return 'Not set';
+        try {
+            return new Date(dateString).toLocaleDateString();
+        } catch (e) {
+            return dateString;
+        }
+    };
+    
+    // Determine status display
+    let statusColor = '#3498db';
+    let statusIcon = 'ℹ️';
+    let statusText = 'Status: Unknown';
+    
+    if (status.type === 'trial_active') {
+        statusColor = '#f39c12';
+        statusIcon = '⏳';
+        statusText = `Trial Active (${status.daysLeft} days left)`;
+    } else if (status.type === 'trial_expired') {
+        statusColor = '#e74c3c';
+        statusIcon = '⚠️';
+        statusText = 'Trial Expired';
+    } else if (status.type === 'activated') {
+        statusColor = '#27ae60';
+        statusIcon = '✅';
+        statusText = 'Activated';
+    } else if (subscription?.isActive) {
+        statusColor = '#27ae60';
+        statusIcon = '💰';
+        statusText = `${subscription.package} Active (${subscription.daysLeft} days left)`;
+    }
+    
+    // Create dashboard
+    const dashboard = document.createElement('div');
+    dashboard.id = 'farmDataDashboard';
+    dashboard.className = 'farm-data-dashboard';
+    
+    dashboard.innerHTML = `
+        <div class="dashboard-header" style="background: linear-gradient(135deg, ${statusColor}, ${statusColor}dd);">
+            <div class="header-content">
+                <div class="header-icon">${statusIcon}</div>
+                <div class="header-text">
+                    <h3>${displayData.farmName}</h3>
+                    <p>${statusText}</p>
+                </div>
+                <button class="close-btn" onclick="this.closest('.farm-data-dashboard').remove()">×</button>
+            </div>
+        </div>
+        
+        <div class="dashboard-content">
+            <!-- Storage Status -->
+            <div class="data-section storage-status">
+                <h4><span class="section-icon">📦</span> Data Storage</h4>
+                <div class="storage-grid">
+                    <div class="storage-item ${displayData.storageKeys.profile.includes('✓') ? 'active' : ''}">
+                        ${displayData.storageKeys.profile}
+                    </div>
+                    <div class="storage-item ${displayData.storageKeys.data.includes('✓') ? 'active' : ''}">
+                        ${displayData.storageKeys.data}
+                    </div>
+                    <div class="storage-item ${displayData.storageKeys.subscription.includes('✓') ? 'active' : ''}">
+                        ${displayData.storageKeys.subscription}
+                    </div>
+                    <div class="storage-item ${displayData.storageKeys.trial.includes('✓') ? 'active' : ''}">
+                        ${displayData.storageKeys.trial}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Farm Details -->
+            <div class="data-section">
+                <h4><span class="section-icon">👨‍🌾</span> Farmer Details</h4>
+                <div class="data-grid">
+                    <div class="data-row">
+                        <span class="data-label">Farmer:</span>
+                        <span class="data-value">${displayData.farmerName}</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Contact:</span>
+                        <span class="data-value">${displayData.contact}</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Email:</span>
+                        <span class="data-value">${displayData.email}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Farm Details -->
+            <div class="data-section">
+                <h4><span class="section-icon">🏠</span> Farm Details</h4>
+                <div class="data-grid">
+                    <div class="data-row">
+                        <span class="data-label">Size:</span>
+                        <span class="data-value">${displayData.hectares} hectares</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Location:</span>
+                        <span class="data-value">${displayData.location}</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Main Crops:</span>
+                        <span class="data-value">${displayData.crops}</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Estimated Yield:</span>
+                        <span class="data-value">${displayData.estimatedYield}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Trial Information -->
+            ${displayData.trialStart ? `
+            <div class="data-section">
+                <h4><span class="section-icon">⏳</span> Trial Information</h4>
+                <div class="data-grid">
+                    <div class="data-row">
+                        <span class="data-label">Started:</span>
+                        <span class="data-value">${formatDate(displayData.trialStart)}</span>
+                    </div>
+                    ${displayData.trialEnd ? `
+                    <div class="data-row">
+                        <span class="data-label">Ends:</span>
+                        <span class="data-value">${formatDate(displayData.trialEnd)}</span>
+                    </div>
+                    ` : ''}
+                    ${displayData.trialDaysUsed ? `
+                    <div class="data-row">
+                        <span class="data-label">Days Used:</span>
+                        <span class="data-value">${displayData.trialDaysUsed}</span>
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+            ` : ''}
+            
+            <!-- Subscription Information -->
+            ${displayData.subscriptionPackage !== 'None' ? `
+            <div class="data-section">
+                <h4><span class="section-icon">💰</span> Subscription</h4>
+                <div class="data-grid">
+                    <div class="data-row">
+                        <span class="data-label">Package:</span>
+                        <span class="data-value">${displayData.subscriptionPackage}</span>
+                    </div>
+                    ${displayData.subscriptionStart ? `
+                    <div class="data-row">
+                        <span class="data-label">Started:</span>
+                        <span class="data-value">${formatDate(displayData.subscriptionStart)}</span>
+                    </div>
+                    ` : ''}
+                    ${displayData.subscriptionEnd ? `
+                    <div class="data-row">
+                        <span class="data-label">Expires:</span>
+                        <span class="data-value">${formatDate(displayData.subscriptionEnd)}</span>
+                    </div>
+                    ` : ''}
+                    ${displayData.subscriptionDaysLeft ? `
+                    <div class="data-row">
+                        <span class="data-label">Days Left:</span>
+                        <span class="data-value">${displayData.subscriptionDaysLeft} days</span>
+                    </div>
+                    ` : ''}
+                    <div class="data-row">
+                        <span class="data-label">Status:</span>
+                        <span class="data-value ${displayData.subscriptionActive ? 'active' : 'inactive'}">
+                            ${displayData.subscriptionActive ? 'Active ✅' : 'Inactive ❌'}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            ` : ''}
+            
+            <!-- Raw Data (for debugging) -->
+            <div class="data-section">
+                <h4><span class="section-icon">🔧</span> Developer Info</h4>
+                <details>
+                    <summary>View Raw Data</summary>
+                    <pre class="raw-data">${JSON.stringify(allData, null, 2)}</pre>
+                </details>
+            </div>
+            
+            <!-- Actions -->
+            <div class="dashboard-actions">
+                <button onclick="refreshFarmDataView()" class="action-btn">
+                    <span class="btn-icon">🔄</span>
+                    <span class="btn-text">Refresh</span>
+                </button>
+                <button onclick="exportAllFarmData()" class="action-btn">
+                    <span class="btn-icon">📥</span>
+                    <span class="btn-text">Export All</span>
+                </button>
+                <button onclick="clearFarmDataCache()" class="action-btn warning">
+                    <span class="btn-icon">🗑️</span>
+                    <span class="btn-text">Clear Cache</span>
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Apply dashboard styles
+    addDashboardStyles();
+    
+    // Add to page
+    document.body.appendChild(dashboard);
+    
+    // Close when clicking outside
+    setTimeout(() => {
+        const closeHandler = (e) => {
+            if (!dashboard.contains(e.target) && e.target.id !== 'smartStatusButton') {
+                dashboard.remove();
+                document.removeEventListener('click', closeHandler);
+            }
+        };
+        document.addEventListener('click', closeHandler);
+    }, 10);
+}
+
+// =============================================
+// INITIALIZATION
+// =============================================
+
+// Initialize when app is ready
+function initializeFarmDataMonitor() {
+    console.log('🚀 Initializing farm data monitor...');
+    
+    // Wait for app to be fully loaded
+    const checkAppReady = setInterval(() => {
+        // Check if localStorage has our data
+        const hasProfile = localStorage.getItem('fa_farmProfile');
+        const hasData = localStorage.getItem('fa_data');
+        
+        if (hasProfile || hasData) {
+            clearInterval(checkAppReady);
+            console.log('✅ App data detected, creating button...');
+            createSmartStatusButton();
+            
+            // Also create button when data changes
+            setupDataChangeListener();
+        }
+    }, 1000);
+    
+    // Timeout after 10 seconds
+    setTimeout(() => {
+        clearInterval(checkAppReady);
+        createSmartStatusButton(); // Create anyway
+    }, 10000);
+}
+
+// Listen for data changes
+function setupDataChangeListener() {
+    let lastProfile = localStorage.getItem('fa_farmProfile');
+    let lastData = localStorage.getItem('fa_data');
+    
+    setInterval(() => {
+        const currentProfile = localStorage.getItem('fa_farmProfile');
+        const currentData = localStorage.getItem('fa_data');
+        
+        if (currentProfile !== lastProfile || currentData !== lastData) {
+            console.log('🔄 Farm data changed, updating button...');
+            lastProfile = currentProfile;
+            lastData = currentData;
+            createSmartStatusButton();
+        }
+    }, 2000);
+}
+
+// Start monitoring
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeFarmDataMonitor);
+} else {
+    initializeFarmDataMonitor();
+}
+
+console.log('✅ Farm Data Monitor loaded - will show button when data is available');
+/**
+ * Add all necessary CSS styles for the dashboard
+ */
+function addDashboardStyles() {
+    if (document.getElementById('farm-data-dashboard-styles')) return;
+    
+    const styles = `
+        /* Dashboard Container */
+        .farm-data-dashboard {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 380px;
+            max-height: 70vh;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            z-index: 9999;
+            overflow: hidden;
+            animation: slideUp 0.3s ease-out;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        @media (max-width: 768px) {
+            .farm-data-dashboard {
+                width: calc(100vw - 30px);
+                right: 15px;
+                left: 15px;
+                bottom: 80px;
+                max-height: 80vh;
+            }
+        }
+        
+        /* Header */
+        .dashboard-header {
+            padding: 15px 20px;
+            color: white;
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .header-icon {
+            font-size: 32px;
+            flex-shrink: 0;
+        }
+        
+        .header-text {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .header-text h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .header-text p {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .close-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        /* Content Area */
+        .dashboard-content {
+            padding: 20px;
+            max-height: calc(70vh - 70px);
+            overflow-y: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-content {
+                max-height: calc(80vh - 70px);
+                padding: 15px;
+            }
+        }
+        
+        /* Data Sections */
+        .data-section {
+            margin-bottom: 20px;
+        }
+        
+        .data-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .data-section h4 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-icon {
+            font-size: 18px;
+        }
+        
+        /* Storage Status */
+        .storage-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .storage-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .storage-item {
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-size: 12px;
+            font-family: monospace;
+            border: 1px solid #e9ecef;
+        }
+        
+        .storage-item.active {
+            background: #e8f5e8;
+            border-color: #27ae60;
+            color: #27ae60;
+        }
+        
+        /* Data Grid */
+        .data-grid {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .data-row:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .data-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 14px;
+        }
+        
+        .data-value {
+            color: #2c3e50;
+            font-size: 14px;
+            text-align: right;
+            max-width: 60%;
+            word-break: break-word;
+        }
+        
+        .data-value.active {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
+        .data-value.inactive {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        /* Raw Data Section */
+        details {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        
+        summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: #495057;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        summary:hover {
+            color: #3498db;
+        }
+        
+        .raw-data {
+            margin-top: 10px;
+            padding: 10px;
+            background: #2c3e50;
+            color: #ecf0f1;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        /* Actions */
+        .dashboard-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px 15px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .action-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .action-btn.warning {
+            background: #e74c3c;
+        }
+        
+        .action-btn.warning:hover {
+            background: #c0392b;
+        }
+        
+        .btn-icon {
+            font-size: 16px;
+        }
+        
+        .btn-text {
+            font-weight: 600;
+        }
+        
+        /* Scrollbar */
+        .dashboard-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .dashboard-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        
+        .dashboard-content::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+        
+        .dashboard-content::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        
+        /* Animation */
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Dark Mode Support */
+        @media (prefers-color-scheme: dark) {
+            .farm-data-dashboard {
+                background: #1a1a1a;
+                color: #ffffff;
+            }
+            
+            .data-grid,
+            .storage-item,
+            details,
+            .raw-data {
+                background: #2d2d2d;
+                border-color: #404040;
+            }
+            
+            .data-label {
+                color: #b3b3b3;
+            }
+            
+            .data-value {
+                color: #ffffff;
+            }
+            
+            .storage-item.active {
+                background: #1e3a1e;
+                border-color: #27ae60;
+                color: #27ae60;
+            }
+            
+            .dashboard-actions {
+                border-top-color: #404040;
+            }
+            
+            .dashboard-content::-webkit-scrollbar-track {
+                background: #2d2d2d;
+            }
+            
+            .dashboard-content::-webkit-scrollbar-thumb {
+                background: #404040;
+            }
+        }
+    `;
+    
+    const styleEl = document.createElement('style');
+    styleEl.id = 'farm-data-dashboard-styles';
+    styleEl.textContent = styles;
+    document.head.appendChild(styleEl);
+}
+// =============================================
+// HELPER FUNCTIONS
+// =============================================
+
+function refreshFarmData() {
+    const dashboard = document.getElementById('farmDataDashboard');
+    if (dashboard) dashboard.remove();
+    
+    setTimeout(() => {
+        const farmData = queryFarmData();
+        const subscriptionData = querySubscriptionData();
+        const status = getDetailedLicenseStatus();
+        
+        if (farmData) {
+            showFarmDataDashboard(farmData, subscriptionData, status);
+        } else {
+            alert('Could not refresh farm data. Please check your connection.');
+        }
+    }, 300);
+}
+
+function exportFarmData() {
+    const farmData = queryFarmData();
+    if (!farmData) {
+        alert('No farm data to export.');
+        return;
+    }
+    
+    const dataStr = JSON.stringify(farmData, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = `farm-data-${new Date().toISOString().slice(0,10)}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+    
+    alert('Farm data exported successfully!');
+}
+
+function contactSupport() {
+    const phone = '76781005';
+    if (confirm(`Call support at ${phone}?`)) {
+        window.location.href = `tel:${phone}`;
+    }
+}
+
+// =============================================
+// INITIALIZATION
+// =============================================
+
+// Wait for everything to load
+function initializeFarmDataButton() {
+    console.log('🚀 Initializing farm data button...');
+    
+    // Remove any existing buttons first
+    const oldButtons = ['smartStatusButton', 'subscriptionStatusBtn', 'floatingSupportBtn'];
+    oldButtons.forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.remove();
+    });
+    
+    // Try immediately
+    setTimeout(createSmartStatusButton, 500);
+    
+    // Try again after 2 seconds (in case data loads later)
+    setTimeout(() => {
+        if (!document.getElementById('smartStatusButton')) {
+            console.log('🔄 Retrying button creation...');
+            createSmartStatusButton();
+        }
+    }, 2000);
+    
+    // Try on page load completion
+    window.addEventListener('load', function() {
+        setTimeout(createSmartStatusButton, 1000);
+    });
+}
+
+// Start when ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeFarmDataButton);
+} else {
+    initializeFarmDataButton();
+}
+
+// Also initialize when the app says it's ready
+if (typeof window.addEventListener === 'function') {
+    window.addEventListener('farmProfileReady', initializeFarmDataButton);
+    window.addEventListener('appInitialized', initializeFarmDataButton);
+}
+
+console.log('✅ Farm data button system loaded');
+// =============================================
+// SUBSCRIPTION RETRIEVAL FUNCTIONS
+// =============================================
+
+/**
+ * Get current subscription from farmProfile
+ */
+function getCurrentSubscription() {
+    if (!farmProfile || !farmProfile.subscription) {
+        return null;
+    }
+    
+    const sub = farmProfile.subscription;
+    const now = new Date();
+    const endDate = new Date(sub.subscriptionEndDate);
+    const timeLeft = endDate - now;
+    
+    return {
+        package: sub.package,
+        name: sub.name,
+        code: sub.ActivationCodeInput,
+        startDate: sub.activationDate,
+        endDate: sub.subscriptionEndDate,
+        months: sub.months,
+        pricePerMonth: sub.pricePerMonth,
+        totalPrice: sub.totalPrice,
+        features: sub.features || [],
+        color: sub.color,
+        emoji: sub.emoji,
+        isActive: timeLeft > 0 && sub.active === true,
+        daysLeft: Math.max(0, Math.ceil(timeLeft / (1000 * 60 * 60 * 24))),
+        hoursLeft: Math.max(0, Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))),
+        isExpired: timeLeft <= 0,
+        rawData: sub // Keep original data
+    };
+}
+
+/**
+ * Check if user has any subscription (active or expired)
+ */
+function hasSubscription() {
+    return !!(farmProfile && farmProfile.subscription);
+}
+
+/**
+ * Check if subscription is currently active
+ */
+function isSubscriptionActive() {
+    const sub = getCurrentSubscription();
+    return sub ? sub.isActive : false;
+}
+
+/**
+ * Get subscription days left
+ */
+function getSubscriptionDaysLeft() {
+    const sub = getCurrentSubscription();
+    return sub ? sub.daysLeft : 0;
+}
+
+/**
+ * Get subscription package name
+ */
+function getCurrentPackage() {
+    const sub = getCurrentSubscription();
+    return sub ? sub.package : null;
+}
+// Add at the end of the file before initialization
+function getUpgradeRecommendations(subscription, licenseStatus) {
+    // Your implementation here
+    return '';
+}
+
+function shareViaWhatsApp(type, price) {
+    const message = type === 'status' ? 
+        `Farm Status Inquiry - ${farmProfile.farmName}` :
+        `Subscription Inquiry - ${price}`;
+    const phone = '26776781005'; // Botswana WhatsApp number
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+}
+
+function showSubscriptionPlans() {
+    // Implement subscription plans modal
+    alert('Subscription plans feature coming soon! Contact support: 76781005');
+}
+
+function showActivationModal() {
+    // Implement activation modal
+    alert('Activation modal coming soon! Contact support: 76781005');
+}
+
+
+
+// =============================================
+// INITIALIZE EVERYTHING
+// =============================================
+
+
+// Make functions available globally
+window.showSmartStatusDashboard = showSmartStatusDashboard;
+window.createSmartStatusButton = createSmartStatusButton;
+window.closeSmartDashboard = closeSmartDashboard; copyToClipboard;
+
+// =============================================
+// EXPIRED ACCESS SCREEN FUNCTIONS
+// =============================================
+
+function showExpiredAccessScreen(type, subscription = null) {
+    console.log(`🔐 Showing ${type} expired access screen`);
+    
+    // First enable read-only mode
+    enableReadOnlyMode();
+    
+    // Remove existing expired screen if any
+    const existingScreen = document.getElementById('expiredAccessScreen');
+    if (existingScreen) existingScreen.remove();
+    
+    // Create the expired access screen
+    const screen = document.createElement('div');
+    screen.id = 'expiredAccessScreen';
+    screen.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        z-index: 99998;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    `;
+    
+    // Get farm details
+    const farmName = farmProfile?.farmName || 'Not Set';
+    const farmerName = farmProfile?.farmerName || 'Not Set';
+    const hectares = farmProfile?.hectares || 'Not Set';
+    const contact = farmProfile?.contact || 'Not Set';
+    const farmType = farmProfile?.type || 'Not Set';
+    
+    // Prepare message based on type
+    const title = type === 'subscription' ? 'Subscription Expired' : 'Trial Period Ended';
+    const message = type === 'subscription' 
+        ? 'Your subscription has expired. Please renew to continue using all features.' 
+        : 'Your 7-day free trial has ended. Please activate for full access.';
+    
+    // Get subscription details if available
+    let subscriptionInfo = '';
+    if (subscription) {
+        const endDate = new Date(subscription.subscriptionEndDate);
+        subscriptionInfo = `
+            <div style="background: rgba(255,255,255,0.1); border-radius: 10px; padding: 15px; margin: 15px 0;">
+                <h4 style="margin: 0 0 10px 0; color: white; font-size: 16px;">📋 Previous Subscription:</h4>
+                <p style="margin: 5px 0; color: rgba(255,255,255,0.9);">
+                    Package: <strong>${subscription.name}</strong><br>
+                    Expired: <strong>${endDate.toLocaleDateString()}</strong><br>
+                    Price: <strong>P${subscription.pricePerMonth}/month</strong>
+                </p>
+            </div>
+        `;
+    }
+    
+    screen.innerHTML = `
+        <div style="background: white; border-radius: 20px; padding: 40px; max-width: 500px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <!-- Header -->
+            <div style="font-size: 60px; margin-bottom: 20px; color: #e74c3c;">
+                ${type === 'subscription' ? '⏰' : '🔐'}
+            </div>
+            
+            <h2 style="color: #2c3e50; margin-bottom: 10px; font-size: 28px;">
+                ${title}
+            </h2>
+            
+            <p style="color: #7f8c8d; margin-bottom: 25px; font-size: 16px; line-height: 1.5;">
+                ${message}
+            </p>
+            
+            ${subscriptionInfo}
+            
+            <!-- Farm Details Card -->
+            <div style="background: #f8f9fa; border-radius: 15px; padding: 25px; margin-bottom: 25px; text-align: left;">
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                    <div style="font-size: 40px; color: #3498db;">🚜</div>
+                    <div>
+                        <h3 style="margin: 0; color: #2c3e50;">Farm Details</h3>
+                        <p style="margin: 5px 0 0 0; color: #7f8c8d; font-size: 14px;">
+                            Copy these details for support
+                        </p>
+                    </div>
+                </div>
+                
+                <div style="display: grid; gap: 12px;">
+                    <div style="display: flex; justify-content: space-between; padding: 10px; background: white; border-radius: 8px;">
+                        <span style="font-weight: bold; color: #2c3e50;">Farm Name:</span>
+                        <span style="color: #3498db;">${farmName}</span>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; padding: 10px; background: white; border-radius: 8px;">
+                        <span style="font-weight: bold; color: #2c3e50;">Farmer Name:</span>
+                        <span style="color: #3498db;">${farmerName}</span>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; padding: 10px; background: white; border-radius: 8px;">
+                        <span style="font-weight: bold; color: #2c3e50;">Farm Size:</span>
+                        <span style="color: #3498db;">${hectares} hectares</span>
+                    </div>
+                    
+                    ${contact !== 'Not Set' ? `
+                    <div style="display: flex; justify-content: space-between; padding: 10px; background: white; border-radius: 8px;">
+                        <span style="font-weight: bold; color: #2c3e50;">Contact:</span>
+                        <span style="color: #3498db;">${contact}</span>
+                    </div>
+                    ` : ''}
+                    
+                    ${farmType !== 'Not Set' ? `
+                    <div style="display: flex; justify-content: space-between; padding: 10px; background: white; border-radius: 8px;">
+                        <span style="font-weight: bold; color: #2c3e50;">Farm Type:</span>
+                        <span style="color: #3498db;">${farmType}</span>
+                    </div>
+                    ` : ''}
+                </div>
+                
+                <!-- Action Buttons for Farm Details -->
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button onclick="copyFarmDetails()" 
+                            style="flex: 1; padding: 12px; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        📋 Copy Details
+                    </button>
+                    
+                    <button onclick="shareFarmDetailsViaWhatsApp()" 
+                            style="flex: 1; padding: 12px; background: #25D366; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        💬 WhatsApp Support
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Activation Options -->
+            <div style="margin-bottom: 25px;">
+                <h4 style="color: #2c3e50; margin-bottom: 15px; font-size: 18px;">Activation Options:</h4>
+                
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <!-- Option 1: Activate with Code -->
+                    <button onclick="showCodeActivationOnExpiredScreen()" 
+                            style="padding: 16px; background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; text-align: left; display: flex; align-items: center; gap: 15px; transition: all 0.3s;">
+                        <span style="font-size: 24px;">🔑</span>
+                        <div style="text-align: left; flex: 1;">
+                            <div style="font-size: 17px; font-weight: bold;">Activate with Code</div>
+                            <div style="font-size: 13px; opacity: 0.9;">Enter subscription code from support</div>
+                        </div>
+                        <span style="font-size: 20px;">→</span>
+                    </button>
+                    
+                    <!-- Option 2: Contact Support -->
+                    <button onclick="contactSupportFromExpiredScreen()" 
+                            style="padding: 16px; background: linear-gradient(135deg, #3498db, #2980b9); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; text-align: left; display: flex; align-items: center; gap: 15px; transition: all 0.3s;">
+                        <span style="font-size: 24px;">📞</span>
+                        <div style="text-align: left; flex: 1;">
+                            <div style="font-size: 17px; font-weight: bold;">Contact Support</div>
+                            <div style="font-size: 13px; opacity: 0.9;">Get activation code or assistance</div>
+                        </div>
+                        <span style="font-size: 20px;">→</span>
+                    </button>
+                    
+                    <!-- Option 3: View Plans -->
+                    <button onclick="showSubscriptionPlansFromExpired()" 
+                            style="padding: 16px; background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; text-align: left; display: flex; align-items: center; gap: 15px; transition: all 0.3s;">
+                        <span style="font-size: 24px;">💳</span>
+                        <div style="text-align: left; flex: 1;">
+                            <div style="font-size: 17px; font-weight: bold;">View Subscription Plans</div>
+                            <div style="font-size: 13px; opacity: 0.9;">Silver • Gold • Platinum Packages</div>
+                        </div>
+                        <span style="font-size: 20px;">→</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Support Information -->
+            <div style="background: #f8f9fa; border-radius: 10px; padding: 15px; margin-top: 20px;">
+                <p style="margin: 0; color: #666; font-size: 14px; text-align: center;">
+                    Need help? Contact FarmerPack Support:<br>
+                    <strong style="color: #2c3e50;">📞 +267 7678 1005 / +267 7293 3326</strong>
+                </p>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(screen);
+    
+    // Add hover effects
+    setTimeout(() => {
+        const buttons = screen.querySelectorAll('button');
+        buttons.forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                btn.style.transform = 'translateY(-3px)';
+                btn.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'translateY(0)';
+                btn.style.boxShadow = 'none';
+            });
+        });
+    }, 100);
+}
+
+// Copy farm details to clipboard
+function copyFarmDetails() {
+    if (!farmProfile) {
+        showNotification('No farm profile found', 'error');
+        return;
+    }
+    
+    const farmDetails = `
+Farm Details for FarmerPack:
+-------------------------
+Farm Name: ${farmProfile.farmName || 'Not Set'}
+Farmer Name: ${farmProfile.farmerName || 'Not Set'}
+Farm Size: ${farmProfile.hectares || 'Not Set'} hectares
+Contact: ${farmProfile.contact || 'Not Set'}
+Farm Type: ${farmProfile.type || 'Not Set'}
+-------------------------
+Please activate my FarmerPack subscription.
+`;
+    
+    navigator.clipboard.writeText(farmDetails).then(() => {
+        showNotification('✅ Farm details copied to clipboard!', 'success');
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+        // Fallback for browsers that don't support clipboard API
+        const textArea = document.createElement('textarea');
+        textArea.value = farmDetails;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            showNotification('✅ Farm details copied to clipboard!', 'success');
+        } catch (err) {
+            showNotification('❌ Failed to copy details. Please select and copy manually.', 'error');
+        }
+        document.body.removeChild(textArea);
+    });
+}
+
+// Share farm details via WhatsApp
+function shareFarmDetailsViaWhatsApp() {
+    if (!farmProfile) {
+        showNotification('No farm profile found', 'error');
+        return;
+    }
+    
+    const message = `Hello FarmerPack Support,
+
+I need assistance with activating my FarmerPack subscription.
+
+My farm details:
+• Farm Name: ${farmProfile.farmName || 'Not Set'}
+• Farmer Name: ${farmProfile.farmerName || 'Not Set'}
+• Farm Size: ${farmProfile.hectares || 'Not Set'} hectares
+• Contact: ${farmProfile.contact || 'Not Set'}
+• Farm Type: ${farmProfile.type || 'Not Set'}
+
+Please help me activate my subscription.
+
+Thank you.`;
+    
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/26776781005?text=${encodedMessage}`;
+    
+    window.open(whatsappUrl, '_blank');
+}
+
+// Show code activation on expired screen
+function showCodeActivationOnExpiredScreen() {
+    console.log('🔑 Showing code activation from expired screen');
+    
+    // Remove expired screen
+    const expiredScreen = document.getElementById('expiredAccessScreen');
+    if (expiredScreen) expiredScreen.remove();
+    
+    // Show the code activation modal
+    // Check if you have an activation input modal function
+    if (typeof showActivationForPackage === 'function') {
+        showActivationForPackage('silver'); // Default to silver
+    } else if (typeof openActivationModal === 'function') {
+        openActivationModal();
+    } else {
+        // Fallback - show simple input
+        const code = prompt('Enter your activation code (starts with FP-):');
+        if (code && code.trim()) {
+            // Try to activate directly
+            attemptDirectActivation(code.trim());
+        }
+    }
+}
+
+// Contact support from expired screen
+function contactSupportFromExpiredScreen() {
+    const phoneNumber = '26776781005';
+    if (confirm(`Call FarmerPack Support at +${phoneNumber}?`)) {
+        window.location.href = `tel:+${phoneNumber}`;
+    }
+}
+
+// Show subscription plans from expired screen
+function showSubscriptionPlansFromExpired() {
+    console.log('💳 Showing subscription plans from expired screen');
+    
+    // Remove expired screen
+    const expiredScreen = document.getElementById('expiredAccessScreen');
+    if (expiredScreen) expiredScreen.remove();
+    
+    // Show subscription plans
+    if (typeof openActivationModal === 'function') {
+        openActivationModal();
+    } else {
+        showNotification('Opening subscription plans...', 'info');
+        // You might need to trigger your existing modal here
+        const activationModal = document.getElementById('activationModal');
+        if (activationModal) {
+            activationModal.style.display = 'flex';
+        }
+    }
+}
+
+// Close expired access screen (when activated)
+function closeExpiredAccessScreen() {
+    const expiredScreen = document.getElementById('expiredAccessScreen');
+    if (expiredScreen) {
+        expiredScreen.style.transition = 'opacity 0.3s ease';
+        expiredScreen.style.opacity = '0';
+        
+        setTimeout(() => {
+            expiredScreen.remove();
+        }, 300);
+    }
+}
+
+// Direct activation attempt (fallback)
+function attemptDirectActivation(code) {
+    if (!farmProfile) {
+        showNotification('Please set up your farm profile first', 'error');
+        return;
+    }
+    
+    // Prepare farm data
+    const farmData = {
+        farmName: farmProfile.farmName || '',
+        farmerName: farmProfile.farmerName || '',
+        hectares: parseInt(farmProfile.hectares) || 1,
+        farmType: farmProfile.type || 'MIXED'
+    };
+    
+    // Try to validate the code
+    if (typeof validateSubscriptionCode === 'function') {
+        const validationResult = validateSubscriptionCode(code, farmData);
+        
+        if (validationResult.valid) {
+            // Process activation
+            processSuccessfulActivation(validationResult, code);
+            showNotification('✅ Subscription activated successfully!', 'success');
+        } else {
+            showNotification(`Invalid code: ${validationResult.error}`, 'error');
+        }
+    } else {
+        showNotification('Activation system not available', 'error');
+    }
+}
+
+// Get package icon
+function getPackageIcon(packageType) {
+    const icons = {
+        'silver': '🥈',
+        'gold': '🥇',
+        'platinum': '💎',
+        'trial': '🆓'
+    };
+    return icons[packageType] || '📦';
+}
+
+// Create license status element
+function createLicenseStatusElement() {
+    const div = document.createElement('div');
+    div.id = 'subscriptionStatus';
+    div.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: white;
+        padding: 10px 15px;
+        border-radius: 20px;
+        box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        z-index: 9999;
+        font-size: 14px;
+    `;
+    document.body.appendChild(div);
+    return div;
+}
+
+// Process successful activation (if you don't have this function)
+function processSuccessfulActivation(validationResult, ActivationCodeInput) {
+    console.log('Processing successful activation');
+    
+    // This should match your existing activation logic
+    if (farmProfile) {
+        const subscription = validationResult.subscription;
+        const packageType = validationResult.packageType;
+        const packageInfo = SUBSCRIPTION_PACKAGES[packageType];
+        
+        farmProfile.subscription = {
+            active: true,
+            type: 'monthly',
+            package: packageType,
+            name: packageInfo.name,
+            pricePerMonth: packageInfo.price,
+            totalPrice: subscription.totalPrice,
+            months: subscription.months,
+            ActivationCodeInput: ActivationCodeInput,
+            activationDate: subscription.activationDate,
+            subscriptionEndDate: subscription.subscriptionEndDate,
+            features: packageInfo.features,
+            color: packageInfo.color,
+            emoji: packageInfo.emoji
+        };
+        
+        safeSaveData();
+        
+        // Apply package restrictions
+        if (typeof applyPackageRestrictions === 'function') {
+            applyPackageRestrictions(packageType);
+        }
+        
+        // Close expired screen
+        closeExpiredAccessScreen();
+        
+        // Update license status
+        setTimeout(() => {
+            if (typeof checkLicenseStatus === 'function') {
+                checkLicenseStatus();
+            }
+            if (typeof updateCurrentSubscriptionDisplay === 'function') {
+                updateCurrentSubscriptionDisplay();
+            }
+        }, 500);
+        
+        return true;
+    }
+    
+    return false;
+}
+
+</script>
+<!-- Anti-Screenshot Protection -->
+<script>
+(function() {
+    'use strict';
+    
+    // Configuration
+    const config = {
+        watermarkText: 'CONFIDENTIAL - DO NOT COPY',
+        detectionInterval: 100,
+        showWarnings: true,
+        blurOnInactive: true
+    };
+    
+    // Create warning element
+    const warningEl = document.createElement('div');
+    warningEl.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #ff4444;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 6px;
+        z-index: 999999;
+        display: none;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    `;
+    document.body.appendChild(warningEl);
+    
+    // Show warning function
+    function showWarning(message) {
+        if (!config.showWarnings) return;
+        
+        warningEl.textContent = `⚠️ ${message}`;
+        warningEl.style.display = 'block';
+        setTimeout(() => {
+            warningEl.style.display = 'none';
+        }, 2000);
+    }
+    
+    // Add dynamic watermarks
+    function addWatermarks() {
+        const style = document.createElement('style');
+        style.textContent = `
+            .anti-screenshot-watermark {
+                position: fixed;
+                pointer-events: none;
+                user-select: none;
+                z-index: 99999;
+                color: rgba(255, 255, 255, 0.03);
+                font-size: 30px;
+                font-weight: bold;
+                white-space: nowrap;
+                animation: watermarkFloat 30s linear infinite;
+            }
+            
+            @keyframes watermarkFloat {
+                0% { transform: translate(0, 0) rotate(-5deg); opacity: 0.02; }
+                25% { transform: translate(80vw, 40vh) rotate(5deg); opacity: 0.04; }
+                50% { transform: translate(20vw, 80vh) rotate(-5deg); opacity: 0.02; }
+                75% { transform: translate(60vw, 20vh) rotate(5deg); opacity: 0.04; }
+                100% { transform: translate(0, 0) rotate(-5deg); opacity: 0.02; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Add 3 watermarks
+        for (let i = 0; i < 3; i++) {
+            const wm = document.createElement('div');
+            wm.className = 'anti-screenshot-watermark';
+            wm.textContent = `${config.watermarkText} ${i+1}`;
+            wm.style.top = `${20 + i * 30}%`;
+            wm.style.left = `${10 + i * 20}%`;
+            wm.style.fontSize = `${24 + i * 8}px`;
+            document.body.appendChild(wm);
+        }
+    }
+    
+    // Blur content temporarily
+    function blurContent() {
+        document.body.style.transition = 'filter 0.3s ease';
+        document.body.style.filter = 'blur(5px)';
+        setTimeout(() => {
+            document.body.style.filter = '';
+        }, 300);
+    }
+    
+    // Prevent print screen and screenshots
+    document.addEventListener('keydown', function(e) {
+        // PrintScreen key
+        if (e.key === 'PrintScreen') {
+            e.preventDefault();
+            showWarning('Screenshots are disabled');
+            blurContent();
+            
+            // Clear clipboard
+            navigator.clipboard.writeText('')
+                .catch(err => console.log('Clipboard cleared'));
+        }
+        
+        // Ctrl+P (Print)
+        if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+            e.preventDefault();
+            showWarning('Printing is disabled');
+        }
+        
+        // Ctrl+S (Save page)
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            showWarning('Saving is disabled');
+        }
+        
+        // Windows: Win+Shift+S, Mac: Cmd+Shift+4
+        if ((e.shiftKey && e.key === 'S') || 
+            (e.metaKey && e.shiftKey && e.key === '4')) {
+            e.preventDefault();
+            showWarning('Screenshots are disabled');
+            blurContent();
+        }
+    });
+    
+    // Disable right-click menu
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        showWarning('Right-click is disabled');
+    });
+    
+    // Prevent dragging images
+    document.addEventListener('dragstart', function(e) {
+        if (e.target.tagName === 'IMG') {
+            e.preventDefault();
+            showWarning('Image copying is disabled');
+        }
+    });
+    
+    // Blur on window/tab switch
+    if (config.blurOnInactive) {
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                document.body.style.filter = 'blur(8px)';
+            } else {
+                setTimeout(() => {
+                    document.body.style.filter = '';
+                }, 300);
+            }
+        });
+        
+        window.addEventListener('blur', function() {
+            document.body.style.filter = 'blur(5px)';
+        });
+        
+        window.addEventListener('focus', function() {
+            document.body.style.filter = '';
+        });
+    }
+    
+    // Detect developer tools (basic detection)
+    let devToolsOpen = false;
+    const devToolsCheck = setInterval(function() {
+        const widthDiff = window.outerWidth - window.innerWidth;
+        const heightDiff = window.outerHeight - window.innerHeight;
+        
+        if (widthDiff > 200 || heightDiff > 200) {
+            if (!devToolsOpen) {
+                showWarning('Developer tools detected');
+                devToolsOpen = true;
+                blurContent();
+            }
+        } else {
+            devToolsOpen = false;
+        }
+    }, config.detectionInterval);
+    
+    // Prevent copying of sensitive content
+    document.addEventListener('copy', function(e) {
+        const selection = window.getSelection();
+        if (selection.toString().length > 100) {
+            e.preventDefault();
+            showWarning('Copying large text is disabled');
+        }
+    });
+    
+    // Initialize
+    addWatermarks();
+    
+    // Add protective overlay to sensitive elements
+    setTimeout(function() {
+        const sensitiveElements = document.querySelectorAll('input[type="password"], .sensitive, [data-sensitive]');
+        sensitiveElements.forEach(el => {
+            el.style.cssText += ';position:relative;';
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 10;
+                cursor: not-allowed;
+            `;
+            el.parentNode.insertBefore(overlay, el.nextSibling);
+        });
+    }, 500);
+    
+    console.log('🔐 Anti-screenshot protection active');
+})();
+
+</script>
+<style>
+    /* Additional protective styles */
+    body.protected-page {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+    
+    img {
+        -webkit-user-drag: none;
+        -khtml-user-drag: none;
+        -moz-user-drag: none;
+        -o-user-drag: none;
+        user-drag: none;
+    }
+    
+    /* Prevent text selection on sensitive areas */
+    .no-select, input, textarea {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+</style>
+<!-- GPS Coordinates Modal -->
+<div id="gpsModal" class="gps-modal">
+    <div class="gps-content">
+        <!-- GPS Capture Screen -->
+        <div id="gpsCaptureScreen" class="screen active">
+            <div class="gps-header">
+                <div class="logo-icon">📍</div>
+                <h2>Farm GPS Coordinates</h2>
+                <p class="subtitle">Capture your farm's exact location</p>
+            </div>
+            
+            <div class="gps-status" id="gpsStatus">
+                <div class="status-indicator">
+                    <div class="status-circle" id="statusCircle"></div>
+                    <span id="statusText">Getting location...</span>
+                </div>
+            </div>
+            
+            <div class="coordinates-display">
+                <div class="coordinate-row">
+                    <div class="coordinate-label">
+                        <span class="icon">🌐</span> Latitude
+                    </div>
+                    <div class="coordinate-value" id="latitudeValue">--.------</div>
+                </div>
+                
+                <div class="coordinate-row">
+                    <div class="coordinate-label">
+                        <span class="icon">🌐</span> Longitude
+                    </div>
+                    <div class="coordinate-value" id="longitudeValue">--.------</div>
+                </div>
+                
+                <div class="coordinate-row">
+                    <div class="coordinate-label">
+                        <span class="icon">📏</span> Accuracy
+                    </div>
+                    <div class="coordinate-value" id="accuracyValue">-- m</div>
+                </div>
+                
+                <div class="coordinate-row">
+                    <div class="coordinate-label">
+                        <span class="icon">⏰</span> Last Updated
+                    </div>
+                    <div class="coordinate-value" id="lastUpdatedValue">--:--:--</div>
+                </div>
+            </div>
+            
+            <div class="gps-map-preview" id="mapPreview">
+                <div class="map-placeholder">
+                    <span class="map-icon">🗺️</span>
+                    <p>Map preview will appear here</p>
+                    <small>Click to open in Google Maps</small>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button id="captureBtn" class="btn-primary" onclick="captureCoordinates()">
+                    <span class="btn-icon">📍</span>
+                    <span class="btn-text">Refresh Location</span>
+                </button>
+                
+                <button id="stopBtn" class="btn-secondary" onclick="stopGPS()" style="display: none;">
+                    <span class="btn-icon">⏸️</span>
+                    <span class="btn-text">Stop Tracking</span>
+                </button>
+                
+                <button id="refreshBtn" class="btn-tertiary" onclick="refreshGPS()">
+                    <span class="btn-icon">🔎</span>
+                    <span class="btn-text">Capture Current Location</span>
+                </button>
+            </div>
+            
+            <div class="share-section">
+                <h4>Share Farm Location</h4>
+                <div class="share-buttons">
+                    <button class="share-btn whatsapp" onclick="shareViaWhatsApp()">
+                        <span class="share-icon">🛣️</span>
+                        <span class="share-text">WhatsApp</span>
+                    </button>
+                    
+                    <button class="share-btn facebook" onclick="shareOnFacebook()">
+                        <span class="share-icon">🛤️</span>
+                        <span class="share-text">Facebook</span>
+                    </button>
+                    
+                    <button class="share-btn copy" onclick="copyCoordinates()">
+                        <span class="share-icon">📋</span>
+                        <span class="share-text">Copy</span>
+                    </button>
+                    
+                    <button class="share-btn save" onclick="saveCoordinates()">
+                        <span class="share-icon">💾</span>
+                        <span class="share-text">Save</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="gps-history" id="gpsHistoryContainer">
+                <h4>📍 Saved Locations</h4>
+                <div class="history-list" id="historyList">
+                    <!-- History items will be loaded here -->
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn-close" onclick="closeGPSModal()">
+                    <span class="btn-icon">✕</span>
+                    <span class="btn-text">Close</span>
+                </button>
+            </div>
+        </div>
+        
+
+
+
+
+<!-- GPS Status Indicator -->
+<div id="gpsStatusIndicator" class="gps-status-indicator">
+    <span class="indicator-icon">📍</span>
+    <span class="indicator-text">GPS: --.--, --.--</span>
+</div>
+
+<style>
+/* GPS Modal Styles */
+.gps-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 10002;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.gps-content {
+    background: white;
+    border-radius: 20px;
+    width: 95%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.gps-header {
+    text-align: center;
+    padding: 25px 25px 15px;
+    background: linear-gradient(135deg, #4CAF50, #388E3C);
+    color: white;
+    border-radius: 20px 20px 0 0;
+}
+
+.gps-header .logo-icon {
+    font-size: 50px;
+    margin-bottom: 10px;
+}
+
+.gps-header h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.gps-header .subtitle {
+    margin: 5px 0 0;
+    opacity: 0.9;
+    font-size: 14px;
+}
+
+.gps-status {
+    padding: 20px;
+    background: #f8f9fa;
+    margin: 0 20px;
+    border-radius: 10px;
+    margin-top: -10px;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.status-circle {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ccc;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.status-active .status-circle {
+    background: #4CAF50;
+    box-shadow: 0 0 10px #4CAF50;
+}
+
+.status-error .status-circle {
+    background: #F44336;
+    box-shadow: 0 0 10px #F44336;
+}
+
+.coordinates-display {
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    margin: 15px 20px;
+    border: 2px solid #e0e0e0;
+}
+
+.coordinate-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.coordinate-row:last-child {
+    border-bottom: none;
+}
+
+.coordinate-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #555;
+    font-weight: 500;
+}
+
+.coordinate-label .icon {
+    font-size: 20px;
+}
+
+.coordinate-value {
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    background: #f5f5f5;
+    padding: 5px 12px;
+    border-radius: 5px;
+    min-width: 120px;
+    text-align: right;
+}
+
+.gps-map-preview {
+    margin: 15px 20px;
+    height: 150px;
+    background: #f0f0f0;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid #ddd;
+    cursor: pointer;
+    position: relative;
+}
+
+.map-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #777;
+    text-align: center;
+}
+
+.map-placeholder .map-icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+.map-placeholder p {
+    margin: 0 0 5px;
+    font-size: 16px;
+}
+
+.map-placeholder small {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    padding: 0 20px;
+    margin: 20px 0;
+}
+
+.btn-primary, .btn-secondary, .btn-tertiary {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #4CAF50, #388E3C);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #388E3C, #4CAF50);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+}
+
+.btn-secondary {
+    background: #2196F3;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #1976D2;
+    transform: translateY(-2px);
+}
+
+.btn-tertiary {
+    background: #FF9800;
+    color: white;
+}
+
+.btn-tertiary:hover {
+    background: #F57C00;
+    transform: translateY(-2px);
+}
+
+.btn-close {
+    background: #757575;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 auto;
+}
+
+.share-section {
+    padding: 20px;
+    background: #f8f9fa;
+    margin: 20px;
+    border-radius: 10px;
+}
+
+.share-section h4 {
+    margin: 0 0 15px;
+    color: #333;
+    text-align: center;
+}
+
+.share-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.share-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.share-btn.whatsapp {
+    background: #25D366;
+    color: white;
+}
+
+.share-btn.facebook {
+    background: #1877F2;
+    color: white;
+}
+
+.share-btn.copy {
+    background: #9C27B0;
+    color: white;
+}
+
+.share-btn.save {
+    background: #FF9800;
+    color: white;
+}
+
+.share-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.share-icon {
+    font-size: 20px;
+}
+
+.gps-history {
+    padding: 20px;
+}
+
+.gps-history h4 {
+    margin: 0 0 15px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.history-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    border-left: 4px solid #4CAF50;
+}
+
+.history-coords {
+    font-family: monospace;
+    font-size: 12px;
+    color: #666;
+}
+
+.history-time {
+    font-size: 11px;
+    color: #888;
+}
+
+.history-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.history-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    font-size: 14px;
+    border-radius: 4px;
+}
+
+.history-btn:hover {
+    background: #e0e0e0;
+}
+
+/* Share Options Screen */
+.share-options {
+    padding: 20px;
+}
+
+.share-preview {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.share-preview h4 {
+    margin: 0 0 10px;
+    color: #333;
+}
+
+.preview-content {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+.platform-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.platform-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 15px 5px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f5f5f5;
+}
+
+.platform-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.platform-btn.whatsapp { background: #25D366; color: white; }
+.platform-btn.facebook { background: #1877F2; color: white; }
+.platform-btn.messenger { background: #0084FF; color: white; }
+.platform-btn.twitter { background: #1DA1F2; color: white; }
+.platform-btn.telegram { background: #0088CC; color: white; }
+.platform-btn.email { background: #EA4335; color: white; }
+.platform-btn.sms { background: #34B7F1; color: white; }
+.platform-btn.copy { background: #9C27B0; color: white; }
+
+.platform-icon {
+    font-size: 24px;
+}
+
+.platform-name {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.share-customization {
+    margin-top: 20px;
+}
+
+.share-textarea {
+    width: 100%;
+    height: 80px;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    resize: vertical;
+    margin-bottom: 15px;
+}
+
+.customization-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.customization-options label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* Floating GPS Button */
+.gps-floating-btn {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    background: linear-gradient(135deg, #4CAF50, #388E3C);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 12px 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 4px 20px rgba(76, 175, 80, 0.3);
+    z-index: 9999;
+    transition: all 0.3s ease;
+}
+
+.gps-floating-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 25px rgba(76, 175, 80, 0.4);
+}
+
+.gps-icon {
+    font-size: 18px;
+}
+
+/* GPS Status Indicator */
+.gps-status-indicator {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.9);
+    padding: 8px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 9998;
+    backdrop-filter: blur(10px);
+    border: 1px solid #e0e0e0;
+}
+
+.indicator-icon {
+    color: #4CAF50;
+    font-size: 14px;
+}
+
+/* Saved Locations */
+.saved-locations-list {
+    padding: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.saved-location-card {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+.saved-location-card:hover {
+    border-color: #4CAF50;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.location-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.location-name {
+    font-weight: 600;
+    color: #333;
+    font-size: 16px;
+}
+
+.location-time {
+    font-size: 12px;
+    color: #888;
+}
+
+.location-coords {
+    font-family: monospace;
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.location-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.location-btn {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.location-btn.primary {
+    background: #4CAF50;
+    color: white;
+}
+
+.location-btn.secondary {
+    background: #2196F3;
+    color: white;
+}
+
+.location-btn.danger {
+    background: #F44336;
+    color: white;
+}
+
+/* Modal Footer */
+.modal-footer {
+    padding: 20px;
+    text-align: center;
+    border-top: 1px solid #eee;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .gps-content {
+        width: 100%;
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 0;
+    }
+    
+    .gps-header {
+        border-radius: 0;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .share-buttons {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .platform-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .gps-floating-btn {
+        bottom: 20px;
+        right: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .platform-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .coordinate-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .coordinate-value {
+        width: 100%;
+        text-align: left;
+    }
+}
+</style>
+<script>
+// =============================================
+// GPS COORDINATES SYSTEM
+// =============================================
+
+const GPS_CONFIG = {
+    ENABLE_HIGH_ACCURACY: true,
+    MAXIMUM_AGE: 30000, // 30 seconds
+    TIMEOUT: 10000, // 10 seconds
+    UPDATE_INTERVAL: 5000, // Update every 5 seconds when tracking
+    HISTORY_LIMIT: 10 // Max number of locations to keep in history
+};
+
+// GPS State Management
+let gpsState = {
+    isActive: false,
+    isTracking: false,
+    currentLocation: null,
+    watchId: null,
+    lastUpdated: null,
+    history: [],
+    savedLocations: []
+};
+
+// Storage Keys
+const GPS_STORAGE_KEYS = {
+    SAVED_LOCATIONS: 'fp_saved_locations',
+    GPS_HISTORY: 'fp_gps_history',
+    LAST_LOCATION: 'fp_last_location'
+};
+
+/**
+ * Initialize GPS System
+ */
+function initializeGPSSystem() {
+    console.log('📍 Initializing GPS system...');
+    
+    // Load saved data
+    loadSavedData();
+    
+    // Create floating button
+    createGPSButton();
+    
+    // Initialize GPS status indicator
+    updateGPSStatusIndicator();
+    
+    // Check if we have permission
+    checkGeolocationPermission();
+    
+    console.log('✅ GPS system initialized');
+}
+
+/**
+ * Load saved GPS data
+ */
+function loadSavedData() {
+    try {
+        // Load saved locations
+        const savedLocationsJson = localStorage.getItem(GPS_STORAGE_KEYS.SAVED_LOCATIONS);
+        if (savedLocationsJson) {
+            gpsState.savedLocations = JSON.parse(savedLocationsJson);
+            console.log(`📍 Loaded ${gpsState.savedLocations.length} saved locations`);
+        }
+        
+        // Load GPS history
+        const historyJson = localStorage.getItem(GPS_STORAGE_KEYS.GPS_HISTORY);
+        if (historyJson) {
+            gpsState.history = JSON.parse(historyJson).slice(-GPS_CONFIG.HISTORY_LIMIT);
+        }
+        
+        // Load last known location
+        const lastLocationJson = localStorage.getItem(GPS_STORAGE_KEYS.LAST_LOCATION);
+        if (lastLocationJson) {
+            gpsState.currentLocation = JSON.parse(lastLocationJson);
+            console.log('📍 Loaded last known location');
+        }
+    } catch (e) {
+        console.error('❌ Error loading GPS data:', e);
+    }
+}
+
+/**
+ * Save GPS data
+ */
+function saveGPSSettings() {
+    try {
+        localStorage.setItem(GPS_STORAGE_KEYS.SAVED_LOCATIONS, 
+            JSON.stringify(gpsState.savedLocations));
+        localStorage.setItem(GPS_STORAGE_KEYS.GPS_HISTORY, 
+            JSON.stringify(gpsState.history.slice(-GPS_CONFIG.HISTORY_LIMIT)));
+        
+        if (gpsState.currentLocation) {
+            localStorage.setItem(GPS_STORAGE_KEYS.LAST_LOCATION, 
+                JSON.stringify(gpsState.currentLocation));
+        }
+        
+        console.log('💾 GPS data saved');
+    } catch (e) {
+        console.error('❌ Error saving GPS data:', e);
+    }
+}
+
+
+
+/**
+ * Open GPS modal
+ */
+function openGPSModal() {
+    const modal = document.getElementById('gpsModal');
+    if (!modal) return;
+    
+    modal.style.display = 'flex';
+    showCaptureScreen();
+    
+    // Start GPS if not already active
+    if (!gpsState.isActive) {
+        startGPS();
+    }
+    
+    // Update display
+    updateGPSDisplay();
+    loadHistoryList();
+}
+
+/**
+ * Close GPS modal
+ */
+function closeGPSModal() {
+    const modal = document.getElementById('gpsModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    
+    // Stop tracking if not needed
+    if (gpsState.isTracking) {
+        stopGPS();
+    }
+}
+
+/**
+ * Show capture screen
+ */
+function showCaptureScreen() {
+    switchGPSScreen('gpsCaptureScreen');
+}
+
+/**
+ * Show saved locations screen
+ */
+function showSavedLocationsScreen() {
+    switchGPSScreen('savedLocationsScreen');
+    loadSavedLocationsList();
+}
+
+/**
+ * Show share options screen
+ */
+function showShareOptionsScreen() {
+    switchGPSScreen('shareOptionsScreen');
+    updateSharePreview();
+}
+
+/**
+ * Switch between GPS screens
+ */
+function switchGPSScreen(screenId) {
+    const screens = document.querySelectorAll('#gpsModal .screen');
+    screens.forEach(screen => {
+        screen.classList.remove('active');
+    });
+    
+    const targetScreen = document.getElementById(screenId);
+    if (targetScreen) {
+        targetScreen.classList.add('active');
+    }
+}
+
+/**
+ * Check geolocation permission
+ */
+async function checkGeolocationPermission() {
+    if (!navigator.geolocation) {
+        updateGPSStatus('error', 'Geolocation not supported');
+        showNotification('GPS is not supported by your device', 'error');
+        return false;
+    }
+    
+    try {
+        // Check permission using Permissions API if available
+        if (navigator.permissions && navigator.permissions.query) {
+            const permission = await navigator.permissions.query({ name: 'geolocation' });
+            updatePermissionStatus(permission.state);
+            
+            permission.onchange = () => {
+                updatePermissionStatus(permission.state);
+            };
+        }
+        return true;
+    } catch (e) {
+        console.log('⚠️ Permissions API not available');
+        return true; // Assume permission might be granted
+    }
+}
+
+/**
+ * Update permission status
+ */
+function updatePermissionStatus(state) {
+    switch(state) {
+        case 'granted':
+            updateGPSStatus('active', 'Ready to capture location');
+            break;
+        case 'denied':
+            updateGPSStatus('error', 'Location permission denied');
+            showNotification('Please enable location services', 'warning');
+            break;
+        case 'prompt':
+            updateGPSStatus('waiting', 'Waiting for permission...');
+            break;
+    }
+}
+
+/**
+ * Start GPS
+ */
+function startGPS() {
+    if (gpsState.isActive) return;
+    
+    if (!navigator.geolocation) {
+        updateGPSStatus('error', 'Geolocation not supported');
+        return;
+    }
+    
+    updateGPSStatus('active', 'Getting location...');
+    
+    // Get current position once
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            handlePositionUpdate(position);
+            updateGPSStatus('active', 'Location acquired');
+        },
+        (error) => {
+            handleGeolocationError(error);
+        },
+        {
+            enableHighAccuracy: GPS_CONFIG.ENABLE_HIGH_ACCURACY,
+            maximumAge: GPS_CONFIG.MAXIMUM_AGE,
+            timeout: GPS_CONFIG.TIMEOUT
+        }
+    );
+    
+    gpsState.isActive = true;
+}
+
+/**
+ * Start continuous GPS tracking
+ */
+function startGPSTracking() {
+    if (gpsState.isTracking) return;
+    
+    updateGPSStatus('active', 'Tracking location...');
+    
+    gpsState.watchId = navigator.geolocation.watchPosition(
+        (position) => {
+            handlePositionUpdate(position);
+        },
+        (error) => {
+            handleGeolocationError(error);
+        },
+        {
+            enableHighAccuracy: GPS_CONFIG.ENABLE_HIGH_ACCURACY,
+            maximumAge: GPS_CONFIG.MAXIMUM_AGE,
+            timeout: GPS_CONFIG.TIMEOUT
+        }
+    );
+    
+    gpsState.isTracking = true;
+    document.getElementById('stopBtn').style.display = 'block';
+    document.getElementById('captureBtn').style.display = 'none';
+}
+
+/**
+ * Stop GPS tracking
+ */
+function stopGPS() {
+    if (gpsState.watchId) {
+        navigator.geolocation.clearWatch(gpsState.watchId);
+        gpsState.watchId = null;
+    }
+    
+    gpsState.isTracking = false;
+    document.getElementById('stopBtn').style.display = 'none';
+    document.getElementById('captureBtn').style.display = 'block';
+    
+    updateGPSStatus('active', 'Tracking stopped');
+}
+
+/**
+ * Handle position update
+ */
+function handlePositionUpdate(position) {
+    const location = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+        accuracy: position.coords.accuracy,
+        altitude: position.coords.altitude,
+        altitudeAccuracy: position.coords.altitudeAccuracy,
+        heading: position.coords.heading,
+        speed: position.coords.speed,
+        timestamp: position.timestamp
+    };
+    
+    gpsState.currentLocation = location;
+    gpsState.lastUpdated = new Date().toISOString();
+    
+    // Add to history
+    addToHistory(location);
+    
+    // Update display
+    updateGPSDisplay();
+    updateGPSStatusIndicator();
+    updateMapPreview();
+    
+    // Save to localStorage
+    saveGPSSettings();
+    
+    console.log('📍 Location updated:', location);
+}
+
+/**
+ * Handle geolocation error
+ */
+function handleGeolocationError(error) {
+    let errorMessage = 'Unable to get location';
+    
+    switch(error.code) {
+        case error.PERMISSION_DENIED:
+            errorMessage = 'Location permission denied';
+            break;
+        case error.POSITION_UNAVAILABLE:
+            errorMessage = 'Location information unavailable';
+            break;
+        case error.TIMEOUT:
+            errorMessage = 'Location request timed out';
+            break;
+        case error.UNKNOWN_ERROR:
+            errorMessage = 'An unknown error occurred';
+            break;
+    }
+    
+    updateGPSStatus('error', errorMessage);
+    showNotification(`GPS Error: ${errorMessage}`, 'error');
+}
+
+/**
+ * Update GPS status display
+ */
+function updateGPSStatus(status, message) {
+    const statusCircle = document.getElementById('statusCircle');
+    const statusText = document.getElementById('statusText');
+    const statusContainer = document.getElementById('gpsStatus');
+    
+    if (!statusCircle || !statusText) return;
+    
+    // Remove existing status classes
+    statusContainer.classList.remove('status-active', 'status-error', 'status-waiting');
+    statusContainer.classList.add(`status-${status}`);
+    
+    statusText.textContent = message;
+    
+    // Update button states
+    const captureBtn = document.getElementById('captureBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+    
+    if (status === 'active') {
+        statusCircle.style.background = '#4CAF50';
+        if (captureBtn) captureBtn.disabled = false;
+        if (refreshBtn) refreshBtn.disabled = false;
+    } else if (status === 'error') {
+        statusCircle.style.background = '#F44336';
+        if (captureBtn) captureBtn.disabled = true;
+        if (refreshBtn) refreshBtn.disabled = false;
+    } else {
+        statusCircle.style.background = '#FF9800';
+    }
+}
+
+/**
+ * Update GPS display with current location
+ */
+function updateGPSDisplay() {
+    const location = gpsState.currentLocation;
+    
+    if (!location) {
+        document.getElementById('latitudeValue').textContent = '--.------';
+        document.getElementById('longitudeValue').textContent = '--.------';
+        document.getElementById('accuracyValue').textContent = '-- m';
+        document.getElementById('lastUpdatedValue').textContent = '--:--:--';
+        return;
+    }
+    
+    // Format coordinates to 6 decimal places
+    const lat = location.latitude.toFixed(6);
+    const lng = location.longitude.toFixed(6);
+    const accuracy = Math.round(location.accuracy);
+    
+    document.getElementById('latitudeValue').textContent = lat;
+    document.getElementById('longitudeValue').textContent = lng;
+    document.getElementById('accuracyValue').textContent = `${accuracy} m`;
+    
+    // Format last updated time
+    if (gpsState.lastUpdated) {
+        const time = new Date(gpsState.lastUpdated);
+        const timeStr = time.toLocaleTimeString();
+        document.getElementById('lastUpdatedValue').textContent = timeStr;
+    }
+}
+
+/**
+ * Update GPS status indicator
+ */
+function updateGPSStatusIndicator() {
+    const indicator = document.getElementById('gpsStatusIndicator');
+    if (!indicator) return;
+    
+    const location = gpsState.currentLocation;
+    
+    if (location) {
+        const lat = location.latitude.toFixed(4);
+        const lng = location.longitude.toFixed(4);
+        indicator.querySelector('.indicator-text').textContent = `GPS: ${lat}, ${lng}`;
+        indicator.style.display = 'flex';
+    } else {
+        indicator.style.display = 'none';
+    }
+}
+
+/**
+ * Update map preview
+ */
+function updateMapPreview() {
+    const mapPreview = document.getElementById('mapPreview');
+    if (!mapPreview || !gpsState.currentLocation) return;
+    
+    const { latitude, longitude } = gpsState.currentLocation;
+    
+    // Create static map using Google Maps Static API
+    const mapUrl = `https://maps.googleapis.com/maps/api/staticmap?
+        center=${latitude},${longitude}
+        &zoom=15
+        &size=400x150
+        &markers=color:green%7Clabel:F%7C${latitude},${longitude}
+        &key=AIzaSyC-EXAMPLE-KEY`; // Note: You need a real Google Maps API key
+    
+    // For demo, we'll create a simple placeholder with link
+    mapPreview.innerHTML = `
+        <div class="map-placeholder" onclick="openInGoogleMaps()">
+            <span class="map-icon">🗺️</span>
+            <p>Click to open in Google Maps</p>
+            <small>${latitude.toFixed(6)}, ${longitude.toFixed(6)}</small>
+        </div>
+    `;
+}
+
+/**
+ * Open location in Google Maps
+ */
+function openInGoogleMaps() {
+    const location = gpsState.currentLocation;
+    if (!location) {
+        showNotification('No location available', 'error');
+        return;
+    }
+    
+    const { latitude, longitude } = location;
+    const url = `https://www.google.com/maps?q=${latitude},${longitude}`;
+    window.open(url, '_blank');
+}
+
+/**
+ * Capture current coordinates
+ */
+function captureCoordinates() {
+    if (!gpsState.currentLocation) {
+        showNotification('No location available', 'error');
+        return;
+    }
+    
+    // Ask for location name
+    const locationName = prompt('Enter a name for this location (e.g., Main Field, Storage):', 
+                               `Farm Location ${new Date().toLocaleDateString()}`);
+    
+    if (!locationName) return;
+    
+    const location = {
+        ...gpsState.currentLocation,
+        name: locationName,
+        capturedAt: new Date().toISOString(),
+        id: Date.now().toString()
+    };
+    
+    // Add to saved locations
+    gpsState.savedLocations.unshift(location);
+    
+    // Keep only last 50 saved locations
+    gpsState.savedLocations = gpsState.savedLocations.slice(0, 50);
+    
+    // Save to localStorage
+    saveGPSSettings();
+    
+    // Update display
+    loadHistoryList();
+    
+    showNotification(`✅ Location "${locationName}" saved!`, 'success');
+}
+
+/**
+ * Refresh GPS location
+ */
+function refreshGPS() {
+    updateGPSStatus('active', 'Refreshing location...');
+    
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            handlePositionUpdate(position);
+            updateGPSStatus('active', 'Location refreshed');
+            showNotification('📍 Location refreshed', 'success');
+        },
+        (error) => {
+            handleGeolocationError(error);
+        },
+        {
+            enableHighAccuracy: true,
+            maximumAge: 0,
+            timeout: GPS_CONFIG.TIMEOUT
+        }
+    );
+}
+
+/**
+ * Add location to history
+ */
+function addToHistory(location) {
+    const historyItem = {
+        ...location,
+        timestamp: new Date().toISOString()
+    };
+    
+    gpsState.history.unshift(historyItem);
+    
+    // Keep only last 10 items
+    gpsState.history = gpsState.history.slice(0, GPS_CONFIG.HISTORY_LIMIT);
+    
+    // Update history display if modal is open
+    if (document.getElementById('gpsModal').style.display === 'flex') {
+        loadHistoryList();
+    }
+}
+
+/**
+ * Load history list
+ */
+function loadHistoryList() {
+    const historyList = document.getElementById('historyList');
+    if (!historyList) return;
+    
+    if (gpsState.history.length === 0) {
+        historyList.innerHTML = `
+            <div class="empty-history">
+                <span class="empty-icon">📭</span>
+                <p>No location history yet</p>
+                <small>Capture a location to see it here</small>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '';
+    
+    gpsState.history.forEach((item, index) => {
+        const time = new Date(item.timestamp);
+        const timeStr = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const lat = item.latitude.toFixed(6);
+        const lng = item.longitude.toFixed(6);
+        
+        html += `
+            <div class="history-item">
+                <div>
+                    <div class="history-coords">${lat}, ${lng}</div>
+                    <div class="history-time">${timeStr} • Accuracy: ${Math.round(item.accuracy)}m</div>
+                </div>
+                <div class="history-actions">
+                    <button class="history-btn" onclick="useHistoryLocation(${index})" title="Use this location">
+                        📍
+                    </button>
+                    <button class="history-btn" onclick="shareHistoryLocation(${index})" title="Share">
+                        📤
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+    
+    historyList.innerHTML = html;
+}
+
+/**
+ * Load saved locations list
+ */
+function loadSavedLocationsList() {
+    const listContainer = document.getElementById('savedLocationsList');
+    if (!listContainer) return;
+    
+    if (gpsState.savedLocations.length === 0) {
+        listContainer.innerHTML = `
+            <div class="empty-saved">
+                <span class="empty-icon">📭</span>
+                <p>No saved locations yet</p>
+                <small>Capture locations to save them</small>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '';
+    
+    gpsState.savedLocations.forEach((location, index) => {
+        const time = new Date(location.capturedAt);
+        const timeStr = time.toLocaleDateString() + ' ' + time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const lat = location.latitude.toFixed(6);
+        const lng = location.longitude.toFixed(6);
+        
+        html += `
+            <div class="saved-location-card">
+                <div class="location-header">
+                    <div class="location-name">${location.name}</div>
+                    <div class="location-time">${timeStr}</div>
+                </div>
+                <div class="location-coords">${lat}, ${lng}</div>
+                <div class="location-coords">Accuracy: ${Math.round(location.accuracy)}m</div>
+                <div class="location-actions">
+                    <button class="location-btn primary" onclick="useSavedLocation(${index})">
+                        📍 Use
+                    </button>
+                    <button class="location-btn secondary" onclick="shareSavedLocation(${index})">
+                        📤 Share
+                    </button>
+                    <button class="location-btn danger" onclick="deleteSavedLocation(${index})">
+                        🗑️ Delete
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+    
+    listContainer.innerHTML = html;
+}
+
+/**
+ * Use a location from history
+ */
+function useHistoryLocation(index) {
+    if (index >= 0 && index < gpsState.history.length) {
+        gpsState.currentLocation = gpsState.history[index];
+        gpsState.lastUpdated = new Date().toISOString();
+        
+        updateGPSDisplay();
+        updateMapPreview();
+        
+        showNotification('📍 Using historical location', 'success');
+    }
+}
+
+/**
+ * Use a saved location
+ */
+function useSavedLocation(index) {
+    if (index >= 0 && index < gpsState.savedLocations.length) {
+        gpsState.currentLocation = gpsState.savedLocations[index];
+        gpsState.lastUpdated = new Date().toISOString();
+        
+        showCaptureScreen();
+        updateGPSDisplay();
+        updateMapPreview();
+        
+        showNotification(`📍 Using "${gpsState.savedLocations[index].name}"`, 'success');
+    }
+}
+
+/**
+ * Delete a saved location
+ */
+function deleteSavedLocation(index) {
+    if (index >= 0 && index < gpsState.savedLocations.length) {
+        const locationName = gpsState.savedLocations[index].name;
+        
+        if (confirm(`Delete location "${locationName}"?`)) {
+            gpsState.savedLocations.splice(index, 1);
+            saveGPSSettings();
+            loadSavedLocationsList();
+            
+            showNotification(`🗑️ Location "${locationName}" deleted`, 'success');
+        }
+    }
+}
+
+// =============================================
+// SHARING FUNCTIONS
+// =============================================
+
+/**
+ * Update share preview
+ */
+function updateSharePreview() {
+    const preview = document.getElementById('sharePreview');
+    if (!preview) return;
+    
+    const location = gpsState.currentLocation;
+    if (!location) {
+        preview.textContent = 'No location available to share';
+        return;
+    }
+    
+    const farmData = getAllFarmData();
+    const farmName = farmData.combined.farmName || 'My Farm';
+    
+    const shareText = generateShareText(farmName, location);
+    preview.textContent = shareText;
+}
+
+/**
+ * Generate share text
+ */
+function generateShareText(farmName, location) {
+    const includeAddress = document.getElementById('includeAddress')?.checked ?? true;
+    const includeMapLink = document.getElementById('includeMapLink')?.checked ?? true;
+    const includeCoordinates = document.getElementById('includeCoordinates')?.checked ?? true;
+    
+    const customMessage = document.getElementById('shareMessage')?.value || 'Visit my farm! 🌾';
+    
+    let text = `${customMessage}\n\n`;
+    
+    if (includeAddress) {
+        text += `📍 ${farmName}\n`;
+    }
+    
+    if (includeCoordinates) {
+        const lat = location.latitude.toFixed(6);
+        const lng = location.longitude.toFixed(6);
+        text += `🌐 Coordinates: ${lat}, ${lng}\n`;
+    }
+    
+    if (includeMapLink) {
+        const mapUrl = `https://maps.google.com/?q=${location.latitude},${location.longitude}`;
+        text += `🗺️ Map: ${mapUrl}\n`;
+    }
+    
+    text += `\nShared from FarmerPack App 🚜`;
+    
+    return text;
+}
+
+/**
+ * Get current share text
+ */
+function getCurrentShareText() {
+    const location = gpsState.currentLocation;
+    if (!location) return '';
+    
+    const farmData = getAllFarmData();
+    const farmName = farmData.combined.farmName || 'My Farm';
+    
+    return generateShareText(farmName, location);
+}
+
+/**
+ * Share on WhatsApp
+ */
+function shareViaWhatsApp() {
+    const shareText = getCurrentShareText();
+    if (!shareText) {
+        showNotification('No location to share', 'error');
+        return;
+    }
+    
+    const encodedText = encodeURIComponent(shareText);
+    const whatsappUrl = `https://wa.me/?text=${encodedText}`;
+    
+    window.open(whatsappUrl, '_blank');
+}
+
+/**
+ * Share on Facebook
+ */
+function shareOnFacebook() {
+    const location = gpsState.currentLocation;
+    if (!location) {
+        showNotification('No location to share', 'error');
+        return;
+    }
+    
+    const shareText = getCurrentShareText();
+    const encodedText = encodeURIComponent(shareText);
+    
+    // Facebook share dialog
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('https://farmerpack.com')}&quote=${encodedText}`;
+    
+    window.open(facebookUrl, '_blank', 'width=600,height=400');
+}
+
+/**
+ * Share directly on WhatsApp
+ */
+function shareDirectWhatsApp() {
+    shareOnWhatsApp();
+}
+
+/**
+ * Share directly on Facebook
+ */
+function shareDirectFacebook() {
+    shareOnFacebook();
+}
+
+/**
+ * Share on Messenger
+ */
+function shareOnMessenger() {
+    const shareText = getCurrentShareText();
+    if (!shareText) {
+        showNotification('No location to share', 'error');
+        return;
+    }
+    
+    const encodedText = encodeURIComponent(shareText);
+    const messengerUrl = `https://www.facebook.com/dialog/send?link=${encodeURIComponent('https://farmerpack.com')}&app_id=YOUR_APP_ID&redirect_uri=https://farmerpack.com&quote=${encodedText}`;
+    
+    window.open(messengerUrl, '_blank');
+}
+
+/**
+ * Share on Twitter
+ */
+function shareOnTwitter() {
+    const shareText = getCurrentShareText();
+    if (!shareText) {
+        showNotification('No location to share', 'error');
+        return;
+    }
+    
+    const encodedText = encodeURIComponent(shareText);
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodedText}`;
+    
+    window.open(twitterUrl, '_blank');
+}
+
+/**
+ * Share on Telegram
+ */
+function shareOnTelegram() {
+    const shareText = getCurrentShareText();
+    if (!shareText) {
+        showNotification('No location to share', 'error');
+        return;
+    }
+    
+    const encodedText = encodeURIComponent(shareText);
+    const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent('https://farmerpack.com')}&text=${encodedText}`;
+    
+    window.open(telegramUrl, '_blank');
+}
+
+/**
+ * Share via Email
+ */
+function shareViaEmail() {
+    const shareText = getCurrentShareText();
+    if (!shareText) {
+        showNotification('No location to share', 'error');
+        return;
+    }
+    
+    const subject = encodeURIComponent('My Farm Location - FarmerPack');
+    const body = encodeURIComponent(shareText);
+    const mailtoUrl = `mailto:?subject=${subject}&body=${body}`;
+    
+    window.location.href = mailtoUrl;
+}
+
+/**
+ * Share via SMS
+ */
+function shareViaSMS() {
+    const shareText = getCurrentShareText();
+    if (!shareText) {
+        showNotification('No location to share', 'error');
+        return;
+    }
+    
+    const encodedText = encodeURIComponent(shareText);
+    const smsUrl = `sms:?body=${encodedText}`;
+    
+    window.location.href = smsUrl;
+}
+
+/**
+ * Copy coordinates to clipboard
+ */
+function copyCoordinates() {
+    const location = gpsState.currentLocation;
+    if (!location) {
+        showNotification('No coordinates to copy', 'error');
+        return;
+    }
+    
+    const lat = location.latitude.toFixed(6);
+    const lng = location.longitude.toFixed(6);
+    const text = `${lat}, ${lng}`;
+    
+    navigator.clipboard.writeText(text).then(() => {
+        showNotification('✅ Coordinates copied to clipboard!', 'success');
+    }).catch(err => {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showNotification('✅ Coordinates copied to clipboard!', 'success');
+    });
+}
+
+/**
+ * Copy share link to clipboard
+ */
+function copyShareLink() {
+    const location = gpsState.currentLocation;
+    if (!location) {
+        showNotification('No location to share', 'error');
+        return;
+    }
+    
+    const shareText = getCurrentShareText();
+    
+    navigator.clipboard.writeText(shareText).then(() => {
+        showNotification('✅ Share text copied to clipboard!', 'success');
+    }).catch(err => {
+        // Fallback
+        const textArea = document.createElement('textarea');
+        textArea.value = shareText;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showNotification('✅ Share text copied to clipboard!', 'success');
+    });
+}
+
+/**
+ * Save coordinates to farm profile
+ */
+function saveCoordinates() {
+    const location = gpsState.currentLocation;
+    if (!location) {
+        showNotification('No coordinates to save', 'error');
+        return;
+    }
+    
+    // Get farm profile
+    const farmProfile = getFarmProfileFromStorage();
+    if (!farmProfile) {
+        showNotification('Please create a farm profile first', 'error');
+        return;
+    }
+    
+    // Save to farm profile
+    farmProfile.gpsCoordinates = {
+        latitude: location.latitude,
+        longitude: location.longitude,
+        accuracy: location.accuracy,
+        lastUpdated: new Date().toISOString()
+    };
+    
+    // Save back to localStorage
+    localStorage.setItem('fa_farmProfile', JSON.stringify(farmProfile));
+    
+    // Update smart status button
+    createSmartStatusButton();
+    
+    showNotification('✅ GPS coordinates saved to farm profile!', 'success');
+}
+
+// =============================================
+// INTEGRATION WITH YOUR EXISTING SYSTEM
+// =============================================
+
+/**
+ * Initialize GPS system when app starts
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait a bit for other systems to initialize
+    setTimeout(() => {
+        initializeGPSSystem();
+    }, 1000);
+});
+
+/**
+ * Export GPS data for backup
+ */
+function exportGPSData() {
+    const exportData = {
+        savedLocations: gpsState.savedLocations,
+        history: gpsState.history,
+        currentLocation: gpsState.currentLocation,
+        exportDate: new Date().toISOString()
+    };
+    
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = `farmerpack-gps-backup-${new Date().getTime()}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+    
+    showNotification('✅ GPS data exported successfully!', 'success');
+}
+
+/**
+ * Import GPS data from backup
+ */
+function importGPSData(backupData) {
+    try {
+        const data = JSON.parse(backupData);
+        
+        if (data.savedLocations) {
+            gpsState.savedLocations = data.savedLocations;
+        }
+        
+        if (data.history) {
+            gpsState.history = data.history;
+        }
+        
+        if (data.currentLocation) {
+            gpsState.currentLocation = data.currentLocation;
+        }
+        
+        saveGPSSettings();
+        updateGPSDisplay();
+        updateGPSStatusIndicator();
+        
+        showNotification('✅ GPS data imported successfully!', 'success');
+        
+    } catch (e) {
+        console.error('❌ Error importing GPS data:', e);
+        showNotification('Error importing GPS data', 'error');
+    }
+}
+
+// =============================================
+// QUICK ACCESS FUNCTIONS
+// =============================================
+
+/**
+ * Quick share current location
+ */
+function quickShareLocation() {
+    if (!gpsState.currentLocation) {
+        showNotification('No location available', 'error');
+        return;
+    }
+    
+    openGPSModal();
+    showShareOptionsScreen();
+}
+
+/**
+ * Get current location coordinates
+ */
+function getCurrentCoordinates() {
+    return gpsState.currentLocation ? {
+        latitude: gpsState.currentLocation.latitude,
+        longitude: gpsState.currentLocation.longitude
+    } : null;
+}
+
+/**
+ * Calculate distance between two coordinates (in meters)
+ */
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371e3; // Earth's radius in meters
+    const φ1 = lat1 * Math.PI / 180;
+    const φ2 = lat2 * Math.PI / 180;
+    const Δφ = (lat2 - lat1) * Math.PI / 180;
+    const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+              Math.cos(φ1) * Math.cos(φ2) *
+              Math.sin(Δλ/2) * Math.sin(Δλ/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+    return R * c;
+}
+
+/**
+ * Format coordinates for display
+ */
+function formatCoordinates(latitude, longitude, precision = 6) {
+    const lat = latitude.toFixed(precision);
+    const lng = longitude.toFixed(precision);
+    
+    // Determine hemisphere
+    const latDir = latitude >= 0 ? 'N' : 'S';
+    const lngDir = longitude >= 0 ? 'E' : 'W';
+    
+    return `${Math.abs(latitude).toFixed(precision)}° ${latDir}, ${Math.abs(longitude).toFixed(precision)}° ${lngDir}`;
+}
+// In your main app initialization
+function initializeFarmerPackApp() {
+    // Your existing initialization code...
+    
+    // Initialize GPS system
+    initializeGPSSystem();
+    
+    // Add GPS data to smart status button
+    updateSmartStatusWithGPS();
+}
+
+/**
+ * Update smart status button with GPS info
+ */
+function updateSmartStatusWithGPS() {
+    const statusBtn = document.getElementById('smartStatusButton');
+    if (!statusBtn) return;
+    
+    const location = gpsState.currentLocation;
+    if (location) {
+        // Add GPS info to button tooltip
+        const lat = location.latitude.toFixed(4);
+        const lng = location.longitude.toFixed(4);
+        statusBtn.title += `\n📍 GPS: ${lat}, ${lng}`;
+    }
+}
+
+/**
+ * Add GPS info to farm data dashboard
+ */
+function addGPSInfoToDashboard() {
+    const location = gpsState.currentLocation;
+    if (!location) return '';
+    
+    return `
+        <div class="data-section">
+            <h4><span class="section-icon">📍</span> GPS Coordinates</h4>
+            <div class="data-grid">
+                <div class="data-row">
+                    <span class="data-label">Latitude:</span>
+                    <span class="data-value">${location.latitude.toFixed(6)}</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Longitude:</span>
+                    <span class="data-value">${location.longitude.toFixed(6)}</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Accuracy:</span>
+                    <span class="data-value">${Math.round(location.accuracy)} meters</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Last Updated:</span>
+                    <span class="data-value">${new Date(location.timestamp).toLocaleString()}</span>
+                </div>
+            </div>
+            <button onclick="openGPSModal()" class="action-btn" style="margin-top: 10px;">
+                <span class="btn-icon">📍</span>
+                <span class="btn-text">Manage GPS</span>
+            </button>
+        </div>
+    `;
+}
