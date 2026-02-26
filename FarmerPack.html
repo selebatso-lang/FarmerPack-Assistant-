@@ -19998,3 +19998,5003 @@ function viewSaleDetails(saleId) {
                         ${sale.items.map(item => `
                             <tr>
                                 <td>${item.name}</td>
+    <td>${item.quantity}</td>
+                                <td>${formatCurrency(item.price)}</td>
+                                <td>${formatCurrency(item.price * item.quantity)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3"><strong>Total</strong></td>
+                            <td><strong>${formatCurrency(sale.total)}</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+                
+                <button onclick="printReceipt('${sale.id}')" class="btn-primary" style="width: 100%; margin-top: 1rem;">
+                    Print Receipt
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+function printReceipt(saleId) {
+    const sale = (farmData.sales || []).find(s => s.id === saleId);
+    if (!sale) return;
+    
+    const receiptWindow = window.open('', '_blank');
+    receiptWindow.document.write(`
+        <html>
+            <head>
+                <title>Sale Receipt</title>
+                <style>
+                    body { font-family: 'Courier New', monospace; margin: 20px; }
+                    .receipt { max-width: 300px; margin: 0 auto; }
+                    .header { text-align: center; margin-bottom: 20px; }
+                    .items { margin: 20px 0; }
+                    .item { display: flex; justify-content: space-between; margin: 5px 0; }
+                    .total { border-top: 2px dashed #000; padding-top: 10px; margin-top: 10px; font-weight: bold; }
+                    .footer { text-align: center; margin-top: 30px; font-size: 0.9em; }
+                </style>
+            </head>
+            <body>
+                <div class="receipt">
+                    <div class="header">
+                        <h2>Farm Store</h2>
+                        <p>${formatDate(sale.date, { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                        <p>${new Date(sale.date).toLocaleTimeString()}</p>
+                    </div>
+                    
+                    <div class="items">
+                        ${sale.items.map(item => `
+                            <div class="item">
+                                <span>${item.name} x${item.quantity}</span>
+                                <span>${formatCurrency(item.price * item.quantity)}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="total">
+                        <div class="item">
+                            <span>TOTAL</span>
+                            <span>${formatCurrency(sale.total)}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="footer">
+                        <p>Thank you for your business!</p>
+                        <p>${new Date().toLocaleString()}</p>
+                    </div>
+                </div>
+            </body>
+        </html>
+    `);
+    receiptWindow.document.close();
+    receiptWindow.print();
+}
+
+function exportSalesHistory() {
+    const sales = farmData.sales || [];
+    
+    if (sales.length === 0) {
+        showNotification('No sales to export', 'error');
+        return;
+    }
+    
+    const rows = [
+        ['Date', 'Sale ID', 'Items', 'Quantity', 'Unit Price', 'Item Total', 'Sale Total'],
+        ...sales.flatMap(sale => 
+            sale.items.map(item => [
+                formatDate(sale.date),
+                sale.id,
+                item.name,
+                item.quantity,
+                item.price,
+                item.price * item.quantity,
+                item === sale.items[0] ? sale.total : '' // Only show total on first row of each sale
+            ])
+        )
+    ];
+    
+    const csv = rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+    downloadFile(`sales_history_${formatDate(new Date()).replace(/\s/g, '_')}.csv`, csv);
+}
+
+// ========== EXISTING POS FUNCTIONS (UPDATED) ==========
+function loadPOSProducts() {
+    const productsList = document.getElementById('posProductsList');
+    if (!productsList) return;
+    
+    const searchTerm = document.getElementById('productSearch')?.value.toLowerCase() || '';
+    
+    productsList.innerHTML = '';
+    
+    farmData.inventory.forEach((product, index) => {
+        if (product.quantity > 0 && 
+            (searchTerm === '' || product.name.toLowerCase().includes(searchTerm))) {
+            
+            const stockClass = product.quantity < POS_CONFIG.lowStockThreshold ? 'low-stock' : '';
+            
+            const productElement = document.createElement('div');
+            productElement.className = `product-card ${stockClass}`;
+            productElement.innerHTML = `
+                <div class="product-info">
+                    <h4>${product.name}</h4>
+                    <div class="product-meta">
+                        <span class="category">${product.category}</span>
+                        <span class="stock">Stock: ${product.quantity}</span>
+                    </div>
+                    <div class="product-price">${formatCurrency(product.price)}</div>
+                </div>
+                <button class="add-to-cart-btn" onclick="addToCart(${index})">
+                    Add to Cart
+                </button>
+            `;
+            productsList.appendChild(productElement);
+        }
+    });
+    
+    if (productsList.children.length === 0) {
+        productsList.innerHTML = '<div class="empty-state">No products available</div>';
+    }
+    
+    updateCartDisplay();
+}
+
+function filterProducts() {
+    loadPOSProducts();
+}
+
+function updateCartDisplay() {
+    const cartElement = document.getElementById('posCart');
+    const subtotalElement = document.getElementById('cartSubtotal');
+    const taxElement = document.getElementById('cartTax');
+    const totalElement = document.getElementById('cartTotal');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    
+    if (!cartElement || !subtotalElement || !taxElement || !totalElement || !checkoutBtn) return;
+    
+    if (posCart.length === 0) {
+        cartElement.innerHTML = '<div class="empty-state">Cart is empty</div>';
+        subtotalElement.textContent = '0.00 Pula';
+        taxElement.textContent = '0.00 Pula';
+        totalElement.textContent = '0.00 Pula';
+        checkoutBtn.disabled = true;
+        return;
+    }
+    
+    let subtotal = 0;
+    cartElement.innerHTML = '';
+    
+    posCart.forEach((item, index) => {
+        const itemTotal = item.price * item.quantity;
+        subtotal += itemTotal;
+        
+        const cartItem = document.createElement('div');
+        cartItem.className = 'cart-item';
+        cartItem.innerHTML = `
+            <div class="cart-item-info">
+                <div class="cart-item-name">${item.name}</div>
+                <div class="cart-item-price">${formatCurrency(item.price)} × ${item.quantity}</div>
+            </div>
+            <div class="cart-item-actions">
+                <span class="cart-item-total">${formatCurrency(itemTotal)}</span>
+                <button onclick="updateCartQuantity(${index}, -1)" class="qty-btn" 
+                        ${item.quantity <= 1 ? 'disabled' : ''}>−</button>
+                <span class="cart-item-qty">${item.quantity}</span>
+                <button onclick="updateCartQuantity(${index}, 1)" class="qty-btn"
+                        ${item.quantity >= farmData.inventory[item.productIndex]?.quantity ? 'disabled' : ''}>+</button>
+                <button onclick="removeFromCart(${index})" class="remove-btn">✕</button>
+            </div>
+        `;
+        cartElement.appendChild(cartItem);
+    });
+    
+    const tax = subtotal * POS_CONFIG.taxRate;
+    const total = subtotal + tax;
+    
+    subtotalElement.textContent = formatCurrency(subtotal);
+    taxElement.textContent = formatCurrency(tax);
+    totalElement.textContent = formatCurrency(total);
+    checkoutBtn.disabled = false;
+}
+
+function updateCartQuantity(index, change) {
+    const item = posCart[index];
+    const product = farmData.inventory[item.productIndex];
+    
+    const newQuantity = item.quantity + change;
+    
+    if (newQuantity < 1) {
+        removeFromCart(index);
+    } else if (newQuantity <= product.quantity) {
+        item.quantity = newQuantity;
+        updateCartDisplay();
+    } else {
+        showNotification('Not enough stock', 'error');
+    }
+}
+
+function showPaymentModal() {
+    if (posCart.length === 0) return;
+    
+    const subtotal = posCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const tax = subtotal * POS_CONFIG.taxRate;
+    const total = subtotal + tax;
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Complete Sale</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="payment-summary">
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span>${formatCurrency(subtotal)}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>VAT (${POS_CONFIG.taxRate * 100}%):</span>
+                        <span>${formatCurrency(tax)}</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total:</span>
+                        <span>${formatCurrency(total)}</span>
+                    </div>
+                </div>
+                
+                <div class="payment-methods">
+                    <h4>Payment Method</h4>
+                    <select id="paymentMethod" class="payment-select">
+                        <option value="cash">💵 Cash</option>
+                        <option value="card">💳 Card</option>
+                        <option value="mobile">📱 Mobile Money</option>
+                        <option value="credit">📝 Credit</option>
+                    </select>
+                </div>
+                
+                <div id="cashPaymentField" class="payment-field">
+                    <label for="amountPaid">Amount Paid:</label>
+                    <input type="number" id="amountPaid" step="0.01" min="${total}" 
+                           value="${total}" onchange="calculateChange(${total})">
+                    <div id="changeDisplay" class="change-display"></div>
+                </div>
+                
+                <button onclick="processPayment(${total})" class="btn-primary" style="width: 100%; margin-top: 1rem;">
+                    Process Payment
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    calculateChange(total);
+}
+
+function calculateChange(total) {
+    const amountPaid = parseFloat(document.getElementById('amountPaid')?.value) || 0;
+    const changeDisplay = document.getElementById('changeDisplay');
+    
+    if (amountPaid >= total) {
+        const change = amountPaid - total;
+        changeDisplay.innerHTML = `Change: ${formatCurrency(change)}`;
+        changeDisplay.style.color = 'var(--success)';
+    } else {
+        const remaining = total - amountPaid;
+        changeDisplay.innerHTML = `Remaining: ${formatCurrency(remaining)}`;
+        changeDisplay.style.color = 'var(--danger)';
+    }
+}
+
+function processPayment(total) {
+    const paymentMethod = document.getElementById('paymentMethod')?.value;
+    const amountPaid = parseFloat(document.getElementById('amountPaid')?.value) || total;
+    
+    if (amountPaid < total) {
+        showNotification('Insufficient payment amount', 'error');
+        return;
+    }
+    
+    // Update inventory
+    posCart.forEach(item => {
+        const product = farmData.inventory[item.productIndex];
+        if (product) {
+            product.quantity -= item.quantity;
+        }
+    });
+    
+    // Record sale
+    const sale = {
+        items: [...posCart],
+        subtotal: posCart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+        tax: posCart.reduce((sum, item) => sum + (item.price * item.quantity), 0) * POS_CONFIG.taxRate,
+        total: total,
+        paymentMethod: paymentMethod,
+        amountPaid: amountPaid,
+        change: amountPaid - total,
+        date: new Date().toISOString(),
+        id: 'SALE_' + Date.now()
+    };
+    
+    if (!farmData.sales) farmData.sales = [];
+    farmData.sales.push(sale);
+    
+    // Update finance balance
+    farmData.finances.balance += total;
+    
+    // Record as income in finance
+    farmData.finances.income.push({
+        amount: total,
+        source: 'Sales',
+        date: new Date().toISOString().split('T')[0],
+        id: 'INC_' + Date.now(),
+        saleId: sale.id
+    });
+    
+    if (safeSaveData()) {
+        showNotification(`Sale completed! Change: ${formatCurrency(amountPaid - total)}`, 'success');
+        
+        // Close modal
+        document.querySelector('.modal')?.remove();
+        
+        // Clear cart
+        posCart = [];
+        
+        // Refresh displays
+        loadPOSProducts();
+        updateCartDisplay();
+        updateDashboard();
+        
+        // Print receipt option
+        if (confirm('Print receipt?')) {
+            printReceipt(sale.id);
+        }
+    } else {
+        showNotification('Failed to complete sale', 'error');
+    }
+}
+
+function completeSale() {
+    showPaymentModal();
+}
+
+// ========== UTILITY FUNCTIONS ==========
+function formatCurrency(amount) {
+    return new Intl.NumberFormat(POS_CONFIG.locale, {
+        style: 'currency',
+        currency: POS_CONFIG.currency,
+        minimumFractionDigits: 2
+    }).format(amount);
+}
+
+function formatDate(dateString, options = POS_CONFIG.dateFormat) {
+    return new Date(dateString).toLocaleDateString(POS_CONFIG.locale, options);
+}
+
+function downloadFile(filename, content) {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// Initialize POS module
+function initPOS() {
+    posCart = [];
+    if (document.getElementById('posTabContent')) {
+        loadPOSProducts();
+    }
+}
+// =============================================
+// CART MANAGEMENT FUNCTIONS
+// =============================================
+
+// Cart state
+
+
+/**
+ * Add product to cart
+ * @param {number} productIndex - Index of product in inventory array
+ */
+function addToCart(productIndex) {
+    // Validate product index
+    if (productIndex === undefined || productIndex === null) {
+        showNotification('Invalid product', 'error');
+        return;
+    }
+
+    // Get product from inventory
+    const product = farmData.inventory[productIndex];
+    if (!product) {
+        showNotification('Product not found', 'error');
+        return;
+    }
+
+    // Check if product is in stock
+    if (product.quantity <= 0) {
+        showNotification(`${product.name} is out of stock`, 'error');
+        return;
+    }
+
+    // Check if product already in cart
+    const existingItemIndex = posCart.findIndex(item => item.productIndex === productIndex);
+
+    if (existingItemIndex !== -1) {
+        // Product exists in cart - check if we can add more
+        const currentItem = posCart[existingItemIndex];
+        
+        if (currentItem.quantity < product.quantity) {
+            // Increment quantity
+            posCart[existingItemIndex].quantity++;
+            showNotification(`Added another ${product.name} to cart`, 'success');
+        } else {
+            // Not enough stock
+            showNotification(`Only ${product.quantity} ${product.name} available in stock`, 'error');
+            return;
+        }
+    } else {
+        // New product - add to cart with quantity 1
+        posCart.push({
+            productIndex: productIndex,
+            name: product.name,
+            price: product.price,
+            quantity: 1,
+            category: product.category,
+            maxQuantity: product.quantity
+        });
+        showNotification(`${product.name} added to cart`, 'success');
+    }
+
+    // Update cart display
+    updateCartDisplay();
+    
+    // Visual feedback on product card
+    highlightAddedProduct(productIndex);
+}
+
+/**
+ * Add multiple quantities at once
+ * @param {number} productIndex - Index of product in inventory array
+ * @param {number} quantity - Quantity to add
+ */
+function addToCartBulk(productIndex, quantity) {
+    const product = farmData.inventory[productIndex];
+    if (!product) return;
+
+    // Validate quantity
+    quantity = parseInt(quantity);
+    if (isNaN(quantity) || quantity <= 0) {
+        showNotification('Invalid quantity', 'error');
+        return;
+    }
+
+    // Check stock availability
+    if (quantity > product.quantity) {
+        showNotification(`Only ${product.quantity} ${product.name} available`, 'error');
+        return;
+    }
+
+    // Check if product already in cart
+    const existingItemIndex = posCart.findIndex(item => item.productIndex === productIndex);
+
+    if (existingItemIndex !== -1) {
+        // Check if total quantity would exceed stock
+        const totalQuantity = posCart[existingItemIndex].quantity + quantity;
+        if (totalQuantity > product.quantity) {
+            showNotification(`Cannot add ${quantity} more. Only ${product.quantity - posCart[existingItemIndex].quantity} available`, 'error');
+            return;
+        }
+        posCart[existingItemIndex].quantity = totalQuantity;
+    } else {
+        posCart.push({
+            productIndex: productIndex,
+            name: product.name,
+            price: product.price,
+            quantity: quantity,
+            category: product.category,
+            maxQuantity: product.quantity
+        });
+    }
+
+    showNotification(`Added ${quantity} ${product.name} to cart`, 'success');
+    updateCartDisplay();
+}
+
+/**
+ * Update cart item quantity
+ * @param {number} cartIndex - Index in cart array
+ * @param {number} change - Change in quantity (+1 or -1)
+ */
+function updateCartQuantity(cartIndex, change) {
+    // Validate cart index
+    if (cartIndex < 0 || cartIndex >= posCart.length) {
+        showNotification('Cart item not found', 'error');
+        return;
+    }
+
+    const cartItem = posCart[cartIndex];
+    const product = farmData.inventory[cartItem.productIndex];
+
+    if (!product) {
+        // Product no longer exists - remove from cart
+        posCart.splice(cartIndex, 1);
+        showNotification('Product removed from cart (no longer available)', 'info');
+        updateCartDisplay();
+        return;
+    }
+
+    const newQuantity = cartItem.quantity + change;
+
+    // Validate new quantity
+    if (newQuantity < 1) {
+        // Remove item if quantity becomes 0
+        removeFromCart(cartIndex);
+        return;
+    }
+
+    if (newQuantity > product.quantity) {
+        showNotification(`Only ${product.quantity} ${product.name} available`, 'error');
+        return;
+    }
+
+    // Update quantity
+    cartItem.quantity = newQuantity;
+    
+    // Show visual feedback
+    showNotification(`Updated ${cartItem.name} quantity to ${newQuantity}`, 'success');
+    
+    // Update display
+    updateCartDisplay();
+}
+
+/**
+ * Remove item from cart
+ * @param {number} cartIndex - Index in cart array
+ */
+function removeFromCart(cartIndex) {
+    if (cartIndex < 0 || cartIndex >= posCart.length) {
+        showNotification('Cart item not found', 'error');
+        return;
+    }
+
+    const removedItem = posCart[cartIndex];
+    posCart.splice(cartIndex, 1);
+    
+    showNotification(`${removedItem.name} removed from cart`, 'info');
+    updateCartDisplay();
+}
+
+/**
+ * Clear entire cart
+ */
+function clearCart() {
+    if (posCart.length === 0) {
+        showNotification('Cart is already empty', 'info');
+        return;
+    }
+
+    if (confirm('Are you sure you want to clear all items from cart?')) {
+        const itemCount = posCart.length;
+        posCart = [];
+        showNotification(`Cleared ${itemCount} item(s) from cart`, 'success');
+        updateCartDisplay();
+    }
+}
+
+/**
+ * Update cart display
+ */
+function updateCartDisplay() {
+    const cartElement = document.getElementById('posCart');
+    const subtotalElement = document.getElementById('cartSubtotal');
+    const taxElement = document.getElementById('cartTax');
+    const totalElement = document.getElementById('cartTotal');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    const cartCountElement = document.getElementById('cartCount');
+    
+    if (!cartElement) return;
+
+    if (posCart.length === 0) {
+        // Empty cart
+        cartElement.innerHTML = `
+            <div class="empty-cart">
+                <span class="empty-cart-icon">🛒</span>
+                <p>Your cart is empty</p>
+                <small>Add products from the left panel</small>
+            </div>
+        `;
+        
+        if (subtotalElement) subtotalElement.textContent = formatCurrency(0);
+        if (taxElement) taxElement.textContent = formatCurrency(0);
+        if (totalElement) totalElement.textContent = formatCurrency(0);
+        if (checkoutBtn) checkoutBtn.disabled = true;
+        if (cartCountElement) cartCountElement.textContent = '0';
+        
+        return;
+    }
+
+    // Calculate totals
+    let subtotal = 0;
+    let totalItems = 0;
+    
+    cartElement.innerHTML = '';
+    
+    posCart.forEach((item, index) => {
+        const product = farmData.inventory[item.productIndex];
+        const itemTotal = item.price * item.quantity;
+        subtotal += itemTotal;
+        totalItems += item.quantity;
+        
+        // Check if stock is low for this item
+        const stockStatus = product ? 
+            (item.quantity === product.quantity ? 'max-stock' : 
+             item.quantity > product.quantity * 0.8 ? 'low-stock' : '') : '';
+        
+        const cartItem = document.createElement('div');
+        cartItem.className = `cart-item ${stockStatus}`;
+        cartItem.dataset.index = index;
+        
+        cartItem.innerHTML = `
+            <div class="cart-item-main">
+                <div class="cart-item-details">
+                    <div class="cart-item-header">
+                        <span class="cart-item-name">${escapeHtml(item.name)}</span>
+                        <span class="cart-item-category">${escapeHtml(item.category || '')}</span>
+                    </div>
+                    <div class="cart-item-price-info">
+                        <span class="cart-item-unit-price">${formatCurrency(item.price)} each</span>
+                        ${product && item.quantity > product.quantity * 0.8 ? 
+                            '<span class="stock-warning">⚠️ Low stock</span>' : ''}
+                    </div>
+                </div>
+                
+                <div class="cart-item-controls">
+                    <div class="quantity-controls">
+                        <button class="qty-btn decrease" 
+                                onclick="updateCartQuantity(${index}, -1)"
+                                ${item.quantity <= 1 ? 'disabled' : ''}
+                                title="Decrease quantity">−</button>
+                        
+                        <span class="cart-item-qty" title="${item.quantity} in cart">
+                            ${item.quantity}
+                        </span>
+                        
+                        <button class="qty-btn increase" 
+                                onclick="updateCartQuantity(${index}, 1)"
+                                ${product && item.quantity >= product.quantity ? 'disabled' : ''}
+                                title="Increase quantity (${product ? product.quantity - item.quantity : 0} available)">+</button>
+                    </div>
+                    
+                    <div class="cart-item-total">
+                        <span class="total-label">Total:</span>
+                        <span class="total-amount">${formatCurrency(itemTotal)}</span>
+                    </div>
+                    
+                    <button class="remove-item-btn" 
+                            onclick="removeFromCart(${index})"
+                            title="Remove from cart">✕</button>
+                </div>
+            </div>
+            
+            ${product && item.quantity === product.quantity ? 
+                '<div class="stock-message">Maximum available quantity reached</div>' : ''}
+        `;
+        
+        cartElement.appendChild(cartItem);
+    });
+
+    // Calculate tax and total
+    const tax = subtotal * POS_CONFIG.taxRate;
+    const total = subtotal + tax;
+
+    // Update summary
+    if (subtotalElement) subtotalElement.textContent = formatCurrency(subtotal);
+    if (taxElement) taxElement.textContent = formatCurrency(tax);
+    if (totalElement) totalElement.textContent = formatCurrency(total);
+    if (checkoutBtn) checkoutBtn.disabled = false;
+    if (cartCountElement) cartCountElement.textContent = totalItems;
+
+    // Update cart summary with additional info
+    updateCartSummary(subtotal, tax, total, totalItems);
+}
+
+/**
+ * Update cart summary with detailed information
+ */
+function updateCartSummary(subtotal, tax, total, totalItems) {
+    const summaryElement = document.querySelector('.cart-summary');
+    if (!summaryElement) return;
+
+    // Add item count and average
+    const averagePerItem = totalItems > 0 ? subtotal / totalItems : 0;
+    
+    const summaryHTML = `
+        <div class="summary-header">
+            <h4>Cart Summary</h4>
+            <span class="item-count">${totalItems} item${totalItems !== 1 ? 's' : ''}</span>
+        </div>
+        <div class="summary-details">
+            <div class="summary-row">
+                <span>Subtotal:</span>
+                <span>${formatCurrency(subtotal)}</span>
+            </div>
+            <div class="summary-row">
+                <span>Average per item:</span>
+                <span>${formatCurrency(averagePerItem)}</span>
+            </div>
+            <div class="summary-row">
+                <span>VAT (${POS_CONFIG.taxRate * 100}%):</span>
+                <span>${formatCurrency(tax)}</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total:</span>
+                <span>${formatCurrency(total)}</span>
+            </div>
+        </div>
+    `;
+    
+    // Only update if content changed to avoid flicker
+    if (summaryElement.innerHTML !== summaryHTML) {
+        summaryElement.innerHTML = summaryHTML;
+    }
+}
+
+/**
+ * Highlight product that was added to cart
+ */
+function highlightAddedProduct(productIndex) {
+    const productCards = document.querySelectorAll('.product-card');
+    if (productCards[productIndex]) {
+        productCards[productIndex].classList.add('just-added');
+        setTimeout(() => {
+            productCards[productIndex].classList.remove('just-added');
+        }, 500);
+    }
+}
+
+/**
+ * Quick add product with specific quantity
+ */
+function quickAddToCart(productIndex) {
+    const product = farmData.inventory[productIndex];
+    if (!product) return;
+
+    // Create modal for quantity input
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content quick-add-modal">
+            <div class="modal-header">
+                <h3>Add ${escapeHtml(product.name)}</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Available stock: <strong>${product.quantity}</strong></p>
+                <p>Price: ${formatCurrency(product.price)} each</p>
+                
+                <div class="form-group">
+                    <label for="quickQuantity">Quantity:</label>
+                    <input type="number" id="quickQuantity" min="1" max="${product.quantity}" 
+                           value="1" class="quick-quantity-input">
+                </div>
+                
+                <div class="quick-add-preview">
+                    Total: <span id="quickTotal">${formatCurrency(product.price)}</span>
+                </div>
+                
+                <div class="modal-actions">
+                    <button onclick="addToCartBulk(${productIndex}, document.getElementById('quickQuantity').value)" 
+                            class="btn-primary">Add to Cart</button>
+                    <button onclick="this.closest('.modal').remove()" class="btn-outline">Cancel</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Add live total update
+    const quantityInput = document.getElementById('quickQuantity');
+    const totalSpan = document.getElementById('quickTotal');
+    
+    quantityInput.addEventListener('input', () => {
+        const qty = parseInt(quantityInput.value) || 0;
+        totalSpan.textContent = formatCurrency(product.price * qty);
+    });
+}
+
+/**
+ * Get cart item count
+ */
+function getCartItemCount() {
+    return posCart.reduce((total, item) => total + item.quantity, 0);
+}
+
+/**
+ * Get cart subtotal
+ */
+function getCartSubtotal() {
+    return posCart.reduce((total, item) => total + (item.price * item.quantity), 0);
+}
+
+/**
+ * Validate cart before checkout
+ */
+function validateCart() {
+    if (posCart.length === 0) {
+        showNotification('Cart is empty', 'error');
+        return false;
+    }
+
+    // Check if all items are still available
+    for (const item of posCart) {
+        const product = farmData.inventory[item.productIndex];
+        if (!product) {
+            showNotification(`${item.name} is no longer available`, 'error');
+            return false;
+        }
+        if (item.quantity > product.quantity) {
+            showNotification(`Only ${product.quantity} ${product.name} available (you have ${item.quantity} in cart)`, 'error');
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * Escape HTML to prevent XSS
+ */
+function escapeHtml(unsafe) {
+    if (!unsafe) return '';
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+// Initialize cart when module loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Reset cart when POS module is loaded
+    if (window.location.hash === '#pos') {
+        posCart = [];
+    }
+});
+
+// Export for use in other modules
+window.addToCart = addToCart;
+window.addToCartBulk = addToCartBulk;
+window.updateCartQuantity = updateCartQuantity;
+window.removeFromCart = removeFromCart;
+window.clearCart = clearCart;
+window.quickAddToCart = quickAddToCart;
+window.getCartItemCount = getCartItemCount;
+window.getCartSubtotal = getCartSubtotal;
+window.validateCart = validateCart;
+
+
+// =============================================
+// FINANCE FUNCTIONS - UPGRADED
+// =============================================
+
+// ========== CONFIGURATION ==========
+const FINANCE_CONFIG = {
+    currency: 'BWP',
+    locale: 'en-BW',
+    maxReceiptSize: 5 * 1024 * 1024, // 5MB
+    allowedReceiptTypes: ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'],
+    recentTransactionsLimit: 10
+};
+
+// ========== VALIDATION FUNCTIONS ==========
+function validateAmount(amount) {
+    if (!amount || isNaN(amount) || amount <= 0) {
+        throw new Error('Please enter a valid positive amount');
+    }
+    return parseFloat(parseFloat(amount).toFixed(2));
+}
+
+function validateRequired(value, fieldName) {
+    if (!value || value.toString().trim() === '') {
+        throw new Error(`${fieldName} is required`);
+    }
+    return value.toString().trim();
+}
+
+function validateDate(date) {
+    if (!date) {
+        throw new Error('Date is required');
+    }
+    // Validate date is not in future
+    const inputDate = new Date(date);
+    const today = new Date();
+    if (inputDate > today) {
+        throw new Error('Date cannot be in the future');
+    }
+    return date;
+}
+
+function validateReceipt(file) {
+    if (!file) return null;
+    
+    if (file.size > FINANCE_CONFIG.maxReceiptSize) {
+        throw new Error(`Receipt size must be less than ${FINANCE_CONFIG.maxReceiptSize / (1024 * 1024)}MB`);
+    }
+    
+    if (!FINANCE_CONFIG.allowedReceiptTypes.includes(file.type)) {
+        throw new Error('Invalid file type. Please upload JPEG, PNG, GIF, or PDF');
+    }
+    
+    return file;
+}
+
+// ========== FILE HANDLING ==========
+class ReceiptManager {
+    static async saveReceipt(file, transactionId) {
+        try {
+            const receiptData = await this.fileToBase64(file);
+            const receipt = {
+                id: `REC_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                transactionId,
+                fileName: file.name,
+                fileType: file.type,
+                fileSize: file.size,
+                data: receiptData,
+                uploadDate: new Date().toISOString()
+            };
+            
+            // Save to localStorage
+            const receipts = this.getReceipts();
+            receipts.push(receipt);
+            localStorage.setItem('farmReceipts', JSON.stringify(receipts));
+            
+            return receipt.id;
+        } catch (error) {
+            console.error('Error saving receipt:', error);
+            throw new Error('Failed to save receipt');
+        }
+    }
+    
+    static fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    }
+    
+    static getReceipts() {
+        try {
+            return JSON.parse(localStorage.getItem('farmReceipts') || '[]');
+        } catch {
+            return [];
+        }
+    }
+    
+    static getReceipt(receiptId) {
+        const receipts = this.getReceipts();
+        return receipts.find(r => r.id === receiptId);
+    }
+    
+    static getReceiptsByTransaction(transactionId) {
+        const receipts = this.getReceipts();
+        return receipts.filter(r => r.transactionId === transactionId);
+    }
+    
+    static deleteReceipt(receiptId) {
+        const receipts = this.getReceipts();
+        const filtered = receipts.filter(r => r.id !== receiptId);
+        localStorage.setItem('farmReceipts', JSON.stringify(filtered));
+    }
+    
+    static async downloadReceipt(receiptId) {
+        const receipt = this.getReceipt(receiptId);
+        if (!receipt) throw new Error('Receipt not found');
+        
+        const link = document.createElement('a');
+        link.href = receipt.data;
+        link.download = receipt.fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+}
+
+// ========== TRANSACTION MANAGEMENT ==========
+class TransactionManager {
+    static createIncome(amount, source, date, notes = '', receiptFile = null) {
+        return {
+            id: `INC_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            amount,
+            source,
+            date,
+            notes,
+            receiptId: null,
+            createdAt: new Date().toISOString()
+        };
+    }
+    
+    static createExpense(amount, category, date, notes = '', receiptFile = null) {
+        return {
+            id: `EXP_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            amount,
+            category,
+            date,
+            notes,
+            receiptId: null,
+            createdAt: new Date().toISOString()
+        };
+    }
+    
+    static getAllTransactions() {
+        const allTransactions = [
+            ...(farmData.finances.income || []).map(t => ({...t, type: 'income'})),
+            ...(farmData.finances.expenses || []).map(t => ({...t, type: 'expense'}))
+        ];
+        return allTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+    }
+}
+
+// ========== UI RENDERING ==========
+function loadFinanceContent() {
+    const content = `
+        <div class="finance-module">
+            <h2>💳 Financial Management</h2>
+            
+            <div class="finance-tabs">
+                <button class="tab-btn active" onclick="switchFinanceTab('overview')">Overview</button>
+                <button class="tab-btn" onclick="switchFinanceTab('income')">Income</button>
+                <button class="tab-btn" onclick="switchFinanceTab('expenses')">Expenses</button>
+                <button class="tab-btn" onclick="switchFinanceTab('receipts')">Receipts</button>
+                <button class="tab-btn" onclick="switchFinanceTab('reports')">Reports</button>
+            </div>
+            
+            <div id="financeTabContent">
+                ${renderOverviewTab()}
+            </div>
+        </div>
+    `;
+    
+    setTimeout(() => loadFinanceData(), 100);
+    return content;
+}
+
+function renderOverviewTab() {
+    return `
+        <div class="finance-overview">
+            <div class="grid-2">
+                <div class="finance-card">
+                    <h3>📥 Record Income</h3>
+                    <form id="incomeForm" onsubmit="handleIncomeSubmit(event)">
+                        <div class="form-group">
+                            <label for="incomeAmount">Amount (Pula):</label>
+                            <input type="number" id="incomeAmount" step="0.01" min="0.01" 
+                                   placeholder="Enter amount" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="incomeSource">Source:</label>
+                            <input type="text" id="incomeSource" placeholder="Income source" 
+                                   maxlength="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="incomeDate">Date:</label>
+                            <input type="date" id="incomeDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="incomeNotes">Notes (Optional):</label>
+                            <textarea id="incomeNotes" rows="2" placeholder="Additional notes..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="incomeReceipt">Upload Receipt (Optional):</label>
+                            <input type="file" id="incomeReceipt" accept="image/*,.pdf" 
+                                   onchange="previewReceipt(this, 'incomePreview')">
+                            <div id="incomePreview" class="receipt-preview"></div>
+                        </div>
+                        <button type="submit" class="btn-primary">Record Income</button>
+                    </form>
+                </div>
+                
+                <div class="finance-card">
+                    <h3>📤 Record Expense</h3>
+                    <form id="expenseForm" onsubmit="handleExpenseSubmit(event)">
+                        <div class="form-group">
+                            <label for="expenseAmount">Amount (Pula):</label>
+                            <input type="number" id="expenseAmount" step="0.01" min="0.01" 
+                                   placeholder="Enter amount" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="expenseCategory">Category:</label>
+                            <select id="expenseCategory" required>
+                                <option value="">Select Category</option>
+                                <option value="seeds">🌱 Seeds</option>
+                                <option value="fertilizers">🧪 Fertilizers</option>
+                                <option value="labor">👨‍🌾 Labor</option>
+                                <option value="equipment">🚜 Equipment</option>
+                                <option value="fuel">⛽ Fuel</option>
+                                <option value="maintenance">🔧 Maintenance</option>
+                                <option value="utilities">💡 Utilities</option>
+                                <option value="other">📦 Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="expenseDate">Date:</label>
+                            <input type="date" id="expenseDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="expenseNotes">Notes (Optional):</label>
+                            <textarea id="expenseNotes" rows="2" placeholder="Additional notes..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="expenseReceipt">Upload Receipt (Optional):</label>
+                            <input type="file" id="expenseReceipt" accept="image/*,.pdf" 
+                                   onchange="previewReceipt(this, 'expensePreview')">
+                            <div id="expensePreview" class="receipt-preview"></div>
+                        </div>
+                        <button type="submit" class="btn-primary">Record Expense</button>
+                    </form>
+                </div>
+            </div>
+            
+            ${renderFinancialSummary()}
+            ${renderRecentTransactions()}
+        </div>
+    `;
+}
+
+function renderFinancialSummary() {
+    const summary = calculateFinancialSummary();
+    
+    return `
+        <div class="financial-summary">
+            <h3>📊 Financial Summary</h3>
+            <div class="dashboard-grid">
+                <div class="dashboard-card balance-card">
+                    <div class="card-icon">💰</div>
+                    <div class="card-content">
+                        <h4>Current Balance</h4>
+                        <div class="value ${summary.balance >= 0 ? 'positive' : 'negative'}">
+                            ${formatCurrency(summary.balance)}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card income-card">
+                    <div class="card-icon">📈</div>
+                    <div class="card-content">
+                        <h4>Total Income</h4>
+                        <div class="value">${formatCurrency(summary.totalIncome)}</div>
+                        <small>${summary.incomeCount} transactions</small>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card expense-card">
+                    <div class="card-icon">📉</div>
+                    <div class="card-content">
+                        <h4>Total Expenses</h4>
+                        <div class="value">${formatCurrency(summary.totalExpenses)}</div>
+                        <small>${summary.expenseCount} transactions</small>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card profit-card">
+                    <div class="card-icon">📊</div>
+                    <div class="card-content">
+                        <h4>Profit Margin</h4>
+                        <div class="value">${summary.profitMargin.toFixed(1)}%</div>
+                        <small>${formatCurrency(summary.totalIncome - summary.totalExpenses)} net</small>
+                    </div>
+                </div>
+            </div>
+            
+            ${renderExpenseBreakdown(summary.expenseBreakdown)}
+        </div>
+    `;
+}
+
+function renderExpenseBreakdown(breakdown) {
+    if (Object.keys(breakdown).length === 0) return '';
+    
+    const total = Object.values(breakdown).reduce((a, b) => a + b, 0);
+    
+    return `
+        <div class="expense-breakdown">
+            <h4>Expense Breakdown</h4>
+            <div class="breakdown-list">
+                ${Object.entries(breakdown).map(([category, amount]) => {
+                    const percentage = ((amount / total) * 100).toFixed(1);
+                    return `
+                        <div class="breakdown-item">
+                            <div class="breakdown-label">
+                                <span class="category-icon">${getCategoryIcon(category)}</span>
+                                <span>${capitalizeFirst(category)}</span>
+                            </div>
+                            <div class="breakdown-bar">
+                                <div class="bar-fill" style="width: ${percentage}%"></div>
+                            </div>
+                            <div class="breakdown-amount">
+                                ${formatCurrency(amount)} (${percentage}%)
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+    `;
+}
+
+function renderRecentTransactions() {
+    const transactions = TransactionManager.getAllTransactions().slice(0, FINANCE_CONFIG.recentTransactionsLimit);
+    
+    if (transactions.length === 0) {
+        return `
+            <div class="recent-transactions">
+                <h3>Recent Transactions</h3>
+                <div class="empty-state">
+                    <span class="empty-icon">📭</span>
+                    <p>No transactions yet</p>
+                    <small>Record your first income or expense above</small>
+                </div>
+            </div>
+        `;
+    }
+    
+    return `
+        <div class="recent-transactions">
+            <h3>Recent Transactions</h3>
+            <div class="transactions-list">
+                ${transactions.map(transaction => renderTransactionItem(transaction)).join('')}
+            </div>
+        </div>
+    `;
+}
+
+function renderTransactionItem(transaction) {
+    const hasReceipt = transaction.receiptId || (transaction.id && ReceiptManager.getReceiptsByTransaction(transaction.id).length > 0);
+    
+    return `
+        <div class="transaction-item ${transaction.type}" onclick="showTransactionDetails('${transaction.id}')">
+            <div class="transaction-icon">
+                ${transaction.type === 'income' ? '📥' : '📤'}
+            </div>
+            <div class="transaction-details">
+                <div class="transaction-header">
+                    <span class="transaction-desc">
+                        ${transaction.source || capitalizeFirst(transaction.category)}
+                    </span>
+                    <span class="transaction-amount ${transaction.type}">
+                        ${transaction.type === 'income' ? '+' : '-'}${formatCurrency(transaction.amount)}
+                    </span>
+                </div>
+                <div class="transaction-meta">
+                    <span class="transaction-date">${formatDate(transaction.date)}</span>
+                    ${hasReceipt ? '<span class="receipt-badge">📎 Receipt</span>' : ''}
+                    ${transaction.notes ? '<span class="notes-indicator">📝</span>' : ''}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// ========== TAB SWITCHING ==========
+function switchFinanceTab(tabName) {
+    // Update active tab
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    const tabContent = document.getElementById('financeTabContent');
+    
+    switch(tabName) {
+        case 'overview':
+            tabContent.innerHTML = renderOverviewTab();
+            break;
+        case 'income':
+            tabContent.innerHTML = renderIncomeTab();
+            break;
+        case 'expenses':
+            tabContent.innerHTML = renderExpensesTab();
+            break;
+        case 'receipts':
+            tabContent.innerHTML = renderReceiptsTab();
+            break;
+        case 'reports':
+            tabContent.innerHTML = renderReportsTab();
+            break;
+    }
+    
+    loadFinanceData();
+}
+
+function renderIncomeTab() {
+    const income = farmData.finances.income || [];
+    
+    return `
+        <div class="income-tab">
+            <h3>Income History</h3>
+            ${income.length === 0 ? 
+                '<div class="empty-state">No income recorded yet</div>' : 
+                `<div class="transactions-full-list">
+                    ${income.sort((a,b) => new Date(b.date) - new Date(a.date))
+                           .map(t => renderFullTransactionItem({...t, type: 'income'}))
+                           .join('')}
+                </div>`
+            }
+        </div>
+    `;
+}
+
+function renderExpensesTab() {
+    const expenses = farmData.finances.expenses || [];
+    
+    return `
+        <div class="expenses-tab">
+            <h3>Expense History</h3>
+            ${expenses.length === 0 ? 
+                '<div class="empty-state">No expenses recorded yet</div>' : 
+                `<div class="transactions-full-list">
+                    ${expenses.sort((a,b) => new Date(b.date) - new Date(a.date))
+                           .map(t => renderFullTransactionItem({...t, type: 'expense'}))
+                           .join('')}
+                </div>`
+            }
+        </div>
+    `;
+}
+
+function renderFullTransactionItem(transaction) {
+    const receipts = ReceiptManager.getReceiptsByTransaction(transaction.id);
+    
+    return `
+        <div class="full-transaction-item" id="transaction-${transaction.id}">
+            <div class="transaction-main">
+                <div class="transaction-info">
+                    <span class="transaction-type ${transaction.type}">
+                        ${transaction.type === 'income' ? '📥 Income' : '📤 Expense'}
+                    </span>
+                    <span class="transaction-source">${transaction.source || capitalizeFirst(transaction.category)}</span>
+                    <span class="transaction-date">${formatDate(transaction.date)}</span>
+                </div>
+                <div class="transaction-amount ${transaction.type}">
+                    ${transaction.type === 'income' ? '+' : '-'}${formatCurrency(transaction.amount)}
+                </div>
+            </div>
+            
+            ${transaction.notes ? `
+                <div class="transaction-notes">
+                    <strong>Notes:</strong> ${transaction.notes}
+                </div>
+            ` : ''}
+            
+            ${receipts.length > 0 ? `
+                <div class="transaction-receipts">
+                    <strong>Receipts:</strong>
+                    <div class="receipts-list">
+                        ${receipts.map(receipt => `
+                            <div class="receipt-item">
+                                <span class="receipt-icon">📎</span>
+                                <span class="receipt-name">${receipt.fileName}</span>
+                                <button class="btn-small" onclick="downloadReceipt('${receipt.id}')">Download</button>
+                                <button class="btn-small btn-danger" onclick="deleteReceipt('${receipt.id}')">Delete</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+        </div>
+    `;
+}
+
+function renderReceiptsTab() {
+    const receipts = ReceiptManager.getReceipts();
+    
+    return `
+        <div class="receipts-tab">
+            <h3>📎 All Receipts</h3>
+            <div class="receipts-grid">
+                ${receipts.length === 0 ? 
+                    '<div class="empty-state">No receipts uploaded yet</div>' : 
+                    receipts.map(receipt => `
+                        <div class="receipt-card">
+                            <div class="receipt-preview">
+                                ${receipt.fileType.startsWith('image/') ? 
+                                    `<img src="${receipt.data}" alt="${receipt.fileName}">` : 
+                                    '<div class="pdf-icon">📄 PDF</div>'
+                                }
+                            </div>
+                            <div class="receipt-info">
+                                <div class="receipt-filename">${receipt.fileName}</div>
+                                <div class="receipt-meta">
+                                    <span>${formatFileSize(receipt.fileSize)}</span>
+                                    <span>${formatDate(receipt.uploadDate)}</span>
+                                </div>
+                            </div>
+                            <div class="receipt-actions">
+                                <button class="btn-small" onclick="downloadReceipt('${receipt.id}')">Download</button>
+                                <button class="btn-small btn-danger" onclick="deleteReceipt('${receipt.id}')">Delete</button>
+                            </div>
+                        </div>
+                    `).join('')
+                }
+            </div>
+        </div>
+    `;
+}
+
+function renderReportsTab() {
+    const summary = calculateFinancialSummary();
+    
+    return `
+        <div class="reports-tab">
+            <h3>📊 Financial Reports</h3>
+            
+            <div class="report-actions">
+                <button class="btn-primary" onclick="exportData('csv')">Export as CSV</button>
+                <button class="btn-primary" onclick="exportData('json')">Export as JSON</button>
+            </div>
+            
+            <div class="report-summary">
+                <h4>Period Summary</h4>
+                <table class="report-table">
+                    <tr>
+                        <th>Total Income</th>
+                        <td>${formatCurrency(summary.totalIncome)}</td>
+                        <td>${summary.incomeCount} transactions</td>
+                    </tr>
+                    <tr>
+                        <th>Total Expenses</th>
+                        <td>${formatCurrency(summary.totalExpenses)}</td>
+                        <td>${summary.expenseCount} transactions</td>
+                    </tr>
+                    <tr>
+                        <th>Net Profit/Loss</th>
+                        <td class="${summary.balance >= 0 ? 'positive' : 'negative'}">
+                            ${formatCurrency(summary.balance)}
+                        </td>
+                        <td>${summary.profitMargin.toFixed(1)}% margin</td>
+                    </tr>
+                </table>
+            </div>
+            
+            ${renderExpenseBreakdown(summary.expenseBreakdown)}
+        </div>
+    `;
+}
+
+// ========== FORM HANDLING ==========
+function getFormData(formConfig) {
+    const data = {};
+    for (const [key, config] of Object.entries(formConfig)) {
+        const element = getElement(config.id);
+        if (!element) continue;
+        
+        let value = element.type === 'file' ? element.files[0] : element.value;
+        
+        if (config.validator) {
+            data[key] = config.validator(value);
+        } else {
+            data[key] = value;
+        }
+    }
+    return data;
+}
+
+function clearFormFields(formIds = []) {
+    formIds.forEach(id => {
+        const element = getElement(id);
+        if (element) {
+            if (element.type === 'file') {
+                element.value = '';
+            } else if (element.tagName === 'SELECT') {
+                element.selectedIndex = 0;
+            } else {
+                element.value = '';
+            }
+        }
+    });
+    
+    // Clear previews
+    ['incomePreview', 'expensePreview'].forEach(pid => {
+        const preview = getElement(pid);
+        if (preview) preview.innerHTML = '';
+    });
+}
+
+function previewReceipt(input, previewId) {
+    const preview = getElement(previewId);
+    if (!preview) return;
+    
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                preview.innerHTML = `
+                    <div class="preview-container">
+                        <img src="${e.target.result}" alt="Preview">
+                        <span class="preview-name">${file.name}</span>
+                    </div>
+                `;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            preview.innerHTML = `
+                <div class="preview-container">
+                    <span class="pdf-icon">📄</span>
+                    <span class="preview-name">${file.name}</span>
+                </div>
+            `;
+        }
+    } else {
+        preview.innerHTML = '';
+    }
+}
+
+// ========== TRANSACTION HANDLERS ==========
+async function handleIncomeSubmit(event) {
+    event.preventDefault();
+    
+    try {
+        const formConfig = {
+            amount: { id: 'incomeAmount', validator: validateAmount },
+            source: { id: 'incomeSource', validator: (v) => validateRequired(v, 'Source') },
+            date: { id: 'incomeDate', validator: validateDate },
+            notes: { id: 'incomeNotes', validator: (v) => v || '' },
+            receipt: { id: 'incomeReceipt', validator: validateReceipt }
+        };
+        
+        const data = getFormData(formConfig);
+        const income = TransactionManager.createIncome(
+            data.amount, 
+            data.source, 
+            data.date, 
+            data.notes
+        );
+        
+        // Handle receipt upload
+        if (data.receipt) {
+            const receiptId = await ReceiptManager.saveReceipt(data.receipt, income.id);
+            income.receiptId = receiptId;
+        }
+        
+        // Save transaction
+        farmData.finances.income.push(income);
+        farmData.finances.balance += data.amount;
+        
+        if (safeSaveData()) {
+            showNotification('Income recorded successfully!', 'success');
+            clearFormFields(['incomeAmount', 'incomeSource', 'incomeDate', 'incomeNotes', 'incomeReceipt']);
+            loadFinanceData();
+            updateDashboard();
+        } else {
+            // Rollback
+            farmData.finances.income.pop();
+            farmData.finances.balance -= data.amount;
+            if (income.receiptId) {
+                ReceiptManager.deleteReceipt(income.receiptId);
+            }
+            throw new Error('Failed to save data');
+        }
+    } catch (error) {
+        showNotification(error.message, 'error');
+    }
+}
+
+async function handleExpenseSubmit(event) {
+    event.preventDefault();
+    
+    try {
+        const formConfig = {
+            amount: { id: 'expenseAmount', validator: validateAmount },
+            category: { id: 'expenseCategory', validator: (v) => validateRequired(v, 'Category') },
+            date: { id: 'expenseDate', validator: validateDate },
+            notes: { id: 'expenseNotes', validator: (v) => v || '' },
+            receipt: { id: 'expenseReceipt', validator: validateReceipt }
+        };
+        
+        const data = getFormData(formConfig);
+        const expense = TransactionManager.createExpense(
+            data.amount, 
+            data.category, 
+            data.date, 
+            data.notes
+        );
+        
+        // Handle receipt upload
+        if (data.receipt) {
+            const receiptId = await ReceiptManager.saveReceipt(data.receipt, expense.id);
+            expense.receiptId = receiptId;
+        }
+        
+        // Save transaction
+        farmData.finances.expenses.push(expense);
+        farmData.finances.balance -= data.amount;
+        
+        if (safeSaveData()) {
+            showNotification('Expense recorded successfully!', 'success');
+            clearFormFields(['expenseAmount', 'expenseCategory', 'expenseDate', 'expenseNotes', 'expenseReceipt']);
+            loadFinanceData();
+            updateDashboard();
+        } else {
+            // Rollback
+            farmData.finances.expenses.pop();
+            farmData.finances.balance += data.amount;
+            if (expense.receiptId) {
+                ReceiptManager.deleteReceipt(expense.receiptId);
+            }
+            throw new Error('Failed to save data');
+        }
+    } catch (error) {
+        showNotification(error.message, 'error');
+    }
+}
+
+// ========== RECEIPT ACTIONS ==========
+async function downloadReceipt(receiptId) {
+    try {
+        await ReceiptManager.downloadReceipt(receiptId);
+        showNotification('Receipt downloaded successfully!', 'success');
+    } catch (error) {
+        showNotification(error.message, 'error');
+    }
+}
+
+function deleteReceipt(receiptId) {
+    if (confirm('Are you sure you want to delete this receipt?')) {
+        ReceiptManager.deleteReceipt(receiptId);
+        showNotification('Receipt deleted successfully!', 'success');
+        loadFinanceData(); // Refresh the view
+    }
+}
+
+// ========== TRANSACTION DETAILS ==========
+function showTransactionDetails(transactionId) {
+    const allTransactions = TransactionManager.getAllTransactions();
+    const transaction = allTransactions.find(t => t.id === transactionId);
+    
+    if (!transaction) return;
+    
+    const receipts = ReceiptManager.getReceiptsByTransaction(transactionId);
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Transaction Details</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-row">
+                    <strong>Type:</strong> 
+                    <span class="${transaction.type}">${transaction.type === 'income' ? 'Income' : 'Expense'}</span>
+                </div>
+                <div class="detail-row">
+                    <strong>Amount:</strong> 
+                    <span class="${transaction.type}">${formatCurrency(transaction.amount)}</span>
+                </div>
+                <div class="detail-row">
+                    <strong>${transaction.type === 'income' ? 'Source' : 'Category'}:</strong> 
+                    <span>${transaction.source || capitalizeFirst(transaction.category)}</span>
+                </div>
+                <div class="detail-row">
+                    <strong>Date:</strong> 
+                    <span>${formatDate(transaction.date)}</span>
+                </div>
+                ${transaction.notes ? `
+                    <div class="detail-row">
+                        <strong>Notes:</strong> 
+                        <p>${transaction.notes}</p>
+                    </div>
+                ` : ''}
+                ${receipts.length > 0 ? `
+                    <div class="detail-row">
+                        <strong>Receipts:</strong>
+                        <div class="receipts-list">
+                            ${receipts.map(receipt => `
+                                <div class="receipt-item">
+                                    <span>${receipt.fileName}</span>
+                                    <button class="btn-small" onclick="downloadReceipt('${receipt.id}')">Download</button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+// ========== CALCULATIONS ==========
+function calculateFinancialSummary() {
+    const income = farmData.finances.income || [];
+    const expenses = farmData.finances.expenses || [];
+    
+    const totalIncome = income.reduce((sum, item) => sum + item.amount, 0);
+    const totalExpenses = expenses.reduce((sum, item) => sum + item.amount, 0);
+    const balance = totalIncome - totalExpenses;
+    
+    return {
+        totalIncome,
+        totalExpenses,
+        balance,
+        incomeCount: income.length,
+        expenseCount: expenses.length,
+        profitMargin: totalIncome > 0 ? ((balance) / totalIncome * 100) : 0,
+        expenseBreakdown: groupExpensesByCategory(expenses)
+    };
+}
+
+function groupExpensesByCategory(expenses) {
+    return expenses.reduce((acc, expense) => {
+        acc[expense.category] = (acc[expense.category] || 0) + expense.amount;
+        return acc;
+    }, {});
+}
+
+// ========== FORMATTING FUNCTIONS ==========
+function formatCurrency(amount) {
+    return new Intl.NumberFormat(FINANCE_CONFIG.locale, {
+        style: 'currency',
+        currency: FINANCE_CONFIG.currency,
+        minimumFractionDigits: 2
+    }).format(amount);
+}
+
+function formatDate(dateString) {
+    return new Date(dateString).toLocaleDateString(FINANCE_CONFIG.locale, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function capitalizeFirst(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function getCategoryIcon(category) {
+    const icons = {
+        seeds: '🌱',
+        fertilizers: '🧪',
+        labor: '👨‍🌾',
+        equipment: '🚜',
+        fuel: '⛽',
+        maintenance: '🔧',
+        utilities: '💡',
+        other: '📦'
+    };
+    return icons[category] || '📦';
+}
+
+// ========== EXPORT FUNCTIONS ==========
+function exportData(format) {
+    const summary = calculateFinancialSummary();
+    const transactions = TransactionManager.getAllTransactions();
+    const receipts = ReceiptManager.getReceipts();
+    
+    const exportData = {
+        summary,
+        transactions,
+        receipts: receipts.map(r => ({
+            ...r,
+            data: '[BASE64_DATA]' // Don't include full base64 in export
+        })),
+        exportDate: new Date().toISOString()
+    };
+    
+    if (format === 'csv') {
+        exportToCSV(transactions);
+    } else {
+        exportToJSON(exportData);
+    }
+}
+
+function exportToCSV(transactions) {
+    const headers = ['Date', 'Type', 'Description', 'Amount', 'Notes', 'Has Receipt'];
+    const rows = transactions.map(t => [
+        t.date,
+        t.type,
+        t.source || t.category,
+        t.amount,
+        t.notes || '',
+        ReceiptManager.getReceiptsByTransaction(t.id).length > 0 ? 'Yes' : 'No'
+    ]);
+    
+    const csv = [headers, ...rows]
+        .map(row => row.map(cell => `"${cell}"`).join(','))
+        .join('\n');
+    
+    downloadFile(`transactions_${new Date().toISOString().split('T')[0]}.csv`, csv);
+}
+
+function exportToJSON(data) {
+    const json = JSON.stringify(data, null, 2);
+    downloadFile(`finance_report_${new Date().toISOString().split('T')[0]}.json`, json);
+}
+
+function downloadFile(filename, content) {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// ========== MAIN LOAD FUNCTION ==========
+function loadFinanceData() {
+    // Set default dates
+    const incomeDate = getElement('incomeDate');
+    const expenseDate = getElement('expenseDate');
+    const today = new Date().toISOString().split('T')[0];
+    if (incomeDate && !incomeDate.value) incomeDate.value = today;
+    if (expenseDate && !expenseDate.value) expenseDate.value = today;
+    
+    // Refresh all displays
+    const activeTab = document.querySelector('.tab-btn.active')?.textContent.toLowerCase() || 'overview';
+    
+    // Update summary displays if they exist
+    const totalIncomeElement = getElement('totalIncome');
+    const totalExpensesElement = getElement('totalExpenses');
+    
+    if (totalIncomeElement || totalExpensesElement) {
+        const summary = calculateFinancialSummary();
+        if (totalIncomeElement) totalIncomeElement.textContent = `${summary.totalIncome.toFixed(2)} Pula`;
+        if (totalExpensesElement) totalExpensesElement.textContent = `${summary.totalExpenses.toFixed(2)} Pula`;
+    }
+}
+
+// =============================================
+// CLIENT MANAGEMENT FUNCTIONS
+// =============================================
+
+function loadStakeholdersContent() {
+    return `
+        <h2>🛍️ Stakeholder Management</h2>
+        <div class="grid-2">
+            <div>
+                <h3>Add New Stakeholder</h3>
+                <div class="form-group">
+                    <label for="clientName">Stakeholder Name:</label>
+                    <input type="text" id="clientName" placeholder="Enter client name">
+                </div>
+                <div class="form-group">
+                    <label for="clientContact">Contact Number:</label>
+                    <input type="text" id="clientContact" placeholder="Enter contact number">
+                </div>
+                <div class="form-group">
+                    <label for="clientEmail">Product :</label>
+                    <input type="email" id="clientEmail" placeholder="Product of Interest ">
+                </div>
+                <div class="form-group">
+                    <label for="clientType">Stakeholder Type:</label>
+                    <select id="clientType">
+                        <option value="buyer">Buyer</option>
+                        <option value="supplier">Supplier</option>
+                        <option value="debtor">Debtor</option>
+                    </select>
+                </div>
+                <button onclick="addStakeholder()">Add Stakeholder</button>
+            </div>
+            <div>
+                <h3>Stakeholder List</h3>
+                <div id="clientsList" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Stakeholders will be loaded here -->
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function loadStakeholders() {
+    const clientsList = getElement('clientsList');
+    if (!clientsList) return;
+    
+    clientsList.innerHTML = '';
+    
+    if (!farmData.clients) farmData.clients = [];
+    
+    farmData.clients.forEach((client, index) => {
+        const clientElement = document.createElement('div');
+        clientElement.className = 'client-card';
+        clientElement.innerHTML = `
+            <h4>${client.name}</h4>
+            <div class="muted">${client.type} • ${client.contact}</div>
+            ${client.email ? `<div>${client.email}</div>` : ''}
+            <button onclick="removeStakeholder(${index})" class="small btn-outline" style="margin-top: 0.5rem;">Remove</button>
+        `;
+        clientsList.appendChild(clientElement);
+    });
+    
+    if (clientsList.children.length === 0) {
+        clientsList.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--muted);">No clients added yet</div>';
+    }
+}
+
+function addStakeholder() {
+    const name = getElement('clientName')?.value.trim();
+    const contact = getElement('clientContact')?.value.trim();
+    const email = getElement('clientEmail')?.value.trim();
+    const type = getElement('clientType')?.value;
+    
+    if (!name || !contact || !type) {
+        showNotification('Please fill all required fields.');
+        return;
+    }
+    
+    if (!farmData.clients) farmData.clients = [];
+    
+    farmData.clients.push({
+        name: name,
+        contact: contact,
+        email: email,
+        type: type,
+        added: new Date().toISOString()
+    });
+    
+    if (safeSaveData()) {
+        showNotification('Stakeholder added!');
+        getElement('clientName').value = '';
+        getElement('clientContact').value = '';
+        getElement('clientEmail').value = '';
+        loadStakeholders();
+    } else {
+        farmData.clients.pop();
+        showNotification('Failed to add client.', 'error');
+    }
+}
+
+function removeStakeholder(index) {
+    if (confirm('Remove this client?')) {
+        farmData.clients.splice(index, 1);
+        if (safeSaveData()) {
+            loadStakeholders();
+            showNotification('Stakeholder removed!');
+        } else {
+            showNotification('Failed to remove client.', 'error');
+        }
+    }
+}
+
+// =============================================
+// TASK MANAGEMENT FUNCTIONS
+// =============================================
+
+function loadTasksContent() {
+    return `
+        <h2>📝 Task Management</h2>
+        <div class="grid-2">
+            <div>
+                <h3>Add New Task</h3>
+                <div class="form-group">
+                    <label for="taskTitle">Task Title:</label>
+                    <input type="text" id="taskTitle" placeholder="Enter task title">
+                </div>
+                <div class="form-group">
+                    <label for="taskDescription">Description:</label>
+                    <textarea id="taskDescription" placeholder="Enter task description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="taskPriority">Priority:</label>
+                    <select id="taskPriority">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="taskDueDate">Due Date:</label>
+                    <input type="date" id="taskDueDate">
+                </div>
+                <button onclick="addTask()">Add Task</button>
+            </div>
+            <div>
+                <h3>Task List</h3>
+                <div id="tasksList" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Tasks will be loaded here -->
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function loadTasks() {
+    const tasksList = getElement('tasksList');
+    if (!tasksList) return;
+    
+    tasksList.innerHTML = '';
+    
+    if (!farmData.tasks) farmData.tasks = [];
+    
+    // Set default due date to today
+    const taskDueDate = getElement('taskDueDate');
+    if (taskDueDate) {
+        taskDueDate.valueAsDate = new Date();
+    }
+    
+    farmData.tasks.forEach((task, index) => {
+        const priorityClass = task.priority === 'high' ? 'status-danger' : 
+                            task.priority === 'medium' ? 'status-warning' : 'status-active';
+        
+        const taskElement = document.createElement('div');
+        taskElement.className = 'task-card';
+        taskElement.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+                <div style="flex: 1;">
+                    <h4>${task.title}</h4>
+                    ${task.description ? `<p>${task.description}</p>` : ''}
+                    <div class="muted">Due: ${new Date(task.dueDate).toLocaleDateString()}</div>
+                    <span class="${priorityClass}">${task.priority.toUpperCase()}</span>
+                </div>
+                <div style="display: flex; gap: 0.5rem; margin-left: 1rem;">
+                    <button onclick="toggleTaskCompletion(${index})" class="small ${task.completed ? 'btn-outline' : ''}">
+                        ${task.completed ? 'Undo' : 'Complete'}
+                    </button>
+                    <button onclick="removeTask(${index})" class="small btn-outline">✕</button>
+                </div>
+            </div>
+            ${task.completed ? '<div class="status-active">✓ Completed</div>' : ''}
+        `;
+        tasksList.appendChild(taskElement);
+    });
+    
+    if (tasksList.children.length === 0) {
+        tasksList.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--muted);">No tasks added yet</div>';
+    }
+}
+
+function addTask() {
+    const title = getElement('taskTitle')?.value.trim();
+    const description = getElement('taskDescription')?.value.trim();
+    const priority = getElement('taskPriority')?.value;
+    const dueDate = getElement('taskDueDate')?.value;
+    
+    if (!title || !dueDate) {
+        showNotification('Please fill all required fields.');
+        return;
+    }
+    
+    if (!farmData.tasks) farmData.tasks = [];
+    
+    farmData.tasks.push({
+        title: title,
+        description: description,
+        priority: priority,
+        dueDate: dueDate,
+        completed: false,
+        created: new Date().toISOString()
+    });
+    
+    if (safeSaveData()) {
+        showNotification('Task added!');
+        getElement('taskTitle').value = '';
+        getElement('taskDescription').value = '';
+        loadTasks();
+        updateDashboard();
+    } else {
+        farmData.tasks.pop();
+        showNotification('Failed to add task.', 'error');
+    }
+}
+
+function toggleTaskCompletion(index) {
+    farmData.tasks[index].completed = !farmData.tasks[index].completed;
+    if (safeSaveData()) {
+        loadTasks();
+        updateDashboard();
+        showNotification(farmData.tasks[index].completed ? 'Task completed!' : 'Task marked as incomplete');
+    } else {
+        farmData.tasks[index].completed = !farmData.tasks[index].completed;
+        showNotification('Failed to update task.', 'error');
+    }
+}
+
+function removeTask(index) {
+    if (confirm('Remove this task?')) {
+        farmData.tasks.splice(index, 1);
+        if (safeSaveData()) {
+            loadTasks();
+            updateDashboard();
+            showNotification('Task removed!');
+        } else {
+            showNotification('Failed to remove task.', 'error');
+        }
+    }
+}
+
+// =============================================
+// REPORTS FUNCTIONS
+// =============================================
+
+function loadReportsContent() {
+    return `
+        <h2>📑 Reports & Analytics</h2>
+        
+        <div class="report-actions">
+            <button class="btn-share" onclick="shareReport()">
+                📤 Share Report
+            </button>
+            <button class="btn-print" onclick="printReport()">
+                🖨️ Print Report
+            </button>
+        </div>
+        
+        <div class="report-period-selector">
+            <button class="period-btn ${currentReportPeriod === 'weekly' ? 'active' : ''}" onclick="setReportPeriod('weekly')">Weekly</button>
+            <button class="period-btn ${currentReportPeriod === 'monthly' ? 'active' : ''}" onclick="setReportPeriod('monthly')">Monthly</button>
+            <button class="period-btn ${currentReportPeriod === 'quarterly' ? 'active' : ''}" onclick="setReportPeriod('quarterly')">Quarterly</button>
+            <button class="period-btn ${currentReportPeriod === 'yearly' ? 'active' : ''}" onclick="setReportPeriod('yearly')">Yearly</button>
+            <button class="period-btn" onclick="showCustomDateRange()">Custom</button>
+        </div>
+        
+        <div id="customDateRange">
+            <div class="form-group">
+                <label for="startDate">Start Date:</label>
+                <input type="date" id="startDate">
+            </div>
+            <div class="form-group">
+                <label for="endDate">End Date:</label>
+                <input type="date" id="endDate">
+            </div>
+            <button onclick="generateCustomReport()">Generate Custom Report</button>
+        </div>
+        
+        <div class="grid-2" style="margin-top: 2rem;">
+            <div>
+                <h3>Financial Report</h3>
+                <div id="financialReport">
+                    <!-- Financial report will be loaded here -->
+                </div>
+            </div>
+            <div>
+                <h3>Sales Report</h3>
+                <div id="salesReport">
+                    <!-- Sales report will be loaded here -->
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 2rem;">
+            <h3>Inventory Report</h3>
+            <div id="inventoryReport">
+                <!-- Inventory report will be loaded here -->
+            </div>
+        </div>
+        
+        <div style="margin-top: 2rem;">
+            <h3>Crop Performance Report</h3>
+            <div id="cropReport">
+                <!-- Crop report will be loaded here -->
+            </div>
+        </div>
+    `;
+}
+function setReportPeriod(period) {
+    currentReportPeriod = period;
+    generateReports();
+}
+
+function showCustomDateRange() {
+    const customDateRange = getElement('customDateRange');
+    if (customDateRange) {
+        customDateRange.style.display = 'block';
+    }
+}
+
+function setupCustomDateRange() {
+    const startDate = getElement('startDate');
+    const endDate = getElement('endDate');
+    
+    if (startDate && endDate) {
+        const today = new Date();
+        endDate.valueAsDate = today;
+        startDate.valueAsDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000); // 30 days ago
+    }
+}
+
+function generateCustomReport() {
+    const startDate = getElement('startDate')?.value;
+    const endDate = getElement('endDate')?.value;
+    
+    if (!startDate || !endDate) {
+        showNotification('Please select both start and end dates.');
+        return;
+    }
+    
+    if (new Date(startDate) > new Date(endDate)) {
+        showNotification('Start date cannot be after end date.');
+        return;
+    }
+    
+    currentReportPeriod = 'custom';
+    generateReports(startDate, endDate);
+}
+
+function generateReports(startDate = null, endDate = null) {
+    generateFinancialReport(startDate, endDate);
+    generateSalesReport(startDate, endDate);
+    generateInventoryReport();
+    generateCropReport(); // Add this line
+}
+function generateCropReport() {
+    const cropReport = getElement('cropReport');
+    if (!cropReport) return;
+    
+    if (farmData.plantedCrops.length === 0) {
+        cropReport.innerHTML = `
+            <div style="text-align: center; padding: 2rem; color: var(--muted);">
+                No crops currently planted
+            </div>
+        `;
+        return;
+    }
+    
+    let totalArea = 0;
+    let totalExpectedYield = 0;
+    
+    const cropDetails = farmData.plantedCrops.map(crop => {
+        const cropInfo = cropDatabase[crop.type];
+        if (!cropInfo) return null;
+        
+        const plantedDate = new Date(crop.plantedDate);
+        const growthDays = parseInt(cropInfo.growthTime.split('-')[0]);
+        const harvestDate = new Date(plantedDate.getTime() + (growthDays * 24 * 60 * 60 * 1000));
+        
+        // Calculate expected yield
+        const yieldRange = cropInfo.yield.split('-');
+        const minYield = parseFloat(yieldRange[0]);
+        const maxYield = parseFloat(yieldRange[1]);
+        const expectedYield = ((minYield + maxYield) / 2) * crop.area;
+        
+        totalArea += crop.area;
+        totalExpectedYield += expectedYield;
+        
+        const today = new Date();
+        const totalGrowthTime = harvestDate - plantedDate;
+        const elapsedTime = today - plantedDate;
+        const progress = Math.min(Math.max((elapsedTime / totalGrowthTime) * 100, 0), 100);
+        
+        return {
+            name: cropInfo.name,
+            area: crop.area,
+            plantedDate: plantedDate,
+            harvestDate: harvestDate,
+            expectedYield: expectedYield,
+            progress: progress
+        };
+    }).filter(Boolean);
+    
+    cropReport.innerHTML = `
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <h3>Total Planted Area</h3>
+                <div class="value">${totalArea.toFixed(1)} ha</div>
+            </div>
+            <div class="dashboard-card">
+                <h3>Total Expected Yield</h3>
+                <div class="value">${totalExpectedYield.toFixed(1)} tons</div>
+            </div>
+            <div class="dashboard-card">
+                <h3>Active Crops</h3>
+                <div class="value">${farmData.plantedCrops.length}</div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 1.5rem;">
+            <h4>Crop Details</h4>
+            ${cropDetails.map(crop => `
+                <div style="background: white; padding: 1rem; border-radius: 8px; margin: 0.5rem 0; border-left: 4px solid var(--primary);">
+                    <div style="display: flex; justify-content: between; align-items: center;">
+                        <div style="flex: 1;">
+                            <strong>${crop.name}</strong>
+                            <div class="muted">${crop.area} hectares • Planted: ${crop.plantedDate.toLocaleDateString()}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div><strong>Expected Yield:</strong> ${crop.expectedYield.toFixed(1)} tons</div>
+                            <div class="muted">Harvest: ${crop.harvestDate.toLocaleDateString()}</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 0.5rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                            <div>Growth Progress</div>
+                            <div>${Math.round(crop.progress)}%</div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill-bar" style="width: ${crop.progress}%">${Math.round(crop.progress)}%</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function generateFinancialReport(startDate = null, endDate = null) {
+    const financialReport = getElement('financialReport');
+    if (!financialReport) return;
+    
+    let income = 0;
+    let expenses = 0;
+    
+    // Calculate income and expenses for the period
+    farmData.finances.income.forEach(item => {
+        const itemDate = new Date(item.date);
+        if (isInPeriod(itemDate, startDate, endDate)) {
+            income += item.amount;
+        }
+    });
+    
+    farmData.finances.expenses.forEach(item => {
+        const itemDate = new Date(item.date);
+        if (isInPeriod(itemDate, startDate, endDate)) {
+            expenses += item.amount;
+        }
+    });
+    
+    const profit = income - expenses;
+    
+    financialReport.innerHTML = `
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <h3>Total Income</h3>
+                <div class="value">${income.toFixed(2)} Pula</div>
+            </div>
+            <div class="dashboard-card">
+                <h3>Total Expenses</h3>
+                <div class="value">${expenses.toFixed(2)} Pula</div>
+            </div>
+            <div class="dashboard-card">
+                <h3>Net Balance</h3>
+                <div class="value ${profit >= 0 ? 'positive' : 'negative'}">${profit.toFixed(2)} Pula</div>
+            </div>
+        </div>
+    `;
+}
+
+function generateSalesReport(startDate = null, endDate = null) {
+    const salesReport = getElement('salesReport');
+    if (!salesReport) return;
+    
+    let totalSales = 0;
+    let salesCount = 0;
+    
+    farmData.sales.forEach(sale => {
+        const saleDate = new Date(sale.date);
+        if (isInPeriod(saleDate, startDate, endDate)) {
+            totalSales += sale.total;
+            salesCount++;
+        }
+    });
+    
+    const averageSale = salesCount > 0 ? totalSales / salesCount : 0;
+    
+    salesReport.innerHTML = `
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <h3>Total Sales</h3>
+                <div class="value">${totalSales.toFixed(2)} Pula</div>
+            </div>
+            <div class="dashboard-card">
+                <h3>Number of Sales</h3>
+                <div class="value">${salesCount}</div>
+            </div>
+            <div class="dashboard-card">
+                <h3>Average Sale</h3>
+                <div class="value">${averageSale.toFixed(2)} Pula</div>
+            </div>
+        </div>
+    `;
+}
+
+function generateInventoryReport() {
+    const inventoryReport = getElement('inventoryReport');
+    if (!inventoryReport) return;
+    
+    const totalValue = farmData.inventory.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+    const totalItems = farmData.inventory.reduce((sum, item) => sum + item.quantity, 0);
+    const lowStockItems = farmData.inventory.filter(item => item.quantity > 0 && item.quantity < 10).length;
+    const outOfStockItems = farmData.inventory.filter(item => item.quantity === 0).length;
+    
+    inventoryReport.innerHTML = `
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <h3>Total Inventory Value</h3>
+                <div class="value">${totalValue.toFixed(2)} Pula</div>
+            </div>
+            <div class="dashboard-card">
+                <h3>Total Items</h3>
+                <div class="value">${totalItems}</div>
+            </div>
+            <div class="dashboard-card">
+                <h3>Low Stock Items</h3>
+                <div class="value ${lowStockItems > 0 ? 'negative' : 'positive'}">${lowStockItems}</div>
+            </div>
+            <div class="dashboard-card">
+                <h3>Out of Stock</h3>
+                <div class="value ${outOfStockItems > 0 ? 'negative' : 'positive'}">${outOfStockItems}</div>
+            </div>
+        </div>
+    `;
+}
+
+function isInPeriod(date, startDate, endDate) {
+    if (!startDate || !endDate) {
+        // Default to current period based on currentReportPeriod
+        const now = new Date();
+        let periodStart, periodEnd;
+        
+        switch(currentReportPeriod) {
+            case 'weekly':
+                periodStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                periodEnd = now;
+                break;
+            case 'monthly':
+                periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+                periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                break;
+            case 'quarterly':
+                const quarter = Math.floor(now.getMonth() / 3);
+                periodStart = new Date(now.getFullYear(), quarter * 3, 1);
+                periodEnd = new Date(now.getFullYear(), (quarter + 1) * 3, 0);
+                break;
+            case 'yearly':
+                periodStart = new Date(now.getFullYear(), 0, 1);
+                periodEnd = new Date(now.getFullYear(), 11, 31);
+                break;
+            default:
+                return true; // Show all for unknown periods
+        }
+        
+        return date >= periodStart && date <= periodEnd;
+    }
+    
+    // Custom date range
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    return date >= start && date <= end;
+}
+// =============================================
+// REPORT SHARING AND PRINTING FUNCTIONS
+// =============================================
+
+function shareReport() {
+    if (!farmProfile) {
+        showNotification('Please set up your farm profile first');
+        return;
+    }
+    
+    // Generate report summary
+    const reportData = generateShareableReport();
+    const message = `🏪 *FarmerPack Assistant Report - ${farmProfile.farmName}*
+
+📅 *Period:* ${getCurrentPeriodText()}
+💰 *Financial Summary:*
+   • Income: P ${reportData.totalIncome.toFixed(2)}
+   • Expenses: P ${reportData.totalExpenses.toFixed(2)}
+   • Balance: P ${reportData.profit.toFixed(2)}
+
+🛒 *Sales Performance:*
+   • Total Sales: P ${reportData.totalSales.toFixed(2)}
+   • Number of Sales: ${reportData.salesCount}
+
+📦 *Inventory Status:*
+   • Total Value: P ${reportData.inventoryValue.toFixed(2)}
+   • Items in Stock: ${reportData.totalItems}
+
+🌾 *Crop Status:*
+   • Active Crops: ${reportData.activeCrops}
+   • Low Stock Items: ${reportData.lowStockItems}
+
+_Generated on ${new Date().toLocaleDateString()}_
+
+Download FarmerPack Assistant: Contact Support at +26776781005 or +26772933326 `;
+
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+    
+    window.open(whatsappUrl, '_blank');
+    showNotification('📤 Opening WhatsApp to share report...', 'success');
+}
+
+function printReport() {
+    // Create a print-friendly version of the report
+    const printContent = generatePrintableReport();
+    
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>FarmerPack Report - ${farmProfile ? farmProfile.farmName : 'Farm'}</title>
+            <style>
+                body { 
+                    font-family: Arial, sans-serif; 
+                    margin: 20px;
+                    color: #333;
+                }
+                .header { 
+                    text-align: center; 
+                    border-bottom: 2px solid #388e3c;
+                    padding-bottom: 10px;
+                    margin-bottom: 20px;
+                }
+                .farm-name { 
+                    font-size: 24px; 
+                    color: #388e3c;
+                    font-weight: bold;
+                }
+                .report-title { 
+                    font-size: 18px; 
+                    color: #666;
+                }
+                .section { 
+                    margin: 20px 0; 
+                    break-inside: avoid;
+                }
+                .section h3 { 
+                    background: #f5f5f5; 
+                    padding: 10px; 
+                    border-left: 4px solid #388e3c;
+                }
+                .grid-2 { 
+                    display: grid; 
+                    grid-template-columns: 1fr 1fr; 
+                    gap: 20px;
+                }
+                .metric-card { 
+                    border: 1px solid #ddd; 
+                    padding: 15px; 
+                    border-radius: 5px;
+                    margin: 10px 0;
+                }
+                .metric-value { 
+                    font-size: 20px; 
+                    font-weight: bold; 
+                    color: #388e3c;
+                }
+                table { 
+                    width: 100%; 
+                    border-collapse: collapse; 
+                    margin: 10px 0;
+                }
+                th, td { 
+                    border: 1px solid #ddd; 
+                    padding: 8px; 
+                    text-align: left;
+                }
+                th { 
+                    background: #f5f5f5;
+                }
+                .footer { 
+                    margin-top: 30px; 
+                    text-align: center; 
+                    color: #666; 
+                    font-size: 12px;
+                }
+                @media print {
+                    .no-print { display: none; }
+                }
+            </style>
+        </head>
+        <body>
+            ${printContent}
+        </body>
+        </html>
+    `);
+    
+    printWindow.document.close();
+    
+    // Wait for content to load then print
+    setTimeout(() => {
+        printWindow.print();
+        // printWindow.close(); // Uncomment to auto-close after printing
+    }, 500);
+}
+
+function generateShareableReport() {
+    // Calculate current period dates
+    const now = new Date();
+    let periodStart, periodEnd;
+    
+    switch(currentReportPeriod) {
+        case 'weekly':
+            periodStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            periodEnd = now;
+            break;
+        case 'monthly':
+            periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+            periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            break;
+        case 'quarterly':
+            const quarter = Math.floor(now.getMonth() / 3);
+            periodStart = new Date(now.getFullYear(), quarter * 3, 1);
+            periodEnd = new Date(now.getFullYear(), (quarter + 1) * 3, 0);
+            break;
+        case 'yearly':
+            periodStart = new Date(now.getFullYear(), 0, 1);
+            periodEnd = new Date(now.getFullYear(), 11, 31);
+            break;
+        default:
+            periodStart = new Date(0);
+            periodEnd = now;
+    }
+    
+    // Calculate financial data
+    const totalIncome = farmData.finances.income
+        .filter(item => isInPeriod(new Date(item.date), periodStart, periodEnd))
+        .reduce((sum, item) => sum + item.amount, 0);
+    
+    const totalExpenses = farmData.finances.expenses
+        .filter(item => isInPeriod(new Date(item.date), periodStart, periodEnd))
+        .reduce((sum, item) => sum + item.amount, 0);
+    
+    const profit = totalIncome - totalExpenses;
+    
+    // Calculate sales data
+    const salesData = farmData.sales
+        .filter(sale => isInPeriod(new Date(sale.date), periodStart, periodEnd));
+    
+    const totalSales = salesData.reduce((sum, sale) => sum + sale.total, 0);
+    const salesCount = salesData.length;
+    
+    // Calculate inventory data
+    const inventoryValue = farmData.inventory.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+    const totalItems = farmData.inventory.reduce((sum, item) => sum + item.quantity, 0);
+    const lowStockItems = farmData.inventory.filter(item => item.quantity > 0 && item.quantity < 10).length;
+    
+    return {
+        totalIncome,
+        totalExpenses,
+        profit,
+        totalSales,
+        salesCount,
+        inventoryValue,
+        totalItems,
+        lowStockItems,
+        activeCrops: farmData.plantedCrops.length
+    };
+}
+
+function generatePrintableReport() {
+    const reportData = generateShareableReport();
+    const farmName = farmProfile ? farmProfile.farmName : 'Farm';
+    const farmerName = farmProfile ? farmProfile.farmerName : 'Farmer';
+    
+    return `
+        <div class="header">
+            <div class="farm-name">${farmName}</div>
+            <div class="report-title">FarmerPack Assistant Report</div>
+            <div>Period: ${getCurrentPeriodText()} | Generated: ${new Date().toLocaleDateString()}</div>
+        </div>
+        
+        <div class="grid-2">
+            <div class="section">
+                <h3>📊 Financial Summary</h3>
+                <div class="metric-card">
+                    <div>Total Income</div>
+                    <div class="metric-value">P ${reportData.totalIncome.toFixed(2)}</div>
+                </div>
+                <div class="metric-card">
+                    <div>Total Expenses</div>
+                    <div class="metric-value">P ${reportData.totalExpenses.toFixed(2)}</div>
+                </div>
+                <div class="metric-card">
+                    <div>Net Profit</div>
+                    <div class="metric-value" style="color: ${reportData.profit >= 0 ? '#388e3c' : '#d32f2f'}">
+                        P ${reportData.profit.toFixed(2)}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3>🛒 Sales Performance</h3>
+                <div class="metric-card">
+                    <div>Total Sales</div>
+                    <div class="metric-value">P ${reportData.totalSales.toFixed(2)}</div>
+                </div>
+                <div class="metric-card">
+                    <div>Number of Sales</div>
+                    <div class="metric-value">${reportData.salesCount}</div>
+                </div>
+                <div class="metric-card">
+                    <div>Average Sale</div>
+                    <div class="metric-value">P ${reportData.salesCount > 0 ? (reportData.totalSales / reportData.salesCount).toFixed(2) : '0.00'}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="grid-2">
+            <div class="section">
+                <h3>📦 Inventory Status</h3>
+                <div class="metric-card">
+                    <div>Total Inventory Value</div>
+                    <div class="metric-value">P ${reportData.inventoryValue.toFixed(2)}</div>
+                </div>
+                <div class="metric-card">
+                    <div>Items in Stock</div>
+                    <div class="metric-value">${reportData.totalItems}</div>
+                </div>
+                <div class="metric-card">
+                    <div>Low Stock Items</div>
+                    <div class="metric-value">${reportData.lowStockItems}</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3>🌾 Farm Operations</h3>
+                <div class="metric-card">
+                    <div>Active Crops</div>
+                    <div class="metric-value">${reportData.activeCrops}</div>
+                </div>
+                <div class="metric-card">
+                    <div>Pending Tasks</div>
+                    <div class="metric-value">${farmData.tasks.filter(task => !task.completed).length}</div>
+                </div>
+                <div class="metric-card">
+                    <div>Registered Stakeholders</div>
+                    <div class="metric-value">${farmData.clients.length}</div>
+                </div>
+            </div>
+        </div>
+        
+        ${generateRecentTransactionsTable()}
+        ${generateTopProductsTable()}
+        
+        <div class="footer">
+            Generated by FarmerPack Assistant • ${farmerName} • ${new Date().toLocaleDateString()}
+        </div>
+    `;
+}
+
+function generateRecentTransactionsTable() {
+    const recentTransactions = [
+        ...farmData.finances.income.map(t => ({...t, type: 'income'})),
+        ...farmData.finances.expenses.map(t => ({...t, type: 'expense'}))
+    ]
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 10);
+    
+    if (recentTransactions.length === 0) return '';
+    
+    return `
+        <div class="section">
+            <h3>Recent Transactions</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Type</th>
+                        <th>Amount (Pula)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${recentTransactions.map(transaction => `
+                        <tr>
+                            <td>${new Date(transaction.date).toLocaleDateString()}</td>
+                            <td>${transaction.source || transaction.category}</td>
+                            <td>${transaction.type === 'income' ? 'Income' : 'Expense'}</td>
+                            <td style="color: ${transaction.type === 'income' ? '#388e3c' : '#d32f2f'}">
+                                ${transaction.amount.toFixed(2)}
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+function generateTopProductsTable() {
+    const topProducts = farmData.inventory
+        .sort((a, b) => (b.quantity * b.price) - (a.quantity * a.price))
+        .slice(0, 5);
+    
+    if (topProducts.length === 0) return '';
+    
+    return `
+        <div class="section">
+            <h3>Top Inventory Items</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Quantity</th>
+                        <th>Value (Pula)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${topProducts.map(product => `
+                        <tr>
+                            <td>${product.name}</td>
+                            <td>${product.category}</td>
+                            <td>${product.quantity}</td>
+                            <td>${(product.quantity * product.price).toFixed(2)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+function getCurrentPeriodText() {
+    const now = new Date();
+    
+    switch(currentReportPeriod) {
+        case 'weekly':
+            const weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            return `Weekly (${weekStart.toLocaleDateString()} - ${now.toLocaleDateString()})`;
+        case 'monthly':
+            return `Monthly (${now.toLocaleDateString('en', { month: 'long', year: 'numeric' })})`;
+        case 'quarterly':
+            const quarter = Math.floor(now.getMonth() / 3) + 1;
+            return `Quarterly (Q${quarter} ${now.getFullYear()})`;
+        case 'yearly':
+            return `Yearly (${now.getFullYear()})`;
+        default:
+            return 'All Time';
+    }
+}
+
+// =============================================
+// PREMIUM CONTENT FUNCTIONS
+// =============================================
+
+function loadPremiumContent() {
+    return `
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="font-size: 3rem; margin-bottom: 0.5rem;">⭐</div>
+            <h1 style="color: var(--primary);">FarmerPack Premium</h1>
+            <p>Advanced tools and features to maximize your farm's potential</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="dashboard-card" onclick="openPremiumSection('analytics')" style="cursor: pointer;">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📈</div>
+                <h3>Advanced Analytics</h3>
+                <p>Profitability scores, yield predictions, and performance insights</p>
+            </div>
+            
+            <div class="dashboard-card" onclick="openPremiumSection('market')" style="cursor: pointer;">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">🌍</div>
+                <h3>Market Intelligence</h3>
+                <p>Real-time prices, demand trends, and opportunity alerts</p>
+            </div>
+            
+            <div class="dashboard-card" onclick="openPremiumSection('premiumCrops')" style="cursor: pointer;">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">🌱</div>
+                <h3>Premium Crops</h3>
+                <p>High-value crops like avocado, coffee, and macadamia</p>
+            </div>
+            
+            <div class="dashboard-card" onclick="openPremiumSection('financialTools')" style="cursor: pointer;">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">💰</div>
+                <h3>Financial Tools</h3>
+                <p>Loan calculators, break-even analysis, and ROI tools</p>
+            </div>
+            
+            <div class="dashboard-card" onclick="openPremiumSection('reports')" style="cursor: pointer;">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📊</div>
+                <h3>Smart Reports</h3>
+                <p>Automated reporting and data export features</p>
+            </div>
+            
+            <div class="dashboard-card" onclick="openPremiumSection('resources')" style="cursor: pointer;">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📚</div>
+                <h3>Premium Resources</h3>
+                <p>Best practice guides and success strategies</p>
+            </div>
+        </div>
+
+        <div id="premiumSectionContent" style="margin-top: 2rem;">
+            <!-- Premium sections will load here when clicked -->
+        </div>
+    `;
+}
+
+function openPremiumSection(section) {
+    const contentArea = getElement('premiumSectionContent');
+    if (!contentArea) return;
+
+    switch(section) {
+        case 'analytics':
+            contentArea.innerHTML = loadPremiumAnalytics();
+            break;
+        case 'market':
+            contentArea.innerHTML = loadMarketIntelligence();
+            break;
+        case 'premiumCrops':
+            contentArea.innerHTML = loadPremiumCrops();
+            break;
+        case 'financialTools':
+            contentArea.innerHTML = loadFinancialTools();
+            break;
+        case 'reports':
+            contentArea.innerHTML = loadPremiumReports();
+            break;
+        case 'resources':
+            contentArea.innerHTML = loadPremiumResources();
+            break;
+    }
+}
+function loadPremiumAnalytics() {
+    const profitability = calculateProfitability();
+    
+    return `
+        <h2>📈 Advanced Analytics</h2>
+        
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <h3>Profitability Score</h3>
+                <div class="value" style="color: ${profitability >= 80 ? 'var(--primary)' : profitability >= 60 ? 'var(--warning)' : 'var(--danger)'};">${profitability}%</div>
+                <div class="change ${profitability >= 80 ? 'positive' : 'negative'}">
+                    ${profitability >= 80 ? 'Excellent' : profitability >= 60 ? 'Good' : 'Needs Improvement'}
+                </div>
+            </div>
+            
+            <div class="dashboard-card">
+                <h3>Crop Health Index</h3>
+                <div class="value">${Math.min(100, farmData.plantedCrops.length * 15 + 40)}%</div>
+                <div class="change positive">Based on ${farmData.plantedCrops.length} active crops</div>
+            </div>
+            
+            <div class="dashboard-card">
+                <h3>Resource Efficiency</h3>
+                <div class="value">${Math.min(100, farmData.inventory.length * 8 + 50)}%</div>
+                <div class="change positive">${farmData.inventory.length} inventory items</div>
+            </div>
+            
+            <div class="dashboard-card">
+                <h3>Task Completion</h3>
+                <div class="value">${farmData.tasks.length > 0 ? Math.round((farmData.tasks.filter(t => t.completed).length / farmData.tasks.length) * 100) : 100}%</div>
+                <div class="change positive">${farmData.tasks.filter(t => t.completed).length}/${farmData.tasks.length} tasks done</div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 2rem; background: #f8f9fa; padding: 1.5rem; border-radius: 8px;">
+            <h3>🎯 Recommendations</h3>
+            <p>${profitability >= 80 ? 
+                'Your farm is performing excellently! Consider expanding with premium crops.' : 
+                profitability >= 60 ? 
+                'Good performance. Focus on cost optimization and yield improvement.' : 
+                'Review your expenses and consider diversifying crops for better returns.'
+            }</p>
+        </div>
+    `;
+}
+
+function calculateProfitability() {
+    if (!farmData.plantedCrops.length) return 75;
+    
+    const totalInvestment = farmData.finances.expenses.reduce((sum, exp) => sum + exp.amount, 0);
+    const totalRevenue = farmData.finances.income.reduce((sum, inc) => sum + inc.amount, 0);
+    
+    if (totalInvestment === 0) return totalRevenue > 0 ? 100 : 75;
+    const rawScore = (totalRevenue / totalInvestment) * 100;
+    return Math.min(100, Math.max(25, Math.round(rawScore)));
+}
+
+function loadMarketIntelligence() {
+    return `
+        <h2>🌍 Market Intelligence</h2>
+        
+        <div style="background: #fff3cd; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #ffc107;">
+            <strong>💡 Opportunity Alert:</strong> Avocado and coffee prices are rising with high demand. Consider these premium crops for maximum returns.
+        </div>
+        
+        <div class="dashboard-grid">
+            ${Object.entries(marketData).map(([crop, data]) => `
+                <div class="dashboard-card">
+                    <h3>${crop.charAt(0).toUpperCase() + crop.slice(1)}</h3>
+                    <div class="value">${data.current} Pula/kg</div>
+                    <div class="change ${data.trend === '↑' ? 'positive' : data.trend === '↓' ? 'negative' : ''}">
+                        ${data.trend} from ${data.lastWeek} last week
+                    </div>
+                    <div style="margin-top: 0.5rem; font-size: 0.9rem;">
+                        <strong>Demand:</strong> ${data.demand}<br>
+                        <strong>Season:</strong> ${data.season}
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+        
+        <div style="margin-top: 2rem; background: #e8f5e8; padding: 1.5rem; border-radius: 8px;">
+            <h3>📈 Market Trends</h3>
+            <p><strong>Rising:</strong> Avocado, Coffee, Sunflower - Good time to plant</p>
+            <p><strong>Stable:</strong> Maize - Reliable staple crop</p>
+            <p><strong>Declining:</strong> Tomatoes - Consider reducing production</p>
+        </div>
+    `;
+}
+
+function loadPremiumCrops() {
+    return `
+        <h2>🌱 Premium Crops</h2>
+        <p>High-value crops with excellent export potential and profitability.</p>
+        
+        <div class="grid-2">
+            ${Object.entries(premiumCrops).map(([key, crop]) => `
+                <div class="dashboard-card">
+                    <h3>${crop.name}</h3>
+                    <div class="muted">${crop.type} • ${crop.growthTime}</div>
+                    <div><strong>Yield:</strong> ${crop.yield}</div>
+                    <div><strong>Price:</strong> ${crop.price}</div>
+                    <div><strong>Season:</strong> ${crop.season}</div>
+                    
+                    <div style="margin-top: 1rem;">
+                        <strong>Best For:</strong>
+                        <ul style="margin: 0.5rem 0; padding-left: 1.2rem;">
+                            <li>Export markets</li>
+                            <li>Long-term investment</li>
+                            <li>High-profit margins</li>
+                        </ul>
+                    </div>
+                    
+                  <button onclick="showCropDetail('${key}')" class="small" style="margin-top: 0.5rem;">View Details</button>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function showCropDetail(cropKey) {
+    const crop = premiumCrops[cropKey];
+    const contentArea = getElement('premiumSectionContent');
+    
+    contentArea.innerHTML = `
+        <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 1rem;">
+            <button onclick="openPremiumSection('premiumCrops')" class="small btn-outline">← Back to Premium Crops</button>
+            <h2 style="margin: 0 auto;">${crop.name}</h2>
+        </div>
+        
+        <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h3 style="color: var(--primary); margin-bottom: 1rem;">${crop.name} Farming Guide</h3>
+            <p>${crop.description}</p>
+            
+            <div class="grid-2" style="margin-top: 1.5rem;">
+                <div>
+                    <h4>Growth Information</h4>
+                    <p><strong>Type:</strong> ${crop.type}</p>
+                    <p><strong>Growth Time:</strong> ${crop.growthTime}</p>
+                    <p><strong>Yield:</strong> ${crop.yield}</p>
+                    <p><strong>Season:</strong> ${crop.season}</p>
+                    <p><strong>Market Price:</strong> ${crop.price}</p>
+                </div>
+                
+                <div>
+                    <h4>Crop Care Stages</h4>
+                    ${crop.careStages.map(stage => `
+                        <div style="background: #f8f9fa; padding: 0.8rem; border-radius: 6px; margin: 0.5rem 0; border-left: 3px solid var(--primary);">
+                            <strong>${stage.stage}</strong> (${stage.duration})
+                            <ul style="margin: 0.5rem 0; padding-left: 1.2rem;">
+                                ${stage.tasks.map(task => `<li>${task}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+            
+            <div class="grid-2" style="margin-top: 1.5rem;">
+                <div>
+                    <h4>Common Pests</h4>
+                    <ul>
+                        ${crop.pests.map(pest => `<li>${pest}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4>Recommended Chemicals</h4>
+                    <ul>
+                        ${crop.chemicals.map(chemical => `<li>${chemical}</li>`).join('')}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function loadFinancialTools() {
+    return `
+        <h2>💰 Financial Tools</h2>
+        
+        <div class="grid-2">
+            <div>
+                <h3>Loan Calculator</h3>
+                <div class="form-group">
+                    <label for="loanAmount">Loan Amount (Pula):</label>
+                    <input type="number" id="loanAmount" placeholder="e.g., 50000">
+                </div>
+                <div class="form-group">
+                    <label for="loanTerm">Term (months):</label>
+                    <input type="number" id="loanTerm" placeholder="e.g., 24">
+                </div>
+                <div class="form-group">
+                    <label for="interestRate">Interest Rate (%):</label>
+                    <input type="number" id="interestRate" step="0.1" placeholder="e.g., 12.5">
+                </div>
+                <button onclick="calculateLoanPayment()">Calculate Payment</button>
+                <div id="loanResult" style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 6px; display: none;"></div>
+            </div>
+            
+            <div>
+                <h3>Break-Even Analysis</h3>
+                <div class="form-group">
+                    <label for="fixedCosts">Fixed Costs (Pula):</label>
+                    <input type="number" id="fixedCosts" placeholder="e.g., 10000">
+                </div>
+                <div class="form-group">
+                    <label for="pricePerUnit">Price per Unit (Pula):</label>
+                    <input type="number" id="pricePerUnit" step="0.01" placeholder="e.g., 8.5">
+                </div>
+                <div class="form-group">
+                    <label for="variableCost">Variable Cost per Unit (Pula):</label>
+                    <input type="number" id="variableCost" step="0.01" placeholder="e.g., 3.2">
+                </div>
+                <button onclick="calculateBreakEven()">Calculate Break-Even</button>
+                <div id="breakEvenResult" style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 6px; display: none;"></div>
+            </div>
+        </div>
+    `;
+}
+
+function loadPremiumReports() {
+    const report = generatePremiumReport();
+    return `
+        <h2>📊 Smart Reports</h2>
+        
+        <div style="background: #e3f2fd; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+            <strong>📈 Automated Reporting:</strong> Your farm performance is automatically analyzed daily. Download reports for meetings with banks or partners.
+        </div>
+        
+        ${report}
+        
+        <div style="margin-top: 2rem;">
+            <h3>Export Options</h3>
+            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                <button onclick="exportToExcel()" class="btn-harvest">📊 Export to Excel</button>
+                <button onclick="generatePDFReport()" class="btn-outline">📄 Generate PDF Report</button>
+            </div>
+        </div>
+    `;
+}
+
+function loadPremiumResources() {
+    return `
+        <h2>📚 Premium Resources</h2>
+        
+        <div class="grid-2">
+            <div>
+                <h3>🌱 Best Practice Guides</h3>
+                <div style="background: #e3f2fd; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <strong>Avocado Farming Guide</strong><br>
+                    Complete guide to successful avocado production and export
+                </div>
+                <div style="background: #e8f5e8; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <strong>High-Value Crop Selection</strong><br>
+                    Choosing the right crops for maximum profit in your region
+                </div>
+                <div style="background: #fff3cd; padding: 1rem; border-radius: 8px;">
+                    <strong>Financial Management</strong><br>
+                    Budgeting and cost control strategies for commercial farming
+                </div>
+            </div>
+            
+            <div>
+                <h3>📅 Planning Tools</h3>
+                <div style="background: #f3e5f5; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <strong>Annual Planting Calendar</strong><br>
+                    Optimal planting dates for all major and premium crops
+                </div>
+                <div style="background: #e0f2f1; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <strong>Pest Management Schedule</strong><br>
+                    Seasonal pest control recommendations and timing
+                </div>
+                <div style="background: #fce4ec; padding: 1rem; border-radius: 8px;">
+                    <strong>Harvest Planning Guide</strong><br>
+                    Timing and techniques for optimal harvest quality
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function generatePremiumReport() {
+    const profitability = calculateProfitability();
+    const inventoryValue = farmData.inventory.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+    const completedTasks = farmData.tasks.filter(task => task.completed).length;
+    const totalTasks = farmData.tasks.length;
+    
+    return `
+        <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h3 style="color: var(--primary); text-align: center; margin-bottom: 1.5rem;">Farm Performance Report - ${new Date().toLocaleDateString()}</h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                    <div style="font-size: 2rem; color: var(--primary);">${profitability}%</div>
+                    <div>Profitability Score</div>
+                </div>
+                <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                    <div style="font-size: 2rem; color: var(--primary);">${farmData.plantedCrops.length}</div>
+                    <div>Active Crops</div>
+                </div>
+                <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                    <div style="font-size: 2rem; color: var(--primary);">P ${inventoryValue.toFixed(0)}</div>
+                    <div>Inventory Value</div>
+                </div>
+                <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                    <div style="font-size: 2rem; color: ${completedTasks/totalTasks >= 0.8 ? 'var(--primary)' : 'var(--warning)'};">${totalTasks > 0 ? Math.round((completedTasks/totalTasks)*100) : 100}%</div>
+                    <div>Task Completion</div>
+                </div>
+            </div>
+            
+            <div style="background: #e8f5e8; padding: 1rem; border-radius: 8px;">
+                <h4 style="margin-bottom: 0.5rem;">📈 Performance Insights</h4>
+                <p>${profitability >= 80 ? 
+                    'Your farm is performing excellently! Consider expanding with premium crops for even higher returns.' : 
+                    profitability >= 60 ? 
+                    'Good performance. Focus on optimizing input costs and exploring new market opportunities.' : 
+                    'Review your crop selection and input costs. Consider consulting with our agricultural experts.'
+                }</p>
+            </div>
+        </div>
+    `;
+}
+
+// Financial calculator functions
+function calculateLoanPayment() {
+    const amount = parseFloat(getElement('loanAmount')?.value);
+    const months = parseInt(getElement('loanTerm')?.value);
+    const rate = parseFloat(getElement('interestRate')?.value);
+    
+    if (!amount || !months || !rate) {
+        showNotification('Please fill all loan fields');
+        return;
+    }
+    
+    const monthlyRate = rate / 100 / 12;
+    const payment = amount * monthlyRate * Math.pow(1 + monthlyRate, months) / (Math.pow(1 + monthlyRate, months) - 1);
+    const totalPayment = payment * months;
+    const totalInterest = totalPayment - amount;
+    
+    getElement('loanResult').innerHTML = `
+        <strong>Monthly Payment:</strong> P ${payment.toFixed(2)}<br>
+        <strong>Total Payment:</strong> P ${totalPayment.toFixed(2)}<br>
+        <strong>Total Interest:</strong> P ${totalInterest.toFixed(2)}<br>
+        <strong>Payoff Date:</strong> ${new Date(new Date().getTime() + months * 30 * 24 * 60 * 60 * 1000).toLocaleDateString()}
+    `;
+    getElement('loanResult').style.display = 'block';
+}
+
+function calculateBreakEven() {
+    const fixedCosts = parseFloat(getElement('fixedCosts')?.value);
+    const price = parseFloat(getElement('pricePerUnit')?.value);
+    const variableCost = parseFloat(getElement('variableCost')?.value);
+    
+    if (!fixedCosts || !price || !variableCost) {
+        showNotification('Please fill all break-even fields');
+        return;
+    }
+    
+    if (price <= variableCost) {
+        showNotification('Price must be greater than variable cost', 'error');
+        return;
+    }
+    
+    const breakEvenUnits = fixedCosts / (price - variableCost);
+    const breakEvenRevenue = breakEvenUnits * price;
+    
+    getElement('breakEvenResult').innerHTML = `
+        <strong>Break-Even Units:</strong> ${Math.ceil(breakEvenUnits)} units<br>
+        <strong>Break-Even Revenue:</strong> P ${breakEvenRevenue.toFixed(2)}<br>
+        <strong>Profit per Unit:</strong> P ${(price - variableCost).toFixed(2)}<br>
+        <em>You need to sell ${Math.ceil(breakEvenUnits)} units to cover all costs</em>
+    `;
+    getElement('breakEvenResult').style.display = 'block';
+}
+
+function exportToExcel() {
+    let csvContent = "FarmerPack Data Export\n\n";
+    
+    // Crops
+    csvContent += "Planted Crops\n";
+    csvContent += "Type,Area (ha),Planted Date\n";
+    farmData.plantedCrops.forEach(crop => {
+        csvContent += `${crop.type},${crop.area},${crop.plantedDate}\n`;
+    });
+    
+    csvContent += "\nInventory\n";
+    csvContent += "Name,Category,Quantity,Price,Value\n";
+    farmData.inventory.forEach(item => {
+        csvContent += `${item.name},${item.category},${item.quantity},${item.price},${item.quantity * item.price}\n`;
+    });
+    
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `farmpro-export-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    
+    showNotification("📊 Data exported to CSV successfully!", "success");
+}
+
+function generatePDFReport() {
+    showNotification("📄 PDF report generation would be implemented with a PDF library", "info");
+}
+
+// =============================================
+// FARMERPACK SUBSCRIPTION SYSTEM - MONTHLY PACKAGES ONLY
+// =============================================
+
+// MONTHLY SUBSCRIPTION PACKAGES (NO TRIAL)
+const SUBSCRIPTION_PACKAGES = {
+    silver: {
+        id: 'silver',
+        name: 'Silver',
+        price: 100,
+        duration: '1 month',
+        color: '#9e9e9e',
+        emoji: '🥈',
+        packageCode: 'SLV',
+        
+        // FEATURES ARRAY SYSTEM
+        features: {
+            // Available features
+            available: [
+                'crops', 'inventory', 'clients', 'tasks', 'reports',
+                'burs', 'spedu', 'finance', 'premium_crops'
+            ],
+            
+            // NOT AVAILABLE - ENFORCE HARD RESTRICTIONS
+            restricted: [
+                'employees',  // NO EMPLOYEES
+                'pos',        // NO POS
+                'analytics'   // NO ANALYTICS
+            ]
+        },
+        
+        // Display description
+        description: 'For solo farmers - Everything except employees & POS'
+    },
+    
+    gold: {
+        id: 'gold',
+        name: 'Gold',
+        price: 200,
+        duration: '1 month',
+        color: '#ffb300',
+        emoji: '🥇',
+        packageCode: 'GLD',
+        
+        features: {
+            available: [
+                'crops', 'inventory', 'clients', 'tasks', 'reports',
+                'burs', 'spedu', 'finance', 'premium_crops',
+                'pos', 'analytics'  // GOLD HAS POS!
+            ],
+            
+            restricted: [
+                'employees'  // GOLD HAS NO EMPLOYEES
+            ]
+        },
+        
+        description: 'For small farms - Adds POS system'
+    },
+    
+    platinum: {
+        id: 'platinum',
+        name: 'Platinum',
+        price: 300,
+        duration: '1 month',
+        color: '#388e3c',
+        emoji: '💎',
+        packageCode: 'PLT',
+        
+        features: {
+            available: [
+                'crops', 'inventory', 'clients', 'tasks', 'reports',
+                'burs', 'spedu', 'finance', 'premium_crops',
+                'pos', 'employees', 'analytics', 'export', 'api'
+            ],
+            
+            restricted: []  // PLATINUM HAS EVERYTHING
+        },
+        
+        description: 'For commercial farms - Full access including employees'
+    }
+};
+
+// FEATURE TO DOM ELEMENT MAPPING
+const FEATURE_SELECTORS = {
+    // EMPLOYEES FEATURE (NOT in Silver or Gold)
+    'employees': [
+        '.employee-section',
+        '.employee-management',
+        '#employeesTab',
+        '.add-employee-btn',
+        '.employee-list',
+        '.payroll-section',
+        '.staff-management',
+        '[data-feature="employees"]',
+        '[data-module="employees"]'
+    ],
+    
+    // POS FEATURE (NOT in Silver)
+    'pos': [
+        '.pos-section',
+        '.pos-system',
+        '#posTab',
+        '.pos-terminal',
+        '.sales-point',
+        '.receipt-printing',
+        '[data-feature="pos"]',
+        '[data-module="pos"]'
+    ],
+    
+    // PREMIUM CROPS (Available in ALL packages)
+    'premium_crops': [
+        '.premium-crops',
+        '.crops-premium',
+        '[data-feature="premium-crops"]'
+    ],
+    
+    // ANALYTICS (NOT in Silver)
+    'analytics': [
+        '.analytics-section',
+        '.advanced-reports',
+        '[data-feature="analytics"]'
+    ],
+    
+    // INVENTORY (Available in ALL)
+    'inventory': [
+        '.inventory-section',
+        '[data-feature="inventory"]'
+    ],
+    
+    // FINANCE (Available in ALL)
+    'finance': [
+        '.finance-section',
+        '[data-feature="finance"]'
+    ]
+};
+
+// =============================================
+// FARM FINGERPRINT (Hides farm name completely)
+// =============================================
+
+function createFarmFingerprint(farmName, farmerName, hectares) {
+    // Combine all farm data
+    const data = `${farmName}_${farmerName}_${hectares}`.toUpperCase();
+    
+    // Create a unique 8-character fingerprint
+    let hash = 0;
+    for (let i = 0; i < data.length; i++) {
+        const char = data.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+    }
+    
+    // Convert to base36 and take 8 chars
+    return Math.abs(hash).toString(36).toUpperCase().padStart(8, '0').substring(0, 8);
+}
+// =============================================
+// ACTIVATION CODE GENERATION & VALIDATION
+// =============================================
+
+// Generate farm-specific activation code
+function generateSubscriptionCode(farmData, packageType, months = 1) {
+    const farmCode = createFarmCode(farmData.farmName);
+    const packageInfo = SUBSCRIPTION_PACKAGES[packageType];
+    
+    if (!packageInfo) {
+        throw new Error(`Invalid package: ${packageType}`);
+    }
+    
+    // Generate secure hash
+    const secureHash = generateSecureHash(
+        farmData.farmName,
+        farmData.farmType,
+        farmData.hectares,
+        packageInfo.packageCode,
+        months,
+        Date.now()
+    );
+    
+    // Format: FARM-FARMCODE-PKG-MONTHS-HASH
+    return `FARM-${farmCode}-${packageInfo.packageCode}-${months.toString().padStart(2, '0')}-${secureHash}`;
+}
+
+// Create farm code from name
+function createFarmCode(farmName) {
+    return farmName
+        .toUpperCase()
+        .replace(/[^A-Z]/g, '')
+        .substring(0, 4)
+        .padEnd(4, 'X');
+}
+
+// Secure hash function
+function generateSecureHash(farmName, farmerName, hectares, packageCode, months, timestamp) {
+    // Include farmerName for fingerprint matching
+    const data = `${farmName}_${farmerName}_${hectares}_${packageCode}_${months}_${timestamp}`;
+    let hash = 0;
+    for (let i = 0; i < data.length; i++) {
+        const char = data.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+    }
+    return Math.abs(hash).toString(36).toUpperCase().padStart(8, '0').substring(0, 8);
+}
+// =============================================
+// PACKAGE & DURATION ENCRYPTION (Hide from plain sight)
+// =============================================
+
+// Simple substitution cipher for package codes
+const PACKAGE_CIPHER = {
+    // Encode (package → secret code)
+    encode: {
+        'SLV': 'X7A',  // Silver
+        'GLD': 'Y8B',  // Gold  
+        'PLT': 'Z9C'   // Platinum
+    },
+    // Decode (secret code → package)
+    decode: {
+        'X7A': 'SLV',
+        'Y8B': 'GLD',
+        'Z9C': 'PLT'
+    }
+};
+
+// Simple cipher for months (1-12)
+function encodeMonths(months) {
+    // Convert 1-12 to letters
+    const letters = 'ABCDEFGHIJKL'; // A=1, B=2, ..., L=12
+    return months >= 1 && months <= 12 ? letters[months - 1] : 'A';
+}
+
+function decodeMonths(encoded) {
+    const letters = 'ABCDEFGHIJKL';
+    const month = letters.indexOf(encoded) + 1;
+    return month >= 1 && month <= 12 ? month : 1;
+}
+console.log("Package Cipher Test:");
+console.log("Silver (SLV) →", PACKAGE_CIPHER.encode['SLV']); // Should be "X7A"
+console.log("X7A →", PACKAGE_CIPHER.decode['X7A']); // Should be "SLV"
+
+console.log("\nMonth Encoding Test:");
+console.log("1 month →", encodeMonths(1)); // Should be "A"
+console.log("3 months →", encodeMonths(3)); // Should be "C"
+console.log("12 months →", encodeMonths(12)); // Should be "L"
+console.log("A →", decodeMonths('A'), "months"); // Should be "1"
+console.log("C →", decodeMonths('C'), "months"); // Should be "3"
+// =============================================
+// GENERATE SUBSCRIPTION CODE (NEW - With hiding)
+// =============================================
+
+function generateSubscriptionCode(farmData, packageType, months = 1) {
+    // Get package info
+    const packageInfo = SUBSCRIPTION_PACKAGES[packageType];
+    
+    if (!packageInfo) {
+        throw new Error(`Invalid package: ${packageType}`);
+    }
+    
+    // Get current timestamp
+    const timestamp = Date.now();
+    
+    // 1. CREATE FARM FINGERPRINT (hides farm name)
+    const farmFingerprint = createFarmFingerprint(
+        farmData.farmName,
+        farmData.farmerName || '',
+        farmData.hectares || 1
+    );
+    
+    // 2. ENCRYPT package and months
+    const encryptedPackage = PACKAGE_CIPHER.encode[packageInfo.packageCode] || 'XXX';
+    const encryptedMonths = encodeMonths(months);
+    
+    // 3. Generate verification hash
+    const secureHash = generateSecureHash(
+        farmData.farmName,
+        farmData.farmerName || '',
+        farmData.hectares || 1,
+        packageInfo.packageCode, // Real package (SLV/GLD/PLT)
+        months,                  // Real months (1-12)
+        timestamp                // Current timestamp
+    );
+    
+    // 4. NEW FORMAT: FP-FINGERPRINT-ENCRYPTEDPKG-ENCRYPTEDMONTHS-TIMESTAMP-HASH
+    return `FP-${farmFingerprint}-${encryptedPackage}-${encryptedMonths}-${timestamp}-${secureHash}`;
+}
+
+try {
+    const code = generateSubscriptionCode(testFarmData, 'silver', 1);
+    console.log("✅ Generated Code:", code);
+    console.log("📏 Length:", code.length, "chars");
+    
+    // Break it down to verify format
+    const parts = code.split('-');
+    console.log("\n🔍 Code Breakdown:");
+    console.log("Prefix:", parts[0]); // Should be "FP"
+    console.log("Fingerprint:", parts[1]); // Should be "001OLB8I"
+    console.log("Encrypted Package:", parts[2]); // Should be "X7A"
+    console.log("Encrypted Months:", parts[3]); // Should be "A"
+    console.log("Timestamp:", parts[4]); // Should be numbers
+    console.log("Hash:", parts[5]); // Should be 8 chars
+} catch (error) {
+    console.log("❌ Error:", error.message);
+}
+// Validate subscription code
+function validateSubscriptionCode(code, farmData) {
+    try {
+        // 1. Check code format (NEW: FP- prefix)
+        if (!code || !code.startsWith('FP-')) {
+            return { valid: false, error: "Invalid code format. Must start with 'FP-'" };
+        }
+        
+        // 2. Split into parts (NEW: 6 parts with fingerprint)
+        const parts = code.split('-');
+        if (parts.length !== 6) {
+            return { valid: false, error: "Invalid code structure" };
+        }
+        
+        const farmFingerprint = parts[1]; // Hidden farm ID (8 chars)
+        const encryptedPackage = parts[2]; // Encrypted package (3 chars)
+        const encryptedMonths = parts[3]; // Encrypted months (1 char)
+        const timestamp = parseInt(parts[4]); // Timestamp
+        const providedHash = parts[5]; // Verification hash (8 chars)
+        
+        // 3. Verify farm fingerprint matches current farm
+        const expectedFingerprint = createFarmFingerprint(
+            farmData.farmName,
+            farmData.farmerName || '',
+            farmData.hectares || 1
+        );
+        
+        if (farmFingerprint !== expectedFingerprint) {
+            return { valid: false, error: "This code is not for this farm/farmer" };
+        }
+        
+        // 4. Decrypt package and months
+        const packageCode = PACKAGE_CIPHER.decode[encryptedPackage];
+        const months = decodeMonths(encryptedMonths);
+        
+        if (!packageCode) {
+            return { valid: false, error: "Invalid package code" };
+        }
+        
+        // 5. Find package info
+        let packageType = null;
+        let packageInfo = null;
+        
+        for (const [pkgKey, pkgData] of Object.entries(SUBSCRIPTION_PACKAGES)) {
+            if (pkgData.packageCode === packageCode) {
+                packageType = pkgKey;
+                packageInfo = pkgData;
+                break;
+            }
+        }
+        
+        if (!packageInfo) {
+            return { valid: false, error: "Invalid package" };
+        }
+        
+        // 6. Check 48-hour expiry
+        const codeDate = new Date(timestamp);
+        const now = new Date();
+        const hoursDiff = (now - codeDate) / (1000 * 60 * 60);
+        
+        if (hoursDiff > 48) {
+            return { 
+                valid: false, 
+                error: "Code expired! Activation codes must be used within 48 hours of generation." 
+            };
+        }
+        
+        // 7. Verify hash (using ALL real data)
+        const expectedHash = generateSecureHash(
+            farmData.farmName,
+            farmData.farmerName || '',
+            farmData.hectares || 1,
+            packageCode,    // Decrypted package (SLV/GLD/PLT)
+            months,         // Decrypted months (1-12)
+            timestamp       // From code
+        );
+        
+        if (providedHash !== expectedHash) {
+            return { valid: false, error: "Code verification failed" };
+        }
+        
+        // ✅ ALL VALIDATIONS PASSED!
+        
+        // Calculate subscription dates
+        const activationDate = new Date();
+        const subscriptionEndDate = new Date(activationDate);
+        subscriptionEndDate.setMonth(subscriptionEndDate.getMonth() + months);
+        
+        return {
+            valid: true,
+            packageType: packageType,
+            months: months,
+            subscription: {
+                code: code,
+                package: packageType,
+                name: packageInfo.name,
+                price: packageInfo.price,
+                months: months,
+                pricePerMonth: packageInfo.price,
+                totalPrice: packageInfo.price * months,
+                activationDate: activationDate.toISOString(),
+                subscriptionEndDate: subscriptionEndDate.toISOString(),
+                farmFingerprint: farmFingerprint,
+                features: packageInfo.features,
+                color: packageInfo.color,
+                emoji: packageInfo.emoji
+            }
+        };
+        
+    } catch (error) {
+        return { valid: false, error: "Unable to validate code: " + error.message };
+    }
+}
+
+// =============================================
+// NEW HELPER FUNCTIONS - FIXED
+// =============================================
+
+function selectPackageAndActivate(packageType) {
+    console.log('Package selected:', packageType);
+    closeModal();
+    
+    // Store selected package for activation
+    window.selectedPackageForActivation = packageType;
+    
+    // Show activation input modal
+    showActivationInputModal(packageType);
+}
+
+function showActivationInputModal(packageType = null) {
+    console.log('Showing activation input for package:', packageType);
+    
+    // Close any existing modal first
+    const existingModal = document.querySelector('.subscription-required-modal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Get package info
+    const packageInfo = SUBSCRIPTION_PACKAGES[packageType] || SUBSCRIPTION_PACKAGES.silver;
+    
+    const modalHTML = `
+        <div class="activation-input-modal" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(44, 62, 80, 0.95);
+            z-index: 99999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        ">
+            <div style="
+                background: white;
+                border-radius: 15px;
+                padding: 30px;
+                max-width: 500px;
+                width: 100%;
+                text-align: center;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            ">
+                <div style="font-size: 48px; margin-bottom: 15px;">${packageInfo.emoji}</div>
+                <h3 style="color: #2c3e50; margin-bottom: 10px;">Activate ${packageInfo.name} Package</h3>
+                <p style="color: #7f8c8d; margin-bottom: 20px;">Price: <strong>P${packageInfo.price}/month</strong></p>
+                
+                <div style="margin-bottom: 25px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
+                        📝 Enter Activation Code
+                    </label>
+                    <input type="text" 
+                           id="modalActivationCodeInput" 
+                           placeholder="Enter code starting with FP-..." 
+                           style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; margin-bottom: 15px;"
+                           autofocus>
+                    <p id="codeFormatHint" style="font-size: 0.9rem; color: #666; margin: 5px 0;">
+                        Code should start with "FP-" and be 30 characters long
+                    </p>
+                </div>
+                
+                <div style="display: flex; gap: 10px; justify-content: center;">
+              <!-- CHANGED: Cancel → Back to Packages -->
+            <button onclick="goBackToPackages()" 
+                    style="padding: 12px; background: #f8f9fa; border: 2px solid #dee2e6; color: #6c757d; 
+                           border-radius: 8px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                ← Back to Packages
+            </button>
+  
+                    <button onclick="activateFromModal('${packageType}')" 
+                            style="padding: 12px 24px; background: #2e7d32; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                        🔑 Activate Now
+                    </button>
+                </div>
+                
+                <div style="margin-top: 20px; color: #666; font-size: 14px;">
+                    <p>Don't have a code? <a href="#" onclick="contactSupport(); return false;" style="color: #3498db;">Contact support</a></p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Focus on input
+    setTimeout(() => {
+        const input = document.getElementById('modalActivationCodeInput');
+        if (input) input.focus();
+    }, 100);
+}
+// Prevent clicking outside to close
+modal.addEventListener('click', function(e) {
+    if (e.target === modal) {
+        e.preventDefault();
+        e.stopPropagation();
+        // Show a warning that user must activate
+        showNotification('You must activate or subscribe to continue', 'warning');
+    }
+});
+function activateFromModal(packageType) {
+    const codeInput = document.getElementById('modalActivationCodeInput');
+    if (!codeInput) {
+        showNotification('Activation code input not found', 'error');
+        return;
+    }
+    
+    const ActivationCodeInput = codeInput.value.trim();
+    
+    if (!ActivationCodeInput) {
+        showNotification('Please enter an activation code', 'error');
+        return;
+    }
+    
+    // Get farm data
+    const farmData = {
+        farmName: window.farmProfile?.farmName || '',
+        farmerName: window.farmProfile?.farmerName || '',
+        hectares: parseInt(window.farmProfile?.hectares) || 1,
+        farmType: window.farmProfile?.type || 'MIXED'
+    };
+    
+    console.log('Activating from modal:', { code: ActivationCodeInput, packageType, farmData });
+    
+    // Validate the code
+    const validationResult = validateSubscriptionCode(ActivationCodeInput.toUpperCase(), farmData);
+    
+    if (validationResult.valid) {
+        // Check if the activated package matches selected package
+        if (validationResult.packageType !== packageType) {
+            showNotification(`This code is for ${validationResult.packageType} package, not ${packageType}.`, 'error');
+            return;
+        }
+        
+        // Save subscription
+        const subscription = validationResult.subscription;
+        const packageInfo = SUBSCRIPTION_PACKAGES[packageType];
+        
+        window.farmProfile.subscription = {
+            active: true,
+            type: 'monthly',
+            package: packageType,
+            name: packageInfo.name,
+            pricePerMonth: packageInfo.price,
+            totalPrice: subscription.totalPrice,
+            months: subscription.months,
+            ActivationCodeInput: ActivationCodeInput.toUpperCase(),
+            activationDate: subscription.activationDate,
+            subscriptionEndDate: subscription.subscriptionEndDate,
+            features: packageInfo.features,
+            color: packageInfo.color,
+            emoji: packageInfo.emoji
+        };
+        
+        if (safeSaveData()) {
+            disableReadOnlyMode();
+            closeModal();
+            applyPackageRestrictions(packageType);
+            showNotification(`✅ ${packageInfo.name} package activated!`, 'success');
+            
+            // Refresh the page or update UI
+            setTimeout(() => {
+                location.reload(); // Or update UI without reload
+            }, 1500);
+        }
+    } else {
+        showNotification(validationResult.error, 'error');
+    }
+}
+// After safeSaveData() in your activation function, add this:
+
+// CRITICAL: Force a license check to apply subscription priority
+setTimeout(() => {
+    checkLicenseStatus();
+    updateCurrentSubscriptionDisplay();
+}, 500);
+
+showNotification('❤️ Welcome to FarmerPack ❤️', 'success');
+function showActivationInputDirectly() {
+    closeModal();
+    
+    // Show a simple activation input
+    const modalHTML = `
+        <div class="direct-activation-modal" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(44, 62, 80, 0.95);
+            z-index: 99999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        ">
+            <div style="
+                background: white;
+                border-radius: 15px;
+                padding: 30px;
+                max-width: 400px;
+                width: 100%;
+            ">
+                <h3 style="color: #2c3e50; margin-bottom: 20px;">Enter Activation Code</h3>
+                
+                <input type="text" 
+                       id="directActivationCodeInput" 
+                       placeholder="FP-XXXXXXXX-XXX-X-XXXXXXXX-XXXXXXXX" 
+                       style="width: 100%; padding: 12px; border: 2px solid #3498db; border-radius: 8px; font-size: 1rem; margin-bottom: 20px;"
+                       autofocus>
+                
+                <div style="display: flex; gap: 10px;">
+                  
+            <!-- CHANGED: Cancel → Back to Packages -->
+            <button onclick="goBackToPackages()" 
+                    style="padding: 12px; background: #f8f9fa; border: 2px solid #dee2e6; color: #6c757d; 
+                           border-radius: 8px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                ← Back to Packages
+            </button>
+ 
+                    <button onclick="activateDirectFromModal()" 
+                            style="flex: 2; padding: 12px; background: #2e7d32; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                        Activate
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+function activateDirectFromModal() {
+    const codeInput = document.getElementById('directActivationCodeInput');
+    if (!codeInput || !codeInput.value.trim()) {
+        showNotification('Please enter an activation code', 'error');
+        return;
+    }
+    
+    // Use your existing activation function
+    if (typeof window.activateSubscription === 'function') {
+        // Temporarily set the code in the main input
+        const mainInput = document.getElementById('ActivationCodeInput');
+        if (mainInput) {
+            mainInput.value = codeInput.value.trim();
+        }
+        
+        closeModal();
+        window.activateSubscription();
+    } else {
+        showNotification('Activation function not found', 'error');
+    }
+}
+
+function closeModalAndContinueReadOnly() {
+    closeModal();
+    showNotification('You can browse in read-only mode. Click "Subscribe" anytime to activate.', 'info');
+}
+
+function contactSupport() {
+    const farmDetails = window.farmProfile ? `
+Farm Details:
+- Farm: ${window.farmProfile.farmName || 'Not set'}
+- Farmer: ${window.farmProfile.farmerName || 'Not set'}
+- Hectares: ${window.farmProfile.hectares || 'Not set'}
+    `.trim() : 'I need help with FarmerPack subscription';
+    
+    const message = encodeURIComponent(`Hello FarmerPack Support,\n\n${farmDetails}\n\nI need to activate a subscription package.`);
+    window.open(`https://wa.me/26776781005?text=${message}`, '_blank');
+}
+
+function closeModal() {
+    const modals = document.querySelectorAll('.subscription-required-modal, .activation-input-modal, .direct-activation-modal');
+    modals.forEach(modal => modal.remove());
+}
+
+
+// =============================================
+// UPDATE YOUR CHECK LICENSE FUNCTION
+// =============================================
+
+// In your checkLicenseStatus() function, update this part:
+// Replace: showSubscriptionRequiredModal();
+// With: showSubscriptionRequiredModal(); // Now it exists!
+
+
+// =============================================
+// UPGRADE MODAL FUNCTIONS
+// =============================================
+
+function showUpgradeModal(currentSub, newPackageType, totalMonths, upgradeCode) {
+    const newPackage = SUBSCRIPTION_PACKAGES[newPackageType];
+    const currentPackage = SUBSCRIPTION_PACKAGES[currentSub.package];
+    
+    const modal = document.createElement('div');
+    modal.className = 'upgrade-modal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        padding: 20px;
+    `;
+    
+    modal.innerHTML = `
+        <div style="
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        ">
+            <h2 style="color: #4CAF50; margin-bottom: 20px;">
+                🔄 Subscription Upgrade
+            </h2>
+            
+            <div style="display: flex; justify-content: space-around; margin: 20px 0;">
+                <div style="text-align: center;">
+                    <div style="font-size: 40px;">${getPackageIcon(currentSub.package)}</div>
+                    <h4>Current</h4>
+                    <p>${currentPackage.name}</p>
+                    <small>Expires: ${new Date(currentSub.endDate).toLocaleDateString()}</small>
+                </div>
+                
+                <div style="display: flex; align-items: center; font-size: 30px;">→</div>
+                
+                <div style="text-align: center;">
+                    <div style="font-size: 40px;">${getPackageIcon(newPackageType)}</div>
+                    <h4>New</h4>
+                    <p>${newPackage.name}</p>
+                    <small>${totalMonths} months total</small>
+                </div>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h4>Upgrade Code:</h4>
+                <div style="
+                    background: #fff3cd;
+                    padding: 15px;
+                    border-radius: 8px;
+                    margin: 10px 0;
+                    font-family: monospace;
+                    font-size: 16px;
+                    border: 2px dashed #ffc107;
+                    word-break: break-all;
+                ">
+                    ${upgradeCode}
+                </div>
+                <p><small>Give this code to support to complete your upgrade</small></p>
+            </div>
+            
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button onclick="copyToClipboard('${upgradeCode}')" 
+                        style="
+                            padding: 10px 20px;
+                            background: #2196F3;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                        ">
+                    📋 Copy Code
+                </button>
+                
+                <button onclick="this.closest('.upgrade-modal').remove()" 
+                        style="
+                            padding: 10px 20px;
+                            background: #4CAF50;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                        ">
+                    Done
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+//==========================
+//Helper Upgrade
+//===========================
+function getPackageIcon(packageType) {
+    switch(packageType) {
+        case 'gold': return '🥇';
+        case 'platinum': return '💎';
+        case 'silver': return '🥈';
+        default: return '📦';
+    }
+}
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        showNotification('Code copied to clipboard!', 'success');
+    });
+}
+
+function validateUpgradeCode(code) {
+    // Special validation for upgrade codes
+    if (!code.startsWith('UPG')) {
+        return { valid: false, error: 'Not a valid upgrade code' };
+    }
+    
+    // Remove UPG prefix and validate as regular code
+    const regularCode = code.substring(3);
+    return validateFarmerNameCode(regularCode, ...arguments);
+}
+// =============================================
+// MAIN ACTIVATION FUNCTION
+// =============================================
+
+function activateSubscription() {
+    // Check which input field you're using
+    const activationInput = getElement('ActivationCodeInput') || getElement('subscriptionActivationInput') || getElement('activationInput');
+    
+    if (!activationInput) {
+        showNotification('Activation input not found', 'error');
+        return;
+    }
+    
+    const ActivationCodeInput = activationInput.value.trim().toUpperCase();
+    
+    if (!ActivationCodeInput) {
+        showNotification('Please enter subscription activation code', 'error');
+        return;
+    }
+    
+    console.log("DEBUG: Code entered:", ActivationCodeInput);
+    
+    showNotification('🔄 Validating subscription code...', 'info');
+    
+    // Get farm data from profile
+    const farmData = {
+        farmName: farmProfile.farmName || '',
+        farmerName: farmProfile.farmerName || '',
+        hectares: parseInt(farmProfile.hectares) || 1,
+        farmType: farmProfile.type || 'MIXED'
+    };
+    
+    console.log("DEBUG: Farm data:", farmData);
+    
+    // ⚠️ MUST BE validateSubscriptionCode (not validateFarmerNameCode)
+    const validationResult = validateSubscriptionCode(ActivationCodeInput, farmData);
+    
+    console.log("DEBUG: Validation result:", validationResult);
+    
+    if (validationResult.valid) {
+        const subscription = validationResult.subscription;
+        const packageType = validationResult.packageType;
+        const packageInfo = SUBSCRIPTION_PACKAGES[packageType];
+        
+        // SAVE SUBSCRIPTION DATA
+        farmProfile.subscription = {
+            active: true,
+            type: 'monthly',
+            package: packageType,
+            name: packageInfo.name,
+            pricePerMonth: packageInfo.price,
+            totalPrice: subscription.totalPrice,
+            months: subscription.months,
+            ActivationCodeInput: ActivationCodeInput,
+            activationDate: subscription.activationDate,
+            subscriptionEndDate: subscription.subscriptionEndDate,
+            features: packageInfo.features,
+            color: packageInfo.color,
+            emoji: packageInfo.emoji
+        };
+        
+        if (safeSaveData()) {
+            applyPackageRestrictions(packageType);
+            showNotification(`✅ ${packageInfo.name} package activated for ${subscription.months} month(s)!`, 'success');
+            closeActivationModal();
+            updateSubscriptionButton();
+            
+            setTimeout(() => {
+                if (typeof showSubscriptionWelcomeModal === 'function') {
+                    showSubscriptionWelcomeModal(subscription);
+                }
+            }, 1000);
+        }
+    } else {
+        showNotification(validationResult.error, 'error');
+    }
+}
+// =============================================
+// RESTRICTION ENFORCEMENT SYSTEM
+// =============================================
+
+function applyPackageRestrictions(packageType) {
+    const packageInfo = SUBSCRIPTION_PACKAGES[packageType];
+    
+    if (!packageInfo) return;
+    
+    console.log(`Applying ${packageType} package restrictions...`);
+    
+    // 1. UPDATE BODY CLASS (for CSS targeting)
+    // Remove all package classes first
+    document.body.classList.remove('silver-package', 'gold-package', 'platinum-package');
+    // Add current package class
+    document.body.classList.add(`${packageType}-package`);
+    
+    // 2. HIDE RESTRICTED FEATURES (your existing code)
+    packageInfo.features.restricted.forEach(feature => {
+        hideFeature(feature, packageType);
+    });
+    
+    // 3. UPDATE UI INDICATOR (your existing code)
+    updatePackageIndicator(packageType);
+    
+    // 4. ADD UPGRADE PROMPTS (your existing code)
+    addUpgradePrompts(packageType);
+}
+
+// Hide a specific feature
+function hideFeature(feature, packageType) {
+    const selectors = FEATURE_SELECTORS[feature];
+    
+    if (!selectors) {
+        console.warn(`No selectors defined for feature: ${feature}`);
+        return;
+    }
+    
+    selectors.forEach(selector => {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(element => {
+            // HIDE the element
+            element.style.display = 'none';
+            
+            // Add restriction class
+            element.classList.add('restricted-feature');
+            element.classList.add(`no-${feature}`);
+            
+            // Add data attribute
+            element.setAttribute('data-restricted', feature);
+            element.setAttribute('data-requires-package', 
+                feature === 'employees' ? 'platinum' : 
+                feature === 'pos' ? 'gold' : '');
+        });
+    });
+}
+
+// Update package indicator in UI
+function updatePackageIndicator(packageType) {
+    const packageInfo = SUBSCRIPTION_PACKAGES[packageType];
+    
+    // Remove existing indicator
+    const existing = document.getElementById('packageIndicator');
+    if (existing) existing.remove();
+    
+    // Create new indicator
+    const indicator = document.createElement('div');
+    indicator.id = 'packageIndicator';
+    indicator.style.cssText = `
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        padding: 8px 15px;
+        border-radius: 20px;
+        background: ${packageInfo.color};
+        color: ${packageType === 'gold' ? '#5d4037' : 'white'};
+        font-weight: bold;
+        z-index: 10000;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    `;
+    
+    indicator.innerHTML = `
+        ${packageInfo.emoji} ${packageInfo.name} Package
+        <button onclick="showSubscriptionDetails()" 
+                style="background: rgba(255,255,255,0.2); 
+                       border: none; 
+                       color: inherit; 
+                       padding: 2px 8px; 
+                       border-radius: 10px; 
+                       cursor: pointer;
+                       font-size: 12px;">
+            Details
+        </button>
+    `;
+    
+    document.body.appendChild(indicator);
+}
+
+// Add upgrade prompts for restricted features
+function addUpgradePrompts(packageType) {
+    const packageInfo = SUBSCRIPTION_PACKAGES[packageType];
+    
+    // For Silver: Add POS and Employee upgrade prompts
+    if (packageType === 'silver') {
+        addUpgradePrompt('pos', 'gold', 'POS System', 'P200/month');
+        addUpgradePrompt('employees', 'platinum', 'Employee Management', 'P300/month');
+    }
+    
+    // For Gold: Add Employee upgrade prompt
+    if (packageType === 'gold') {
+        addUpgradePrompt('employees', 'platinum', 'Employee Management', 'P300/month');
+    }
+}
+
+function addUpgradePrompt(feature, requiredPackage, featureName, price) {
+    const targetPackage = SUBSCRIPTION_PACKAGES[requiredPackage];
+    
+    // Find areas where this feature should be
+    const areas = FEATURE_SELECTORS[feature].map(selector => {
+        return document.querySelector(selector);
+    }).filter(el => el);
+    
+    areas.forEach(area => {
+        // Check if upgrade prompt already exists
+        if (area.querySelector('.upgrade-prompt')) return;
+        
+        const prompt = document.createElement('div');
+        prompt.className = 'upgrade-prompt';
+        prompt.style.cssText = `
+            background: linear-gradient(135deg, ${targetPackage.color}20, ${targetPackage.color}40);
+            border: 2px dashed ${targetPackage.color};
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+            animation: fadeIn 0.5s ease;
+        `;
+        
+        prompt.innerHTML = `
+            <div style="font-size: 2rem; margin-bottom: 10px;">🔐</div>
+            <h4 style="color: ${targetPackage.color}; margin: 0 0 10px 0;">
+                ${featureName} Locked
+            </h4>
+            <p style="color: #666; margin: 0 0 15px 0;">
+                Upgrade to <strong>${targetPackage.name} Package</strong> (${price})
+                to unlock ${featureName.toLowerCase()}
+            </p>
+            <button onclick="showUpgradeModal('${requiredPackage}')"
+                    style="background: ${targetPackage.color};
+                           color: ${requiredPackage === 'gold' ? '#5d4037' : 'white'};
+                           border: none;
+                           padding: 10px 20px;
+                           border-radius: 5px;
+                           font-weight: bold;
+                           cursor: pointer;
+                           display: inline-flex;
+                           align-items: center;
+                           gap: 8px;">
+                ${targetPackage.emoji} Upgrade to ${targetPackage.name}
+            </button>
+        `;
+        
+        area.parentNode.insertBefore(prompt, area);
+    });
+}
+function disableReadOnlyMode() {
+    console.log('🔓 Disabling read-only mode');
+    document.body.classList.remove('readonly-mode');
+    
+    // Enable all inputs and buttons
+    document.querySelectorAll('input, select, textarea, button').forEach(element => {
+        element.disabled = false;
+        element.readOnly = false;
+    });
+}
+// =============================================
+// CHECK RESTRICTIONS ON PAGE LOAD
+// =============================================
+
+function checkAndApplyRestrictions() {
+    console.log('🔐 Checking and applying restrictions...');
+    
+    // Check if we already applied restrictions recently
+    if (window.restrictionsApplied) {
+        console.log('⏭️ Restrictions already applied, skipping');
+        return;
+    }
+    
+    if (farmProfile && farmProfile.subscription && farmProfile.subscription.active) {
+        console.log('✅ Applying subscription package restrictions');
+        applyPackageRestrictions(farmProfile.subscription.package);
+    } else if (farmProfile && farmProfile.trialStart) {
+        console.log('🆓 Applying trial (Silver) restrictions');
+        applyPackageRestrictions('silver');
+    } else {
+        console.log('👋 New user - no restrictions needed yet');
+        // Don't show modal for new users - they see startup form
+    }
+    
+    // Mark as applied to prevent duplicates
+    window.restrictionsApplied = true;
+    
+    // Schedule re-check after 5 seconds (in case subscription changes)
+    setTimeout(() => {
+        window.restrictionsApplied = false;
+    }, 5000);
+}
+//=========================
+//upgrade subscription
+//=========================
+function upgradeSubscription(newPackageType, additionalMonths) {
+    try {
+        console.log('Upgrading subscription...', { newPackageType, additionalMonths });
+        
+        // Get current subscription
+        const currentSub = getCurrentSubscription();
+        if (!currentSub) {
+            showNotification('No active subscription found', 'error');
+            return false;
+        }
+        
+        // Get current farm data
+        const farmData = getFarmData();
+        if (!farmData) {
+            showNotification('Farm profile not complete', 'error');
+            return false;
+        }
+        
+        // Calculate remaining time
+        const endDate = new Date(currentSub.endDate);
+        const today = new Date();
+        const remainingDays = Math.max(0, Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)));
+        
+        // Convert remaining days to months (approximate)
+        const remainingMonths = Math.ceil(remainingDays / 30);
+        
+        // Calculate total months for new subscription
+        const totalMonths = remainingMonths + parseInt(additionalMonths);
+        
+        // Check if upgrading to same or lower package
+        const packageOrder = { 'silver': 1, 'gold': 2, 'platinum': 3 };
+        if (packageOrder[newPackageType] <= packageOrder[currentSub.package]) {
+            showNotification(`You can only upgrade to a higher package. Current: ${currentSub.name}`, 'error');
+            return false;
+        }
+        
+        // Generate upgrade code
+        const upgradeCode = generateUpgradeCode(
+            farmData.farmName,
+            farmData.hectares,
+            farmData.farmerName,
+            newPackageType,
+            totalMonths,
+            currentSub.code
+        );
+        
+        // Display upgrade code
+        showUpgradeModal(currentSub, newPackageType, totalMonths, upgradeCode);
+        
+        return true;
+        
+    } catch (error) {
+        console.error('Upgrade error:', error);
+        showNotification('Error processing upgrade: ' + error.message, 'error');
+        return false;
+    }
+}
+
+function generateUpgradeCode(farmName, hectares, farmerName, newPackageType, totalMonths, previousCode) {
+    // Generate a new code for the upgraded subscription
+    const packageInfo = SUBSCRIPTION_PACKAGES[newPackageType];
+    const hStr = parseInt(hectares).toString();
+    const farmerDigits = farmerNameToDigits(farmerName);
+    const encodedMonths = encodeMonths(totalMonths);
+    const farmHash = calculateFarmHash(farmName, hectares);
+    
+    // Add "UPG" prefix to indicate upgrade
+    return `UPG${hStr}${packageInfo.packageCode}${farmerDigits}${encodedMonths}${farmHash}${hStr}`;
+}
+// =============================================
+// UPGRADE FUNCTIONS
+// =============================================
+
+function showUpgradeOptions() {
+    const currentPackage = farmProfile.subscription?.package || 'silver';
+    const currentPackageInfo = SUBSCRIPTION_PACKAGES[currentPackage];
+    
+    const modalHTML = `
+        <div class="activation-modal" style="display: flex;">
+            <div class="activation-content" style="max-width: 600px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 style="margin: 0; color: ${currentPackageInfo.color};">
+                        🔄 Upgrade Your Package
+                    </h2>
+                    <button onclick="closeAllModals()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666;">&times;</button>
+                </div>
+                
+                <p style="color: #666; margin-bottom: 2rem;">
+                    Upgrade to unlock more features and increase your farm management capabilities.
+                </p>
+                
+                <div style="display: grid; gap: 1rem; margin-bottom: 2rem;">
+                    ${getUpgradeOptionsHTML(currentPackage)}
+                </div>
+                
+                <button onclick="closeAllModals()" 
+                        style="width: 100%; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    Maybe Later
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+function getUpgradeOptionsHTML(currentPackage) {
+    const upgrades = [];
+    
+    if (currentPackage === 'silver') {
+        // Silver can upgrade to Gold or Platinum
+        upgrades.push(`
+            <div class="upgrade-option" style="border: 2px solid #ffb300; border-radius: 10px; padding: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div>
+                        <h3 style="margin: 0; color: #ffb300;">🥇 Gold Package</h3>
+                        <p style="margin: 5px 0 0 0; color: #666; font-size: 0.9rem;">
+                            Unlock POS System
+                        </p>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 1.8rem; font-weight: bold; color: #ffb300;">P200</div>
+                        <div style="font-size: 0.9rem; color: #666;">per month</div>
+                    </div>
+                </div>
+                
+                <ul style="margin: 1rem 0; padding-left: 1.2rem; color: #555;">
+                    <li>✅ Everything in Silver</li>
+                    <li>✅ POS System (Point of Sale)</li>
+                    <li>✅ Advanced Analytics</li>
+                    <li>❌ No Employee Management</li>
+                </ul>
+                
+                <button onclick="showUpgradeModal('gold')" 
+                        style="width: 100%; padding: 12px; background: #ffb300; color: #5d4037; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
+                    Upgrade to Gold
+                </button>
+            </div>
+        `);
+        
+        upgrades.push(`
+            <div class="upgrade-option" style="border: 2px solid #388e3c; border-radius: 10px; padding: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div>
+                        <h3 style="margin: 0; color: #388e3c;">💎 Platinum Package</h3>
+                        <p style="margin: 5px 0 0 0; color: #666; font-size: 0.9rem;">
+                            Full Access - Everything Included
+                        </p>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 1.8rem; font-weight: bold; color: #388e3c;">P300</div>
+                        <div style="font-size: 0.9rem; color: #666;">per month</div>
+                    </div>
+                </div>
+                
+                <ul style="margin: 1rem 0; padding-left: 1.2rem; color: #555;">
+                    <li>✅ Everything in Gold</li>
+                    <li>✅ Employee Management</li>
+                    <li>✅ Data Export & API Access</li>
+                    <li>✅ Priority Support</li>
+                </ul>
+                
+                <button onclick="showUpgradeModal('platinum')" 
+                        style="width: 100%; padding: 12px; background: #388e3c; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
+                    Upgrade to Platinum
+                </button>
+            </div>
+        `);
+    }
+    
+    if (currentPackage === 'gold') {
+        // Gold can only upgrade to Platinum
+        upgrades.push(`
+            <div class="upgrade-option" style="border: 2px solid #388e3c; border-radius: 10px; padding: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div>
+                        <h3 style="margin: 0; color: #388e3c;">💎 Platinum Package</h3>
+                        <p style="margin: 5px 0 0 0; color: #666; font-size: 0.9rem;">
+                            Unlock Employee Management
+                        </p>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 1.8rem; font-weight: bold; color: #388e3c;">P300</div>
+                        <div style="font-size: 0.9rem; color: #666;">per month</div>
+                    </div>
+                </div>
+                
+                <ul style="margin: 1rem 0; padding-left: 1.2rem; color: #555;">
+                    <li>✅ Everything in Gold</li>
+                    <li>✅ Employee Management System</li>
+                    <li>✅ Payroll & Staff Management</li>
+                    <li>✅ Data Export & API Access</li>
+                    <li>✅ Priority Support</li>
+                </ul>
+                
+                <div style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
+                    <strong>Note:</strong> Only P100 more than Gold
+                </div>
+                
+                <button onclick="showUpgradeModal('platinum')" 
+                        style="width: 100%; padding: 12px; background: #388e3c; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
+                    Upgrade to Platinum (+P100)
+                </button>
+            </div>
+        `);
+    }
+    
+    if (currentPackage === 'platinum') {
+        return `
+            <div style="text-align: center; padding: 3rem 1rem;">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">🏆</div>
+                <h3 style="color: #388e3c;">You have the best package!</h3>
+                <p style="color: #666; margin-top: 1rem;">
+                    You're already on the Platinum package with full access to all features.
+                </p>
+            </div>
+        `;
+    }
+    
+    return upgrades.join('');
+}
+
+function showUpgradeModal(targetPackage) {
+    closeAllModals();
+    
+    const currentPackage = farmProfile.subscription?.package || 'silver';
+    const targetPackageInfo = SUBSCRIPTION_PACKAGES[targetPackage];
+    const currentPackageInfo = SUBSCRIPTION_PACKAGES[currentPackage];
+    
+    // Check if it's a valid upgrade
+    const packageOrder = { 'silver': 1, 'gold': 2, 'platinum': 3 };
+    if (packageOrder[targetPackage] <= packageOrder[currentPackage]) {
+        showNotification(`You can only upgrade to a higher package. Current: ${currentPackageInfo.name}`, 'error');
+        return;
+    }
+    
+    const modalHTML = `
+        <div class="activation-modal" style="display: flex;">
+            <div class="activation-content" style="max-width: 500px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 style="margin: 0; color: ${targetPackageInfo.color};">🔄 Package Upgrade</h2>
+                    <button onclick="closeAllModals()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666;">&times;</button>
+                </div>
+                
+                <div style="background: ${targetPackageInfo.color}10; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 1rem;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 2.5rem;">${currentPackageInfo.emoji}</div>
+                            <div style="font-weight: bold; color: ${currentPackageInfo.color};">${currentPackageInfo.name}</div>
+                        </div>
+                        <div style="font-size: 2rem; color: #666;">→</div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 2.5rem;">${targetPackageInfo.emoji}</div>
+                            <div style="font-weight: bold; color: ${targetPackageInfo.color};">${targetPackageInfo.name}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.9rem; color: #666;">Additional Cost</div>
+                        <div style="font-size: 2rem; font-weight: bold; color: ${targetPackageInfo.color};">
+                            P${targetPackageInfo.price - currentPackageInfo.price}<span style="font-size: 1rem;">/month</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <h4 style="color: #2c3e50; margin-bottom: 1rem;">New Features You'll Get:</h4>
+                    <ul style="margin: 0; padding-left: 1.2rem;">
+                        ${getNewFeaturesForUpgrade(currentPackage, targetPackage)}
+                    </ul>
+                </div>
+                
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem;">
+                    <h4 style="color: #2c3e50; margin-bottom: 1rem;">How to Upgrade:</h4>
+                    <ol style="margin: 0; padding-left: 1.2rem; color: #555;">
+                        <li>Contact support with your farm details</li>
+                        <li>Pay the difference: P${targetPackageInfo.price - currentPackageInfo.price}/month</li>
+                        <li>Receive new activation code</li>
+                        <li>Enter new code in app to upgrade</li>
+                    </ol>
+                </div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="closeAllModals()" 
+                            style="flex: 1; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        Cancel
+                    </button>
+                    <button onclick="initiateUpgrade('${targetPackage}')" 
+                            style="flex: 1; padding: 12px; background: ${targetPackageInfo.color}; color: ${targetPackage === 'gold' ? '#5d4037' : 'white'}; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                        Contact Support to Upgrade
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+function getNewFeaturesForUpgrade(fromPackage, toPackage) {
+    const features = {
+        'silver-gold': [
+            'POS System (Point of Sale)',
+            'Advanced Analytics & Reports',
+            'Sales Analytics',
+            ''
+        ],
+        'silver-platinum': [
+            'POS System',
+            'Employee Management',
+            'Payroll System',
+            'Advanced Analytics',
+            'Data Export',
+            'API Access',
+            'Priority Support'
+        ],
+        'gold-platinum': [
+            'Employee Management System',
+            'Payroll & Staff Management',
+            'Data Export Features',
+            'API Access',
+            'Priority Support'
+        ]
+    };
+    
+    const key = `${fromPackage}-${toPackage}`;
+    return (features[key] || []).map(feature => `<li>✅ ${feature}</li>`).join('');
+}
+
+function initiateUpgrade(targetPackage) {
+    const targetPackageInfo = SUBSCRIPTION_PACKAGES[targetPackage];
+    
+    // Get farm data for upgrade
+    const farmData = {
+        farmName: farmProfile.farmName || '',
+        farmerName: farmProfile.farmerName || '',
+        contact: farmProfile.contact || '',
+        hectares: farmProfile.hectares || 1,
+        currentPackage: farmProfile.subscription?.package || 'silver',
+        targetPackage: targetPackage
+    };
+    
+    // Create upgrade message for WhatsApp
+    const message = encodeURIComponent(`
+Hello FarmerPack Support,
+
+I would like to upgrade my subscription.
+
+Current Details:
+- Farm: ${farmData.farmName}
+- Farmer: ${farmData.farmerName}
+- Contact: ${farmData.contact}
+- Current Package: ${farmData.currentPackage.toUpperCase()}
+- Target Package: ${targetPackageInfo.name}
+
+Please provide:
+1. Upgrade activation code
+2. Payment details for the difference
+
+Thank you.
+    `.trim());
+    
+    // Open WhatsApp to contact support
+    window.open(`https://wa.me/26776781005?text=${message}`, '_blank');
+    
+    // Show confirmation
+    showNotification(`✅ Opening WhatsApp to contact support for ${targetPackageInfo.name} upgrade`, 'info');
+    closeAllModals();
+}
+
+// Helper function to close all modals
+function closeAllModals() {
+    document.querySelectorAll('.activation-modal').forEach(modal => {
+        modal.remove();
+    });
+}
+
+// Helper function for notifications (if not defined)
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 25px;
+        background: ${type === 'error' ? '#e74c3c' : type === 'success' ? '#2ecc71' : '#3498db'};
+        color: white;
+        border-radius: 10px;
+        z-index: 10000;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        animation: slideInRight 0.3s ease;
+    `;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+// =============================================
+// SUBSCRIPTION MANAGEMENT UI
+// =============================================
+
+function updateSubscriptionButton() {
+    const btn = document.getElementById('subscribeBtn');
+    if (!btn) return;
+    
+    btn.classList.remove('pulse-subscribe');
+    
+    if (farmProfile.subscription && farmProfile.subscription.active) {
+        const sub = farmProfile.subscription;
+        const endDate = new Date(sub.subscriptionEndDate);
+        const daysLeft = Math.ceil((endDate - new Date()) / (1000 * 60 * 60 * 24));
+        
+        if (daysLeft > 0) {
+            btn.innerHTML = `${sub.emoji} ${sub.name} (${daysLeft}d left)`;
+            btn.style.background = sub.color;
+            btn.style.color = sub.package === 'gold' ? '#5d4037' : 'white';
+            btn.onclick = showSubscriptionDetails;
+        } else {
+            btn.innerHTML = `⚠️ ${sub.name} (Expired)`;
+            btn.style.background = '#e74c3c';
+            btn.style.color = 'white';
+            btn.onclick = showActivationModal;
+        }
+    } else {
+        btn.innerHTML = '📱 Subscribe (From P100)';
+        btn.style.background = '#2196f3';
+        btn.style.color = 'white';
+        btn.onclick = showActivationModal;
+        btn.classList.add('pulse-subscribe');
+    }
+}
+
+function showSubscriptionDetails() {
+    const sub = farmProfile.subscription;
+    const packageInfo = SUBSCRIPTION_PACKAGES[sub.package];
+    const endDate = new Date(sub.subscriptionEndDate);
+    const daysLeft = Math.ceil((endDate - new Date()) / (1000 * 60 * 60 * 24));
+    
+    const modalHTML = `
+        <div class="activation-modal" style="display: flex;">
+            <div class="activation-content" style="max-width: 600px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 style="margin: 0; color: ${packageInfo.color};">
+                        ${packageInfo.emoji} ${packageInfo.name} Package
+                    </h2>
+                    <button onclick="closeAllModals()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666;">&times;</button>
+                </div>
+                
+                <div style="background: ${packageInfo.color}10; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <div>
+                            <div style="font-size: 0.9rem; color: #666;">Status</div>
+                            <div style="font-size: 1.2rem; font-weight: bold; color: ${daysLeft > 7 ? '#27ae60' : (daysLeft > 0 ? '#f39c12' : '#e74c3c')}">
+                                ${daysLeft > 0 ? `Active (${daysLeft} days left)` : 'Expired'}
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 0.9rem; color: #666;">Price</div>
+                            <div style="font-size: 1.5rem; font-weight: bold; color: ${packageInfo.color}">
+                                P${packageInfo.price}<span style="font-size: 1rem;">/month</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="font-size: 0.9rem; color: #666;">
+                        Renews: ${endDate.toLocaleDateString()}
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div style="background: #e8f5e8; padding: 1.5rem; border-radius: 10px;">
+                        <h4 style="color: #27ae60; margin-bottom: 1rem;">✅ Available Features</h4>
+                        <ul style="margin: 0; padding-left: 1.2rem;">
+                            ${packageInfo.features.available.map(f => `
+                                <li style="margin: 5px 0;">${getFeatureName(f)}</li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                    
+                    ${packageInfo.features.restricted.length > 0 ? `
+                    <div style="background: #fff3e0; padding: 1.5rem; border-radius: 10px;">
+                        <h4 style="color: #f39c12; margin-bottom: 1rem;">🔐 Restricted Features</h4>
+                        <ul style="margin: 0; padding-left: 1.2rem;">
+                            ${packageInfo.features.restricted.map(f => `
+                                <li style="margin: 5px 0; color: #666;">
+                                    ${getFeatureName(f)}
+                                    <button onclick="showUpgradeModal('${f === 'employees' ? 'platinum' : 'gold'}')"
+                                            style="background: ${f === 'employees' ? '#388e3c' : '#ffb300'};
+                                                   color: white;
+                                                   border: none;
+                                                   padding: 2px 8px;
+                                                   border-radius: 3px;
+                                                   font-size: 0.8rem;
+                                                   margin-left: 8px;
+                                                   cursor: pointer;">
+                                        Upgrade
+                                    </button>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                    ` : ''}
+                </div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="closeAllModals()" 
+                            style="flex: 1; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        Close
+                    </button>
+                    ${sub.package !== 'platinum' ? `
+                    <button onclick="showUpgradeOptions()" 
+                            style="flex: 1; padding: 12px; background: ${packageInfo.color}; color: ${sub.package === 'gold' ? '#5d4037' : 'white'}; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
