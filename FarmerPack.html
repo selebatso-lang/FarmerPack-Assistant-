@@ -39998,3 +39998,1654 @@ function addGPSInfoToDashboard() {
         </div>
     `;
 }
+
+// Update your showDetailedFarmDataDashboard function to include GPS
+function showDetailedFarmDataDashboard(allData, status, subscription) {
+    // Your existing code...
+    
+    // Add GPS section before the raw data section
+    // Find where to insert GPS info
+}
+
+</script>
+<script>
+// Add to your JavaScript
+const sustainablePractices = {
+    waterConservation: {
+        title: "💧 Water Conservation",
+        practices: [
+            "Drip irrigation systems",
+            "Rainwater harvesting",
+            "Mulching to retain soil moisture",
+            "Scheduled irrigation based on weather",
+            "Drought-resistant crop varieties"
+        ],
+        benefits: "Reduce water usage by 30-50%",
+        impact: "Saves precious water resources"
+    },
+    soilHealth: {
+        title: "?? Soil Health Management",
+        practices: [
+            "Crop rotation planning",
+            "Cover cropping",
+            "Organic composting",
+            "Reduced tillage",
+            "Green manure crops"
+        ],
+        benefits: "Improves soil fertility naturally",
+        impact: "Reduces chemical fertilizer use"
+    },
+    biodiversity: {
+        title: "🦋 Biodiversity Enhancement",
+        practices: [
+            "Plant native species borders",
+            "Create pollinator habitats",
+            "Integrated pest management",
+            "Maintain wildlife corridors",
+            "Mixed cropping systems"
+        ],
+        benefits: "Natural pest control & pollination",
+        impact: "Supports local ecosystem"
+    }
+};
+
+function loadSustainabilityContent() {
+    return `
+        <h2>🌍 Sustainable Farming</h2>
+        <p>Adopt practices that protect the environment while improving your farm's resilience.</p>
+        
+        <div class="sustainability-grid">
+            ${Object.values(sustainablePractices).map(practice => `
+                <div class="sustainability-card">
+                    <h3>${practice.title}</h3>
+                    <div class="practice-list">
+                        ${practice.practices.map(item => `
+                            <div class="practice-item">
+                                <input type="checkbox" id="practice_${item.replace(/\s+/g, '_')}">
+                                <label for="practice_${item.replace(/\s+/g, '_')}">${item}</label>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="practice-benefits">
+                        <strong>Benefits:</strong> ${practice.benefits}
+                    </div>
+                    <div class="practice-impact">
+                        <strong>Environmental Impact:</strong> ${practice.impact}
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+        
+        <div class="sustainability-score">
+            <h3>Your Sustainability Score</h3>
+            <div class="progress-bar">
+                <div class="progress-fill-bar" style="width: 45%" id="sustainabilityScore">45%</div>
+            </div>
+            <p>Track your progress toward sustainable farming practices</p>
+        </div>
+    `;
+}
+function calculateEnvironmentalImpact() {
+    const impact = {
+        waterSaved: farmData.plantedCrops.length * 5000, // liters
+        co2Reduced: farmData.plantedCrops.length * 120, // kg
+        soilHealth: 75, // percentage
+        biodiversity: farmData.plantedCrops.length * 2 // score
+    };
+    
+    return `
+        <div class="impact-dashboard">
+            <h3>🌱 Your Environmental Impact</h3>
+            <div class="impact-grid">
+                <div class="impact-card">
+                    <div class="impact-icon">💧</div>
+                    <div class="impact-value">${impact.waterSaved}L</div>
+                    <div class="impact-label">Water Saved</div>
+                </div>
+                <div class="impact-card">
+                    <div class="impact-icon">🌍</div>
+                    <div class="impact-value">${impact.co2Reduced}kg</div>
+                    <div class="impact-label">CO₂ Reduced</div>
+                </div>
+                <div class="impact-card">
+                    <div class="impact-icon">🔄</div>
+                    <div class="impact-value">${impact.soilHealth}%</div>
+                    <div class="impact-label">Soil Health</div>
+                </div>
+                <div class="impact-card">
+                    <div class="impact-icon">🦋</div>
+                    <div class="impact-value">${impact.biodiversity}</div>
+                    <div class="impact-label">Biodiversity Score</div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+const communityFeatures = {
+    localKnowledge: {
+        title: "📚 Local Farming Wisdom",
+        description: "Share and preserve traditional farming knowledge",
+        features: [
+            "Seasonal planting tips from elders",
+            "Traditional pest control methods",
+            "Local crop varieties database",
+            "Weather pattern observations"
+        ]
+    },
+    mentorship: {
+        title: "👥 Farmer Mentorship",
+        description: "Connect experienced farmers with newcomers",
+        features: [
+            "Skill sharing programs",
+            "Apprenticeship opportunities",
+            "Problem-solving circles",
+            "Success story sharing"
+        ]
+    },
+    cooperative: {
+        title: "🤝 Cooperative Tools",
+        description: "Support farmer cooperatives and collective action",
+        features: [
+            "Shared equipment scheduling",
+            "Bulk purchasing coordination",
+            "Collective marketing tools",
+            "Community storage management"
+        ]
+    }
+};
+
+function loadCommunityContent() {
+    return `
+        <h2>👨‍🌾 Community & Collaboration</h2>
+        <p>Strengthen farming communities through knowledge sharing and cooperation.</p>
+        
+        ${Object.values(communityFeatures).map(feature => `
+            <div class="community-card">
+                <h3>${feature.title}</h3>
+                <p>${feature.description}</p>
+                <ul>
+                    ${feature.features.map(item => `<li>${item}</li>`).join('')}
+                </ul>
+                <button class="btn-outline" onclick="joinCommunityProgram('${feature.title}')">
+                    Join Program
+                </button>
+            </div>
+        `).join('')}
+        
+        <div class="success-stories">
+            <h3>🎖️ Success Stories</h3>
+            <div id="farmerStories">
+                <!-- Dynamic success stories will load here -->
+            </div>
+        </div>
+    `;
+}
+function loadFoodSecurityContent() {
+    return `
+        <h2>🍲 Food Security & Local Economy</h2>
+        
+        <div class="grid-2">
+            <div>
+                <h3>Local Market Connect</h3>
+                <p>Connect with local schools, hospitals, and markets</p>
+                <div class="local-partners">
+                    <div class="partner-card">
+                        <strong>School Feeding Programs</strong>
+                        <p>Supply fresh produce to local schools</p>
+                        <button onclick="connectToSchools()">Express Interest</button>
+                    </div>
+                    <div class="partner-card">
+                        <strong>Local Markets</strong>
+                        <p>Sell directly to community markets</p>
+                        <button onclick="connectToMarkets()">Find Markets</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <h3>Food Donation Tracker</h3>
+                <p>Track your contributions to food banks and community programs</p>
+                <div class="donation-tracker">
+                    <div class="donation-metric">
+                        <span class="metric-value" id="foodDonated">0</span>
+                        <span class="metric-label">kg Donated This Year</span>
+                    </div>
+                    <button onclick="recordFoodDonation()">Record Donation</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+function loadFinancialLiteracyContent() {
+    return `
+        <h2>💰 Financial Empowerment</h2>
+        
+        <div class="literacy-grid">
+            <div class="literacy-card">
+                <h3>📈 Basic Accounting</h3>
+                <p>Learn farm financial management</p>
+                <ul>
+                    <li>Income vs. expense tracking</li>
+                    <li>Profit calculation basics</li>
+                    <li>Cash flow management</li>
+                    <li>Record keeping best practices</li>
+                </ul>
+            </div>
+            
+            <div class="literacy-card">
+                <h3>🏦 Access to Finance</h3>
+                <p>Understand farming loans and grants</p>
+                <ul>
+                    <li>Government subsidy programs</li>
+                    <li>Microfinance opportunities</li>
+                    <li>Loan application guidance</li>
+                    <li>Grant writing assistance</li>
+                </ul>
+            </div>
+            
+            <div class="literacy-card">
+                <h3>📊 Business Planning</h3>
+                <p>Develop sustainable business models</p>
+                <ul>
+                    <li>Crop selection for profit</li>
+                    <li>Market analysis tools</li>
+                    <li>Risk management strategies</li>
+                    <li>Scaling your operation</li>
+                </ul>
+            </div>
+        </div>
+    `;
+}
+function loadEmpowermentContent() {
+    return `
+        <h2>🎖️ Youth & Women in Agriculture</h2>
+        
+        <div class="empowerment-features">
+            <div class="feature-card">
+                <h3>👩‍🌾 Women Farmer Support</h3>
+                <ul>
+                    <li>Women-focused training programs</li>
+                    <li>Access to women-friendly equipment</li>
+                    <li>Networking with successful women farmers</li>
+                    <li>Childcare support resources</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h3>🧑‍🎓 Youth Agriculture Programs</h3>
+                <ul>
+                    <li>School garden initiatives</li>
+                    <li>Agricultural career guidance</li>
+                    <li>Modern farming technology training</li>
+                    <li>Youth farming competitions</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h3>📱 Digital Literacy</h3>
+                <ul>
+                    <li>Smartphone farming apps training</li>
+                    <li>Online market access</li>
+                    <li>Digital payment systems</li>
+                    <li>Social media for farming</li>
+                </ul>
+            </div>
+        </div>
+    `;
+}
+const cropNutrition = {
+    maize: { protein: 9, carbs: 74, fiber: 7, vitamins: ["B1", "B3", "B9"] },
+    beans: { protein: 22, carbs: 63, fiber: 16, vitamins: ["B1", "B6", "Folate"] },
+    spinach: { protein: 3, carbs: 4, fiber: 2, vitamins: ["A", "C", "K", "Iron"] },
+    tomatoes: { protein: 1, carbs: 4, fiber: 1, vitamins: ["C", "K", "Potassium"] }
+};
+
+function loadNutritionContent() {
+    return `
+        <h2>🥗 Nutritional Value & Food Safety</h2>
+        
+        <div class="nutrition-tracker">
+            <h3>Crop Nutritional Information</h3>
+            <div class="nutrition-grid">
+                ${Object.entries(cropNutrition).map(([crop, nutrition]) => `
+                    <div class="nutrition-card">
+                        <h4>${crop.charAt(0).toUpperCase() + crop.slice(1)}</h4>
+                        <div class="nutrition-facts">
+                            <div>Protein: ${nutrition.protein}g</div>
+                            <div>Carbs: ${nutrition.carbs}g</div>
+                            <div>Fiber: ${nutrition.fiber}g</div>
+                            <div>Vitamins: ${nutrition.vitamins.join(", ")}</div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+        
+        <div class="food-safety">
+            <h3>🌱 Organic & Safe Farming</h3>
+            <ul>
+                <li>Pesticide use reduction tracking</li>
+                <li>Organic certification guidance</li>
+                <li>Food safety protocols</li>
+                <li>Harvest handling best practices</li>
+            </ul>
+        </div>
+    `;
+}
+const indigenousKnowledge = {
+    botswana: {
+        title: "Botswana Traditional Farming",
+        practices: [
+            "Molapo farming - flood recession agriculture",
+            "Traditional water harvesting methods",
+            "Indigenous crop preservation",
+            "Seasonal weather prediction wisdom"
+        ],
+        crops: [
+            "Sorghum - traditional varieties",
+            "Pearl millet - indigenous types",
+            "Cowpeas - local adaptations",
+            "Watermelon - native species"
+        ]
+    }
+};
+
+function loadCulturalContent() {
+    return `
+        <h2>🌍 Cultural Heritage & Indigenous Knowledge</h2>
+        
+        <div class="cultural-preservation">
+            <h3>Traditional Farming Wisdom</h3>
+            <p>Preserve and document indigenous farming knowledge</p>
+            
+            ${Object.entries(indigenousKnowledge).map(([region, knowledge]) => `
+                <div class="cultural-card">
+                    <h4>${knowledge.title}</h4>
+                    <div class="traditional-practices">
+                        <strong>Traditional Practices:</strong>
+                        <ul>
+                            ${knowledge.practices.map(practice => `<li>${practice}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="traditional-crops">
+                        <strong>Indigenous Crops:</strong>
+                        <ul>
+                            ${knowledge.crops.map(crop => `<li>${crop}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `).join('')}
+            
+            <div class="knowledge-sharing">
+                <h4>Share Your Traditional Knowledge</h4>
+                <textarea id="traditionalKnowledge" placeholder="Share traditional farming methods, local wisdom, or cultural practices..." rows="4"></textarea>
+                <button onclick="submitTraditionalKnowledge()">Share Wisdom</button>
+            </div>
+        </div>
+    `;
+}
+function loadClimateResilienceContent() {
+    return `
+        <h2>🌤️ Climate Resilience & Adaptation</h2>
+        
+        <div class="climate-tools">
+            <div class="tool-card">
+                <h3>🌧️ Weather Adaptation</h3>
+                <ul>
+                    <li>Drought-resistant crop planning</li>
+                    <li>Flood preparation strategies</li>
+                    <li>Extreme weather crop protection</li>
+                    <li>Seasonal pattern analysis</li>
+                </ul>
+            </div>
+            
+            <div class="tool-card">
+                <h3>🛡️ Risk Management</h3>
+                <ul>
+                    <li>Crop insurance information</li>
+                    <li>Diversification strategies</li>
+                    <li>Emergency planning tools</li>
+                    <li>Market volatility protection</li>
+                </ul>
+            </div>
+            
+            <div class="tool-card">
+                <h3>🔮 Future Planning</h3>
+                <ul>
+                    <li>Climate prediction tools</li>
+                    <li>Long-term soil health</li>
+                    <li>Water resource planning</li>
+                    <li>Sustainable expansion</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="resilience-score">
+            <h3>Your Farm Resilience Score</h3>
+            <div class="progress-bar">
+                <div class="progress-fill-bar" style="width: 60%">60%</div>
+            </div>
+            <p>Measures your farm's ability to withstand climate and market challenges</p>
+        </div>
+    `;
+}
+function generateVirtueReport() {
+    return `
+        <div class="virtue-report">
+            <h2>🎖️ Farm Virtue Impact Report</h2>
+            
+            <div class="report-section">
+                <h3>Environmental Stewardship</h3>
+                <p>Your farm is practicing ${calculateSustainablePractices()} sustainable methods</p>
+                <p>Estimated water savings: ${calculateWaterSaved()} liters annually</p>
+                <p>Carbon footprint reduction: ${calculateCarbonReduction()} kg CO₂</p>
+            </div>
+            
+            <div class="report-section">
+                <h3>Community Contribution</h3>
+                <p>Supported ${calculateCommunityImpact()} community initiatives</p>
+                <p>Shared knowledge with ${calculateKnowledgeSharing()} fellow farmers</p>
+                <p>Contributed to local food security</p>
+            </div>
+            
+            <div class="report-section">
+                <h3>Social Impact</h3>
+                <p>Created ${calculateEmployment()} employment opportunities</p>
+                <p>Supported ${calculateWomenEmpowerment()} women in agriculture</p>
+                <p>Mentored ${calculateYouthInvolvement()} young farmers</p>
+            </div>
+            
+            <div class="certificate">
+                <h3>🎖️ Farm Virtue Certificate</h3>
+                <p>This certifies that <strong>${farmProfile.farmName}</strong> 
+                is committed to sustainable, community-focused farming practices.</p>
+                <button onclick="downloadVirtueCertificate()">Download Certificate</button>
+            </div>
+        </div>
+    `;
+}
+
+// =============================================
+// SPEDU INTEGRATION MODULE - CORRECTED VERSION
+// =============================================
+
+const speduOpportunities = {
+    funding: {
+        title: "💰 SPEDU Funding Programs",
+        programs: [
+            {
+                name: "Agricultural Venture Fund",
+                description: "Grants for commercial farming projects",
+                amount: "Up to P500,000",
+                eligibility: "Citizens, registered businesses",
+                deadline: "Rolling applications"
+            },
+            {
+                name: "Youth Agri-Entrepreneur Scheme",
+                description: "Support for young farmers (18-35 years)",
+                amount: "Up to P100,000",
+                eligibility: "Youth, innovative projects",
+                deadline: "Quarterly deadlines"
+            },
+            {
+                name: "Women in Agriculture Fund",
+                description: "Empowering women-led farming enterprises",
+                amount: "Up to P250,000",
+                eligibility: "Women-owned businesses",
+                deadline: "Biannual applications"
+            }
+        ]
+    },
+    training: {
+        title: "🎓 SPEDU Training Programs",
+        programs: [
+            {
+                name: "Commercial Farming Skills",
+                description: "Modern farming techniques and business management",
+                duration: "3 months",
+                target: "Emerging commercial farmers",
+                benefits: "Certification, market access, mentorship"
+            },
+            {
+                name: "Agro-processing Workshop",
+                description: "Value addition and food processing skills",
+                duration: "2 weeks",
+                target: "Existing farmers",
+                benefits: "Value addition skills, equipment access"
+            },
+            {
+                name: "Export Readiness Program",
+                description: "Preparing for regional and international markets",
+                duration: "1 month",
+                target: "Established commercial farmers",
+                benefits: "Export certification, market linkages"
+            }
+        ]
+    },
+    infrastructure: {
+        title: "🏗️ SPEDU Infrastructure Support",
+        programs: [
+            {
+                name: "Irrigation Development",
+                description: "Support for irrigation infrastructure",
+                support: "Technical design, partial funding",
+                benefit: "Increased crop yields"
+            },
+            {
+                name: "Processing Facilities",
+                description: "Access to shared processing facilities",
+                support: "Subsidized access, technical support",
+                benefit: "Value addition capabilities"
+            },
+            {
+                name: "Cold Chain Development",
+                description: "Cold storage and logistics support",
+                support: "Infrastructure development",
+                benefit: "Reduced post-harvest losses"
+            }
+        ]
+    }
+};
+
+const speduContacts = {
+    headquarters: {
+        address: "SPEDU House, Selibe-Phikwe",
+        telephone: "+267 261 0303",
+        email: "info@spedu.co.bw",
+        website: "www.spedu.co.bw"
+    },
+    regionalOffices: [
+        {
+            region: "Selibe-Phikwe",
+            contact: "+267 261 0303"
+        },
+        {
+            region: "Bobirwa",
+            contact: "+267 261 0304"
+        },
+        {
+            region: "Tswapong",
+            contact: "+267 261 0305"
+        },
+        {
+            region: "Tutume",
+            contact: "+267 261 0306"
+        }
+    ]
+};
+
+// Main SPEDU Dashboard
+function loadSPEDUContent() {
+    return `
+        <div class="spedu-dashboard">
+            <h2>🏫 SPEDU Opportunities</h2>
+            <p>Access funding, training, and support programs from the Selibe-Phikwe Economic Diversification Unit.</p>
+            
+            <div class="spedu-alert" style="background: #e8f5e8; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                <strong>📍 SPEDU Region Coverage:</strong> Selibe-Phikwe, Bobirwa, Tswapong, Tutume
+            </div>
+            
+            <div class="spedu-quick-links" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin: 2rem 0;">
+                <div class="quick-link-card" onclick="showSPEDUSection('funding')" style="background: white; padding: 1.5rem; border-radius: 10px; text-align: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: transform 0.2s;">
+                    <div class="link-icon" style="font-size: 2rem;">💰</div>
+                    <div class="link-title" style="font-weight: bold; margin: 0.5rem 0;">Funding</div>
+                    <div class="link-description" style="color: #666; font-size: 0.9rem;">Grants & Financial Support</div>
+                </div>
+                <div class="quick-link-card" onclick="showSPEDUSection('training')" style="background: white; padding: 1.5rem; border-radius: 10px; text-align: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: transform 0.2s;">
+                    <div class="link-icon" style="font-size: 2rem;">🎓</div>
+                    <div class="link-title" style="font-weight: bold; margin: 0.5rem 0;">Training</div>
+                    <div class="link-description" style="color: #666; font-size: 0.9rem;">Skills Development</div>
+                </div>
+                <div class="quick-link-card" onclick="showSPEDUSection('registration')" style="background: white; padding: 1.5rem; border-radius: 10px; text-align: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: transform 0.2s;">
+                    <div class="link-icon" style="font-size: 2rem;">??</div>
+                    <div class="link-title" style="font-weight: bold; margin: 0.5rem 0;">Register</div>
+                    <div class="link-description" style="color: #666; font-size: 0.9rem;">Official Registration</div>
+                </div>
+                <div class="quick-link-card" onclick="showSPEDUSection('contacts')" style="background: white; padding: 1.5rem; border-radius: 10px; text-align: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: transform 0.2s;">
+                    <div class="link-icon" style="font-size: 2rem;">📞</div>
+                    <div class="link-title" style="font-weight: bold; margin: 0.5rem 0;">Contacts</div>
+                    <div class="link-description" style="color: #666; font-size: 0.9rem;">SPEDU Offices</div>
+                </div>
+            </div>
+            
+            <div id="speduDynamicContent">
+                <!-- Dynamic content will be loaded here -->
+                ${loadSPEDUFundingContent()}
+            </div>
+        </div>
+    `;
+}
+
+// SPEDU Funding Content
+function loadSPEDUFundingContent() {
+    return `
+        <div class="funding-section">
+            <h3>💰 Available Funding Programs</h3>
+            <div class="funding-programs" style="display: grid; gap: 1rem; margin-top: 1rem;">
+                ${speduOpportunities.funding.programs.map(program => `
+                    <div class="program-card" style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                        <h4 style="margin: 0 0 0.5rem 0; color: #2c3e50;">${program.name}</h4>
+                        <p style="margin: 0.5rem 0; color: #666;">${program.description}</p>
+                        <div class="program-details" style="margin: 1rem 0;">
+                            <div class="detail-item" style="margin: 0.25rem 0;">
+                                <strong>Amount:</strong> ${program.amount}
+                            </div>
+                            <div class="detail-item" style="margin: 0.25rem 0;">
+                                <strong>Eligibility:</strong> ${program.eligibility}
+                            </div>
+                            <div class="detail-item" style="margin: 0.25rem 0;">
+                                <strong>Deadline:</strong> ${program.deadline}
+                            </div>
+                        </div>
+                        <button onclick="showSPEDUSection('registration')" class="btn-apply" style="background: #27ae60; color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer;">
+                            Register to Apply
+                        </button>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+}
+
+// SPEDU Training Content
+function loadSPEDUTrainingContent() {
+    return `
+        <div class="training-section">
+            <h3>🎓 Training Programs</h3>
+            <p>Skills development programs to enhance your farming enterprise.</p>
+            
+            <div class="training-programs" style="display: grid; gap: 1rem; margin-top: 1rem;">
+                ${speduOpportunities.training.programs.map(program => `
+                    <div class="program-card" style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                        <h4 style="margin: 0 0 0.5rem 0; color: #2c3e50;">${program.name}</h4>
+                        <p style="margin: 0.5rem 0; color: #666;">${program.description}</p>
+                        <div class="program-details" style="margin: 1rem 0;">
+                            <div class="detail-item" style="margin: 0.25rem 0;">
+                                <strong>Duration:</strong> ${program.duration}
+                            </div>
+                            <div class="detail-item" style="margin: 0.25rem 0;">
+                                <strong>Target:</strong> ${program.target}
+                            </div>
+                            <div class="detail-item" style="margin: 0.25rem 0;">
+                                <strong>Benefits:</strong> ${program.benefits}
+                            </div>
+                        </div>
+                        <button onclick="showSPEDUSection('registration')" class="btn-outline" style="background: transparent; border: 2px solid #3498db; color: #3498db; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer;">
+                            Register for Training
+                        </button>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+}
+
+// SPEDU Registration Content
+function loadSPEDURegistrationContent() {
+    return `
+        <div class="registration-section">
+            <h3>📝 Official SPEDU Registration</h3>
+            
+            <div style="text-align: center; padding: 2rem; background: #e8f5e8; border-radius: 10px; margin: 1rem 0;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🏢</div>
+                <h4 style="color: #27ae60; margin: 0.5rem 0;">Register with SPEDU</h4>
+                <p>Click the button below to register directly on the official SPEDU website</p>
+                
+                <a href="https://www.spedu.co.bw/spedu-register/" target="_blank" 
+                   style="display: inline-block; background: #e74c3c; color: white; padding: 1rem 2rem; 
+                          border-radius: 8px; text-decoration: none; font-weight: bold; margin: 1rem 0;">
+                    🚀 Register on SPEDU Website
+                </a>
+            </div>
+
+            <div style="background: #fff3cd; padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
+                <h4>💡 Registration Requirements</h4>
+                <ul style="margin: 0.5rem 0;">
+                    <li>Valid Omang (Botswana ID)</li>
+                    <li>Proof of residence in SPEDU region</li>
+                    <li>Business registration details (if applicable)</li>
+                    <li>Project proposal or business plan</li>
+                </ul>
+            </div>
+        </div>
+    `;
+}
+
+// SPEDU Contacts Content
+function loadSPEDUContactsContent() {
+    return `
+        <div class="contacts-section">
+            <h3>📞 SPEDU Contact Information</h3>
+            
+            <div class="contact-card" style="background: white; padding: 1.5rem; border-radius: 10px; margin: 1rem 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <h4 style="margin: 0 0 1rem 0;">🏢 Headquarters</h4>
+                <p><strong>Address:</strong> ${speduContacts.headquarters.address}</p>
+                <p><strong>Telephone:</strong> ${speduContacts.headquarters.telephone}</p>
+                <p><strong>Email:</strong> ${speduContacts.headquarters.email}</p>
+                <p><strong>Website:</strong> ${speduContacts.headquarters.website}</p>
+            </div>
+            
+            <h4>📍 Regional Offices</h4>
+            <div class="office-grid" style="display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                ${speduContacts.regionalOffices.map(office => `
+                    <div class="office-card" style="background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                        <strong>${office.region}</strong>
+                        <p style="margin: 0.5rem 0 0 0;">${office.contact}</p>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+}
+
+// SPEDU Navigation - CORRECTED VERSION
+function showSPEDUSection(sectionName) {
+    // Try multiple possible element IDs where SPEDU content might be
+    const possibleElements = [
+        'speduDynamicContent',
+        'speduContent', 
+        'tabContent',
+        'mainContent'
+    ];
+    
+    let contentElement = null;
+    
+    for (const elementId of possibleElements) {
+        contentElement = document.getElementById(elementId);
+        if (contentElement) {
+            console.log(`Found SPEDU content element: ${elementId}`);
+            break;
+        }
+    }
+    
+    // If no element found, try to find by class or create one
+    if (!contentElement) {
+        console.warn('No SPEDU content element found, searching alternatives...');
+        
+        // Try to find any element that might contain SPEDU content
+        const possibleContainers = document.querySelectorAll('[class*="content"], [class*="tab"], [class*="main"]');
+        if (possibleContainers.length > 0) {
+            contentElement = possibleContainers[0];
+            console.log('Using alternative container element');
+        } else {
+            // Last resort - create a temporary element
+            console.error('No suitable container found for SPEDU content');
+            return;
+        }
+    }
+    
+    let content = '';
+    
+    switch(sectionName) {
+        case 'funding':
+            content = loadSPEDUFundingContent();
+            break;
+        case 'training':
+            content = loadSPEDUTrainingContent();
+            break;
+        case 'registration':
+            content = loadSPEDURegistrationContent();
+            break;
+        case 'contacts':
+            content = loadSPEDUContactsContent();
+            break;
+        default:
+            content = loadSPEDUFundingContent();
+    }
+    
+    contentElement.innerHTML = content;
+}
+
+// Initialize SPEDU when tab is clicked
+function initializeSPEDU() {
+    console.log('Initializing SPEDU module...');
+    
+    // Wait a bit for DOM to be ready
+    setTimeout(() => {
+        const mainContent = document.getElementById('tabContent') || 
+                           document.getElementById('mainContent') ||
+                           document.querySelector('.content-area');
+        
+        if (mainContent) {
+            console.log('SPEDU content loaded successfully');
+        } else {
+            console.warn('Main content area not found, SPEDU may not display properly');
+        }
+    }, 100);
+}
+
+// Auto-initialize when script loads
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeSPEDU);
+} else {
+    initializeSPEDU();
+}
+
+// Export for use in other modules
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        loadSPEDUContent,
+        showSPEDUSection,
+        initializeSPEDU
+    };
+}
+// =============================================
+// ENHANCED BURS TAX MODULE - COMPLETE FIXED VERSION
+// =============================================
+
+// ========== CORE DATA STRUCTURES ==========
+const bursTaxRates = {
+    vat: {
+        rate: 14,
+        threshold: 500000,
+        exemptGoods: [
+            "basic food items", "agricultural inputs", "educational services", 
+            "medical services", "public transportation", "unprocessed agricultural products",
+            "livestock feed", "seeds", "fertilizers", "pesticides"
+        ]
+    },
+    incomeTax: {
+        individual: [
+            { threshold: 48000, rate: 0, cumulative: 0 },
+            { threshold: 84000, rate: 5, cumulative: 1800 },
+            { threshold: 120000, rate: 12.5, cumulative: 6300 },
+            { threshold: 180000, rate: 18.5, cumulative: 17400 },
+            { threshold: 360000, rate: 25, cumulative: 65400 },
+            { threshold: Infinity, rate: 30, cumulative: 0 }
+        ],
+        corporate: 22,
+        provisional: {
+            first: 50,
+            second: 50
+        }
+    },
+    withholdingTax: {
+        dividends: 7.5,
+        interest: 15,
+        royalties: 15,
+        services: 10,
+        contractors: 10
+    },
+    paye: {
+        threshold: 60000,
+        rate: 25
+    },
+    customs: {
+        agriculturalEquipment: 0,
+        vehicles: 30,
+        generalGoods: 12
+    }
+};
+
+const bursDeadlines = {
+    vatMonthly: { day: 25, month: 'each' },
+    provisionalFirst: { day: 30, month: 6 },
+    provisionalSecond: { day: 30, month: 9 },
+    annualReturn: { day: 30, month: 9 },
+    taxClearance: { renewal: 30, month: 6 }
+};
+
+// ========== DATA MANAGEMENT ==========
+function getFarmData() {
+    if (typeof window.farmData === 'undefined') {
+        const currentYear = new Date().getFullYear();
+        window.farmData = {
+            taxTransactions: [],
+            taxSettings: {
+                vatRegistered: false,
+                tinNumber: '',
+                vatNumber: '',
+                taxYear: currentYear,
+                lastVATReturn: null,
+                lastIncomeTaxReturn: null,
+                accountingMethod: 'cash',
+                businessType: 'sole_proprietor',
+                farmName: 'My Farm'
+            },
+            taxCalculations: [],
+            employees: [],
+            assets: [],
+            complianceChecklist: {},
+            deadlines: [],
+            receipts: []
+        };
+    }
+    return window.farmData;
+}
+
+function getFarmerPackfile() {
+    if (typeof window.farmProfile === 'undefined') {
+        window.farmProfile = { 
+            farmName: 'My Farm',
+            tinNumber: '',
+            vatNumber: '',
+            address: '',
+            phone: ''
+        };
+    }
+    return window.farmProfile;
+}
+
+// ========== STORAGE MANAGEMENT ==========
+function saveBURSData() {
+    try {
+        if (typeof window.farmData !== 'undefined' && typeof localStorage !== 'undefined') {
+            localStorage.setItem('burs_farm_tax_data', JSON.stringify(window.farmData));
+            return true;
+        }
+    } catch (error) {
+        console.warn('Failed to save BURS data:', error);
+    }
+    return false;
+}
+
+function loadBURSData() {
+    try {
+        if (typeof localStorage !== 'undefined') {
+            const saved = localStorage.getItem('burs_farm_tax_data');
+            if (saved) {
+                window.farmData = JSON.parse(saved);
+                console.log('BURS data loaded from localStorage');
+            }
+        }
+    } catch (error) {
+        console.warn('Failed to load BURS data:', error);
+    }
+}
+
+// ========== MAIN DASHBOARD ==========
+function loadBURSContent() {
+    loadBURSData(); // Load saved data
+    
+    return `
+        <div class="burs-dashboard">
+            <h2>🪙 BURS Tax Compliance</h2>
+            <p>Stay compliant with Botswana tax regulations and simplify your tax calculations.</p>
+            
+            <div class="burs-alert" style="background: #e8f5e8; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                <strong>ℹ️ Important:</strong> Farmers with annual turnover above P${bursTaxRates.vat.threshold.toLocaleString()} must register for VAT.
+            </div>
+            
+            <div class="burs-quick-links" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin: 2rem 0;">
+                <div class="quick-link-card" onclick="showBURSSection('taxCalculators')" style="background: white; padding: 1.5rem; border-radius: 10px; text-align: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                    <div style="font-size: 2rem;">🧮</div>
+                    <div style="font-weight: bold; margin: 0.5rem 0;">Calculators</div>
+                    <div style="color: #666; font-size: 0.9rem;">Tax Calculators</div>
+                </div>
+                <div class="quick-link-card" onclick="showBURSSection('taxRecords')" style="background: white; padding: 1.5rem; border-radius: 10px; text-align: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                    <div style="font-size: 2rem;">📚</div>
+                    <div style="font-weight: bold; margin: 0.5rem 0;">Records</div>
+                    <div style="color: #666; font-size: 0.9rem;">Transaction Records</div>
+                </div>
+                <div class="quick-link-card" onclick="showBURSSection('bursForms')" style="background: white; padding: 1.5rem; border-radius: 10px; text-align: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                    <div style="font-size: 2rem;">📝</div>
+                    <div style="font-weight: bold; margin: 0.5rem 0;">Forms</div>
+                    <div style="color: #666; font-size: 0.9rem;">BURS Forms</div>
+                </div>
+                <div class="quick-link-card" onclick="showBURSSection('agriculturalTax')" style="background: white; padding: 1.5rem; border-radius: 10px; text-align: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                    <div style="font-size: 2rem;">🌾</div>
+                    <div style="font-weight: bold; margin: 0.5rem 0;">Benefits</div>
+                    <div style="color: #666; font-size: 0.9rem;">Tax Benefits</div>
+                </div>
+            </div>
+            
+            <div id="bursDynamicContent">
+                ${loadBURSTaxContent()}
+            </div>
+        </div>
+    `;
+}
+
+function loadBURSDashboard() {
+    return loadBURSContent();
+}
+
+// ========== TAX CALCULATORS CONTENT ==========
+function loadBURSTaxContent() {
+    return `
+        <div class="tax-calculators">
+            <h3>🧮 Tax Calculators</h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1rem;">
+                <div>
+                    <h4>VAT Calculator</h4>
+                    <div style="margin: 1rem 0;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Amount (Excluding VAT):</label>
+                        <input type="number" id="vatAmount" placeholder="Enter amount in Pula" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+                    <button onclick="calculateVAT()" style="background: #27ae60; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 5px; cursor: pointer; width: 100%;">
+                        Calculate VAT
+                    </button>
+                    <div id="vatResult" style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 5px;"></div>
+                    
+                    <div style="margin-top: 1rem;">
+                        <h5>VAT-Exempt Agricultural Items:</h5>
+                        <ul style="padding-left: 1.5rem;">
+                            ${bursTaxRates.vat.exemptGoods.slice(0, 5).map(item => `<li>${item}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4>Income Tax Estimator</h4>
+                    <div style="margin: 1rem 0;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Annual Income (Pula):</label>
+                        <input type="number" id="annualIncome" placeholder="Your yearly income" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+                    <button onclick="calculateIncomeTax()" style="background: #3498db; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 5px; cursor: pointer; width: 100%;">
+                        Calculate Tax
+                    </button>
+                    <div id="incomeTaxResult" style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 5px;"></div>
+                    
+                    <div style="margin-top: 1rem;">
+                        <h5>💡 Tax Tips for Farmers:</h5>
+                        <ul style="padding-left: 1.5rem;">
+                            <li>Keep all receipts for farm expenses</li>
+                            <li>Document all business-related travel</li>
+                            <li>Claim depreciation on equipment</li>
+                            <li>Maintain separate business accounts</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 2rem;">
+                <h4>✅ BURS Compliance Checklist</h4>
+                ${generateComplianceChecklist()}
+            </div>
+        </div>
+    `;
+}
+
+function calculateVAT() {
+    const amount = parseFloat(document.getElementById('vatAmount')?.value);
+    if (!amount || amount <= 0) {
+        showNotification('Please enter a valid amount');
+        return;
+    }
+    
+    const vatAmount = amount * (bursTaxRates.vat.rate / 100);
+    const totalAmount = amount + vatAmount;
+    
+    document.getElementById('vatResult').innerHTML = `
+        <div style="border-left: 4px solid #27ae60; padding-left: 1rem;">
+            <div><strong>Amount (Excl. VAT):</strong> P ${amount.toFixed(2)}</div>
+            <div><strong>VAT (${bursTaxRates.vat.rate}%):</strong> P ${vatAmount.toFixed(2)}</div>
+            <div style="font-weight: bold; color: #27ae60; margin-top: 0.5rem;">
+                <strong>Total (Incl. VAT):</strong> P ${totalAmount.toFixed(2)}
+            </div>
+        </div>
+    `;
+    
+    saveBURSData();
+}
+
+function calculateIncomeTax() {
+    const income = parseFloat(document.getElementById('annualIncome')?.value);
+    if (!income || income <= 0) {
+        showNotification('Please enter a valid annual income');
+        return;
+    }
+    
+    const taxBrackets = bursTaxRates.incomeTax.individual;
+    let taxPayable = 0;
+    let remainingIncome = income;
+    let breakdown = [];
+    
+    for (let i = 0; i < taxBrackets.length; i++) {
+        const bracket = taxBrackets[i];
+        const previousThreshold = i === 0 ? 0 : taxBrackets[i-1].threshold;
+        const bracketWidth = bracket.threshold - previousThreshold;
+        
+        if (remainingIncome > 0) {
+            const taxableInBracket = Math.min(remainingIncome, bracketWidth);
+            const taxInBracket = taxableInBracket * (bracket.rate / 100);
+            taxPayable += taxInBracket;
+            remainingIncome -= taxableInBracket;
+            
+            if (taxInBracket > 0) {
+                breakdown.push(`P ${previousThreshold.toLocaleString()} - P ${bracket.threshold.toLocaleString()}: P ${taxInBracket.toFixed(2)}`);
+            }
+        }
+    }
+    
+    const effectiveRate = (taxPayable / income) * 100;
+    const monthlyTax = taxPayable / 12;
+    
+    document.getElementById('incomeTaxResult').innerHTML = `
+        <div style="border-left: 4px solid #3498db; padding-left: 1rem;">
+            <div><strong>Annual Income:</strong> P ${income.toLocaleString()}</div>
+            <div><strong>Total Tax Payable:</strong> P ${taxPayable.toFixed(2)}</div>
+            <div><strong>Effective Tax Rate:</strong> ${effectiveRate.toFixed(1)}%</div>
+            <div><strong>Monthly Provision:</strong> P ${monthlyTax.toFixed(2)}</div>
+            ${breakdown.length > 0 ? `
+                <div style="margin-top: 0.5rem;">
+                    <strong>Tax Breakdown:</strong>
+                    ${breakdown.map(item => `<div style="font-size: 0.9rem; color: #666;">${item}</div>`).join('')}
+                </div>
+            ` : ''}
+        </div>
+    `;
+    
+    saveBURSData();
+}
+
+function generateComplianceChecklist() {
+    const checklist = [
+        { id: 'tin_number', label: 'Tax Identification Number (TIN)', required: true },
+        { id: 'records_kept', label: 'Proper financial records maintained', required: true },
+        { id: 'vat_reg', label: 'VAT Registration (if turnover > P500,000)', required: false },
+        { id: 'vat_returns', label: 'Regular VAT returns filed', required: false },
+        { id: 'income_tax', label: 'Income tax returns filed annually', required: true },
+        { id: 'business_license', label: 'Valid business license', required: true },
+        { id: 'receipts_kept', label: 'All receipts and invoices kept for 6 years', required: true }
+    ];
+    
+    const farmData = getFarmData();
+    const savedChecklist = farmData.complianceChecklist || {};
+    
+    return `
+        <div style="background: white; padding: 1.5rem; border-radius: 10px; margin-top: 1rem;">
+            ${checklist.map(item => `
+                <div style="display: flex; align-items: center; margin: 0.5rem 0;">
+                    <input type="checkbox" id="${item.id}" 
+                           ${savedChecklist[item.id] ? 'checked' : ''}
+                           onchange="saveChecklistItem('${item.id}', this.checked)"
+                           style="margin-right: 0.5rem;">
+                    <label for="${item.id}" style="flex: 1;">${item.label}</label>
+                </div>
+            `).join('')}
+            <button onclick="generateComplianceReport()" style="background: #e74c3c; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 5px; cursor: pointer; margin-top: 1rem; width: 100%;">
+                Generate Compliance Report
+            </button>
+        </div>
+    `;
+}
+
+function saveChecklistItem(id, checked) {
+    const farmData = getFarmData();
+    if (!farmData.complianceChecklist) {
+        farmData.complianceChecklist = {};
+    }
+    farmData.complianceChecklist[id] = checked;
+    saveBURSData();
+}
+
+// ========== TAX RECORDS MANAGEMENT ==========
+function loadTaxRecordsContent() {
+    const farmData = getFarmData();
+    
+    return `
+        <h2>📊 Tax Records & Reporting</h2>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0;">
+            <div>
+                <h3>➕ Record Taxable Transaction</h3>
+                <div style="margin: 1rem 0;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Date:</label>
+                    <input type="date" id="transactionDate" value="${new Date().toISOString().split('T')[0]}" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+                <div style="margin: 1rem 0;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Type:</label>
+                    <select id="transactionType" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 5px;">
+                        <option value="sale">Sale - VATable</option>
+                        <option value="sale_exempt">Sale - VAT Exempt</option>
+                        <option value="purchase">Purchase - VATable</option>
+                        <option value="purchase_exempt">Purchase - VAT Exempt</option>
+                        <option value="expense">Business Expense</option>
+                    </select>
+                </div>
+                <div style="margin: 1rem 0;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Amount (Pula):</label>
+                    <input type="number" id="transactionAmount" step="0.01" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+                <div style="margin: 1rem 0;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Description:</label>
+                    <input type="text" id="transactionDescription" placeholder="What was this for?" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+                <button onclick="recordTaxTransaction()" style="background: #27ae60; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 5px; cursor: pointer; width: 100%;">
+                    Record Transaction
+                </button>
+            </div>
+            
+            <div>
+                <h3>📈 Tax Summary</h3>
+                <div id="taxSummary" style="margin-bottom: 1.5rem;">
+                    ${generateTaxSummary()}
+                </div>
+                
+                <div>
+                    <h4>📅 Upcoming Tax Deadlines</h4>
+                    ${generateTaxDeadlines()}
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 2rem;">
+            <h3>📋 Recent Tax Transactions</h3>
+            <div id="taxTransactionsList">
+                ${loadTaxTransactions()}
+            </div>
+        </div>
+    `;
+}
+
+function generateTaxSummary() {
+    const farmData = getFarmData();
+    const currentYear = new Date().getFullYear();
+    
+    const yearTransactions = farmData.taxTransactions.filter(t => {
+        try {
+            return new Date(t.date).getFullYear() === currentYear;
+        } catch {
+            return false;
+        }
+    });
+    
+    const vatableSales = yearTransactions
+        .filter(t => t.type === 'sale')
+        .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
+    
+    const vatOnSales = vatableSales * (bursTaxRates.vat.rate / 100);
+    
+    const vatablePurchases = yearTransactions
+        .filter(t => t.type === 'purchase')
+        .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
+    
+    const vatOnPurchases = vatablePurchases * (bursTaxRates.vat.rate / 100);
+    
+    const netVAT = vatOnSales - vatOnPurchases;
+    
+    return `
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div style="background: white; padding: 1rem; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <div style="font-size: 0.9rem; color: #666;">VATable Sales</div>
+                <div style="font-weight: bold; font-size: 1.1rem;">P ${vatableSales.toFixed(2)}</div>
+            </div>
+            <div style="background: white; padding: 1rem; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <div style="font-size: 0.9rem; color: #666;">VAT on Sales</div>
+                <div style="font-weight: bold; font-size: 1.1rem;">P ${vatOnSales.toFixed(2)}</div>
+            </div>
+            <div style="background: white; padding: 1rem; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <div style="font-size: 0.9rem; color: #666;">VAT on Purchases</div>
+                <div style="font-weight: bold; font-size: 1.1rem;">P ${vatOnPurchases.toFixed(2)}</div>
+            </div>
+            <div style="background: white; padding: 1rem; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 2px solid ${netVAT >= 0 ? '#27ae60' : '#e74c3c'};">
+                <div style="font-size: 0.9rem; color: #666;">${netVAT >= 0 ? 'VAT Payable' : 'VAT Refund'}</div>
+                <div style="font-weight: bold; font-size: 1.1rem; color: ${netVAT >= 0 ? '#27ae60' : '#e74c3c'};">P ${Math.abs(netVAT).toFixed(2)}</div>
+            </div>
+        </div>
+    `;
+}
+
+function generateTaxDeadlines() {
+    const deadlines = [
+        { type: 'VAT Return', due: '25th of each month', frequency: 'Monthly' },
+        { type: 'Income Tax Return', due: '30th September', frequency: 'Annual' },
+        { type: 'Provisional Tax', due: '30th June', frequency: 'Bi-annual' }
+    ];
+    
+    return `
+        <div style="background: #f8f9fa; padding: 1rem; border-radius: 5px;">
+            ${deadlines.map(deadline => `
+                <div style="display: flex; justify-content: space-between; margin: 0.5rem 0; padding-bottom: 0.5rem; border-bottom: 1px solid #eee;">
+                    <div>
+                        <strong>${deadline.type}</strong>
+                        <div style="font-size: 0.9rem; color: #666;">Due: ${deadline.due}</div>
+                    </div>
+                    <div style="background: #e8f5e8; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">
+                        ${deadline.frequency}
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function loadTaxTransactions() {
+    const farmData = getFarmData();
+    
+    if (farmData.taxTransactions.length === 0) {
+        return '<div style="text-align: center; padding: 2rem; color: #666;">No tax transactions recorded yet</div>';
+    }
+    
+    const recentTransactions = [...farmData.taxTransactions]
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 10);
+    
+    return `
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 2px solid #eee;">
+                    <th style="text-align: left; padding: 0.5rem;">Date</th>
+                    <th style="text-align: left; padding: 0.5rem;">Type</th>
+                    <th style="text-align: left; padding: 0.5rem;">Description</th>
+                    <th style="text-align: right; padding: 0.5rem;">Amount</th>
+                    <th style="text-align: right; padding: 0.5rem;">VAT</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${recentTransactions.map(transaction => {
+                    const vatAmount = transaction.type.includes('exempt') ? 0 : 
+                                    transaction.amount * (bursTaxRates.vat.rate / 100);
+                    
+                    return `
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 0.5rem;">${new Date(transaction.date).toLocaleDateString()}</td>
+                            <td style="padding: 0.5rem;">
+                                <span style="background: ${transaction.type.includes('sale') ? '#e8f5e8' : '#fff3cd'}; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">
+                                    ${transaction.type.replace('_', ' ')}
+                                </span>
+                            </td>
+                            <td style="padding: 0.5rem;">${transaction.description}</td>
+                            <td style="text-align: right; padding: 0.5rem;">P ${transaction.amount.toFixed(2)}</td>
+                            <td style="text-align: right; padding: 0.5rem;">P ${vatAmount.toFixed(2)}</td>
+                        </tr>
+                    `;
+                }).join('')}
+            </tbody>
+        </table>
+    `;
+}
+
+function recordTaxTransaction() {
+    const farmData = getFarmData();
+    const date = document.getElementById('transactionDate')?.value;
+    const type = document.getElementById('transactionType')?.value;
+    const amount = parseFloat(document.getElementById('transactionAmount')?.value);
+    const description = document.getElementById('transactionDescription')?.value;
+    
+    if (!date || !type || !amount || !description) {
+        showNotification('Please fill all fields');
+        return;
+    }
+    
+    const transaction = {
+        id: 'TX' + Date.now(),
+        date: date,
+        type: type,
+        amount: amount,
+        description: description,
+        recorded: new Date().toISOString()
+    };
+    
+    farmData.taxTransactions.push(transaction);
+    showNotification('Transaction recorded successfully!');
+    
+    // Clear form
+    document.getElementById('transactionDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('transactionAmount').value = '';
+    document.getElementById('transactionDescription').value = '';
+    
+    saveBURSData();
+    
+    // Refresh display
+    showBURSSection('taxRecords');
+}
+
+// ========== BURS FORMS CONTENT ==========
+function loadBURSFormsContent() {
+    return `
+        <h2>📝 BURS Forms & Registration</h2>
+        <p>Access official BURS forms and registration portals.</p>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 2rem 0;">
+            <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <h3>📄 VAT Registration</h3>
+                <p>Register for VAT with Botswana Unified Revenue Service</p>
+                <a href="https://www.burs.org.bw/vat-registration" target="_blank" 
+                   style="display: block; background: #27ae60; color: white; text-align: center; padding: 0.75rem; border-radius: 5px; text-decoration: none; margin-top: 1rem;">
+                    Register for VAT Online
+                </a>
+            </div>
+            
+            <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <h3>💰 TIN Registration</h3>
+                <p>Get your Tax Identification Number (TIN)</p>
+                <a href="https://www.burs.org.bw/tin-registration" target="_blank" 
+                   style="display: block; background: #3498db; color: white; text-align: center; padding: 0.75rem; border-radius: 5px; text-decoration: none; margin-top: 1rem;">
+                    Apply for TIN Online
+                </a>
+            </div>
+        </div>
+    `;
+}
+
+// ========== AGRICULTURAL TAX CONTENT ==========
+function loadAgriculturalTaxContent() {
+    return `
+        <h2>🌾 Agricultural Tax Benefits</h2>
+        
+        <div style="display: grid; gap: 1.5rem; margin: 2rem 0;">
+            <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <h3>✅ Tax-Deductible Farm Expenses</h3>
+                <ul style="padding-left: 1.5rem;">
+                    <li>Seeds, fertilizers, and pesticides</li>
+                    <li>Livestock feed and veterinary costs</li>
+                    <li>Farm equipment and machinery</li>
+                    <li>Fuel for farm operations</li>
+                    <li>Labor costs and wages</li>
+                </ul>
+            </div>
+            
+            <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <h3>📈 Capital Allowances</h3>
+                <p>Claim depreciation on farm assets:</p>
+                <ul style="padding-left: 1.5rem;">
+                    <li>Tractors & machinery: 25% per year</li>
+                    <li>Farm buildings: 5% per year</li>
+                    <li>Fencing & irrigation: 10% per year</li>
+                </ul>
+            </div>
+        </div>
+    `;
+}
+
+// ========== NAVIGATION ==========
+function showBURSSection(sectionName) {
+    const possibleElements = [
+        'bursDynamicContent',
+        'bursContent', 
+        'tabContent',
+        'mainContent'
+    ];
+    
+    let contentElement = null;
+    
+    for (const elementId of possibleElements) {
+        contentElement = document.getElementById(elementId);
+        if (contentElement) {
+            console.log(`Found BURS content element: ${elementId}`);
+            break;
+        }
+    }
+    
+    if (!contentElement) {
+        console.warn('No BURS content element found');
+        return;
+    }
+    
+    let content = '';
+    
+    switch(sectionName) {
+        case 'taxCalculators':
+            content = loadBURSTaxContent();
+            break;
+        case 'taxRecords':
+            content = loadTaxRecordsContent();
+            break;
+        case 'bursForms':
+            content = loadBURSFormsContent();
+            break;
+        case 'agriculturalTax':
+            content = loadAgriculturalTaxContent();
+            break;
+        case 'taxReport':
+            generateBURSReport();
+            return;
+        default:
+            content = loadBURSTaxContent();
+    }
+    
+    contentElement.innerHTML = content;
+}
+
+// ========== UTILITY FUNCTIONS ==========
+function showNotification(message, type = 'info') {
+    console.log(`${type.toUpperCase()}: ${message}`);
+    
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'error' ? '#f8d7da' : type === 'success' ? '#d4edda' : '#d1ecf1'};
+        color: ${type === 'error' ? '#721c24' : type === 'success' ? '#155724' : '#0c5460'};
+        padding: 15px 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        max-width: 400px;
+        animation: slideIn 0.3s ease-out;
+    `;
+    
+    notification.innerHTML = `
+        <span style="margin-right: 10px; font-size: 1.2em;">
+            ${type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️'}
+        </span>
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()" 
+                style="margin-left: auto; background: none; border: none; font-size: 1.2em; cursor: pointer; color: inherit;">
+            ×
+        </button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Add animation style if not already present
+    if (!document.getElementById('notification-style')) {
+        const style = document.createElement('style');
+        style.id = 'notification-style';
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove();
+        }
+    }, 3000);
+}
+
+function generateComplianceReport() {
+    const farmData = getFarmData();
+    const currentYear = new Date().getFullYear();
+    
+    const reportWindow = window.open('', '_blank');
+    reportWindow.document.write(`
+        <html>
+            <head>
+                <title>BURS Compliance Report</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 2rem; }
+                    h1 { color: #2c3e50; }
+                    .summary { background: #f8f9fa; padding: 1.5rem; border-radius: 5px; margin: 1rem 0; }
+                    .checklist-item { margin: 0.5rem 0; padding: 0.5rem; }
+                    .completed { background: #d4edda; }
+                    .pending { background: #fff3cd; }
+                </style>
+            </head>
+            <body>
+                <h1>🪙 BURS Compliance Report</h1>
+                <p>Generated: ${new Date().toLocaleDateString()}</p>
+                
+                <div class="summary">
+                    <h2>Farm Information</h2>
+                    <p><strong>Farm Name:</strong> ${farmData.taxSettings.farmName}</p>
+                    <p><strong>TIN:</strong> ${farmData.taxSettings.tinNumber || 'Not provided'}</p>
+                    <p><strong>VAT Registered:</strong> ${farmData.taxSettings.vatRegistered ? 'Yes' : 'No'}</p>
+                    <p><strong>Tax Year:</strong> ${farmData.taxSettings.taxYear}</p>
+                </div>
+                
+                <h2>Compliance Checklist</h2>
+                ${Object.entries(farmData.complianceChecklist || {}).map(([key, value]) => `
+                    <div class="checklist-item ${value ? 'completed' : 'pending'}">
+                        <strong>${key.replace('_', ' ')}:</strong> ${value ? '✓ Completed' : '✗ Pending'}
+                    </div>
+                `).join('')}
+                
+                <div style="margin-top: 2rem;">
+                    <button onclick="window.print()" style="background: #3498db; color: white; border: none; padding: 1rem 2rem; border-radius: 5px; cursor: pointer;">
+                        Print Report
+                    </button>
+                </div>
+            </body>
+        </html>
+    `);
+    reportWindow.document.close();
+}
+
+function generateBURSReport() {
+    showNotification('Opening BURS website for official reporting...', 'info');
+    window.open('https://www.burs.org.bw', '_blank');
+}
+
+// ========== INITIALIZATION ==========
+function initializeBURS() {
+    console.log('BURS Tax Module Initialized');
+    
+    // Load saved data
+    loadBURSData();
+    
+    // Initialize farmProfile if needed
+    getFarmerPackfile();
+}
+
+function initializeBURSData() {
+    // This function is called from elsewhere in the system
+    console.log('BURS data initialized');
+    loadBURSData();
+}
+
+function updateBURSStats() {
+    console.log('BURS stats updated');
+    // This function can be called to refresh statistics
+}
+
+// Initialize on load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeBURS);
+} else {
+    initializeBURS();
+}
+
+// Export all functions that might be called externally
+window.BURSModule = {
+    loadBURSContent,
+    loadBURSDashboard,
+    showBURSSection,
+    calculateVAT,
+    calculateIncomeTax,
+    recordTaxTransaction,
+    generateComplianceReport,
+    generateBURSReport,
+    initializeBURS,
+    initializeBURSData,
+    updateBURSStats,
+    getFarmData,
+    getFarmerPackfile
+};
+
+console.log('✅ BURS Tax Module loaded successfully');
+</script>
+</body>
+</html>
