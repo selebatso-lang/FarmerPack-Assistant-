@@ -24357,16 +24357,7 @@ function updatePackageIndicator(packageType) {
     
     indicator.innerHTML = `
         ${packageInfo.emoji} ${packageInfo.name} Package
-        <button onclick="showSubscriptionDetails()" 
-                style="background: rgba(255,255,255,0.2); 
-                       border: none; 
-                       color: inherit; 
-                       padding: 2px 8px; 
-                       border-radius: 10px; 
-                       cursor: pointer;
-                       font-size: 12px;">
-            Details
-        </button>
+        
     `;
     
     document.body.appendChild(indicator);
