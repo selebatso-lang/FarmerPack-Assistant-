@@ -18196,7 +18196,7 @@ function loadMyCropsContent() {
                 </div>
             </div>
             <button onclick="viewCompletedTasks()" style="background: #27ae60; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: bold; margin-left: 1rem; white-space: nowrap;">
-                ✅Done
+                ✅Reports
             </button>
         </div>
         
@@ -18328,123 +18328,2976 @@ function completeTask(cropIndex, taskIndex) {
 // INVENTORY FUNCTIONS
 // =============================================
 
+         // =============================================
+// ENHANCED INVENTORY FUNCTIONS
+// =============================================
+
+// Inventory configuration
+const INVENTORY_CONFIG = {
+    lowStockThreshold: 10,
+    criticalStockThreshold: 5,
+    maxUploadSize: 5 * 1024 * 1024, // 5MB
+    allowedImageTypes: ['image/jpeg', 'image/png', 'image/gif'],
+    currency: 'BWP',
+    dateFormat: { year: 'numeric', month: 'short', day: 'numeric' },
+    categories: {
+        seeds: { name: '🌱 Seeds', icon: '🌱' },
+        fertilizers: { name: '🧪 Fertilizers', icon: '🧪' },
+        tools: { name: '🔧 Tools', icon: '🔧' },
+        equipment: { name: '🚜 Equipment', icon: '🚜' },
+        produce: { name: '🥬 Produce', icon: '🥬' },
+        livestock: { name: '🐄 Livestock', icon: '🐄' },
+        feed: { name: '🌾 Feed', icon: '🌾' },
+        supplies: { name: '📦 Supplies', icon: '📦' },
+        other: { name: '📌 Other', icon: '📌' }
+    },
+    units: {
+        seeds: 'kg',
+        fertilizers: 'kg',
+        tools: 'units',
+        equipment: 'units',
+        produce: 'kg',
+        livestock: 'head',
+        feed: 'kg',
+        supplies: 'units',
+        other: 'units'
+    }
+};
+
+// ========== MAIN CONTENT LOADER ==========
 function loadInventoryContent() {
     return `
-        <h2>📦 Inventory Management</h2>
-        <div class="grid-2">
-            <div>
-                <h3>Add New Product</h3>
-                <div class="form-group">
-                    <label for="productName">Product Name:</label>
-                    <input type="text" id="productName" placeholder="Enter product name">
-                </div>
-                <div class="form-group">
-                    <label for="productCategory">Category:</label>
-                    <select id="productCategory">
-                        <option value="seeds">Seeds</option>
-                        <option value="fertilizers">Fertilizers</option>
-                        <option value="tools">Tools</option>
-                        <option value="equipment">Equipment</option>
-                        <option value="produce">Produce</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="productQuantity">Quantity:</label>
-                    <input type="number" id="productQuantity" placeholder="Enter quantity">
-                </div>
-                <div class="form-group">
-                    <label for="productPrice">Price (Pula):</label>
-                    <input type="number" id="productPrice" step="0.01" placeholder="Enter price">
-                </div>
-                <button onclick="addProduct()">Add Product</button>
+        <div class="inventory-module">
+            <h2>📦 Advanced Inventory Management</h2>
+            
+            <div class="inventory-tabs">
+               
+                <button class="tab-btn" onclick="switchInventoryTab('add')">➕ Add Product</button>
+                <button class="tab-btn" onclick="switchInventoryTab('manage')">📋 Manage Stock</button>
+                <button class="tab-btn" onclick="switchInventoryTab('categories')">🏷️ Categories</button>
+
+                <button class="tab-btn" onclick="switchInventoryTab('alerts')">⚠️ Alerts</button>
             </div>
-            <div>
-                <h3>Current Inventory</h3>
-                <div id="inventoryList" style="max-height: 400px; overflow-y: auto;">
-                    <!-- Inventory items will be loaded here -->
-                </div>
+            
+            <div id="inventoryTabContent">
+                ${renderOverviewTab()}
             </div>
         </div>
     `;
 }
 
-function loadInventory() {
-    const inventoryList = getElement('inventoryList');
-    if (!inventoryList) return;
+// ========== TAB RENDERING ==========
+function switchInventoryTab(tabName) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
     
-    inventoryList.innerHTML = '';
+    const tabContent = document.getElementById('inventoryTabContent');
     
-    if (!farmData.inventory) farmData.inventory = [];
-    
-    farmData.inventory.forEach((item, index) => {
-        let itemClass = 'inventory-item';
-        if (item.quantity === 0) itemClass += ' out-of-stock';
-        else if (item.quantity < 10) itemClass += ' low-stock';
-        
-        const itemElement = document.createElement('div');
-        itemElement.className = itemClass;
-        itemElement.innerHTML = `
-            <h4>${item.name}</h4>
-            <div class="muted">${item.category}</div>
-            <div><strong>Quantity:</strong> ${item.quantity}</div>
-            <div><strong>Price:</strong> ${item.price.toFixed(2)} Pula</div>
-            <div><strong>Value:</strong> ${(item.quantity * item.price).toFixed(2)} Pula</div>
-            <button onclick="removeProduct(${index})" class="small btn-outline" style="margin-top: 0.5rem;">Remove</button>
-        `;
-        inventoryList.appendChild(itemElement);
-    });
-    
-    if (inventoryList.children.length === 0) {
-        inventoryList.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--muted);">No inventory items</div>';
+    switch(tabName) {
+        case 'inventoryoverview':
+            tabContent.innerHTML = renderInventoryOverviewTab();
+            loadInventoryOverview();
+            break;
+        case 'add':
+            tabContent.innerHTML = renderAddProductTab();
+            break;
+        case 'manage':
+            tabContent.innerHTML = renderManageStockTab();
+            loadInventoryList('manage');
+            break;
+        case 'categories':
+            tabContent.innerHTML = renderCategoriesTab();
+            loadCategories();
+            break;
+        case 'inventoryreports':
+            tabContent.innerHTML = renderInventoryReportsTab();
+            generateInventoryReports();
+            break;
+        case 'alerts':
+            tabContent.innerHTML = renderAlertsTab();
+            checkInventoryAlerts();
+            break;
     }
 }
 
-function addProduct() {
-    const name = getElement('productName')?.value.trim();
-    const category = getElement('productCategory')?.value;
-    const quantity = parseInt(getElement('productQuantity')?.value);
-    const price = parseFloat(getElement('productPrice')?.value);
+// ========== OVERVIEW TAB ==========
+function renderInventoryOverviewTab() {
+    return `
     
-    if (!name || isNaN(quantity) || quantity < 0 || isNaN(price) || price < 0) {
-        showNotification('Please fill all fields correctly.');
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📦</div>
+                    <div class="stat-content">
+                        <span class="stat-label">Total Products</span>
+                        <span class="stat-value" id="totalProducts">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-content">
+                        <span class="stat-label">Inventory Value</span>
+                        <span class="stat-value" id="totalValue">P 0.00</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-content">
+                        <span class="stat-label">Low Stock Items</span>
+                        <span class="stat-value warning" id="lowStockCount">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-content">
+                        <span class="stat-label">Categories</span>
+                        <span class="stat-value" id="categoryCount">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="overview-grid">
+                <div class="overview-card">
+                    <h3>📋 Recent Additions</h3>
+                    <div id="recentAdditions" class="recent-list"></div>
+                </div>
+                <div class="overview-card">
+                    <h3>⚠️ Low Stock Alerts</h3>
+                    <div id="lowStockAlerts" class="alert-list"></div>
+                </div>
+            </div>
+            
+            <div class="overview-card">
+                <h3>📊 Category Distribution</h3>
+                <div id="categoryChart" class="category-chart"></div>
+            </div>
+        </div>
+    `;
+}
+
+// ========== ADD PRODUCT TAB ==========
+function renderAddProductTab() {
+    return `
+        <div class="add-product-tab">
+            <h3>➕ Add New Product</h3>
+            
+            <form id="addProductForm" onsubmit="handleAddProduct(event)" class="product-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productName">Product Name *</label>
+                        <input type="text" id="productName" placeholder="Enter product name" required 
+                               maxlength="100" autocomplete="off">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productCategory">Category *</label>
+                        <select id="productCategory" required>
+                            <option value="">Select Category</option>
+                            ${Object.entries(INVENTORY_CONFIG.categories).map(([value, cat]) => 
+                                `<option value="${value}">${cat.icon} ${cat.name}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productQuantity">Quantity *</label>
+                        <input type="number" id="productQuantity" placeholder="Enter quantity" 
+                               required min="0" step="1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productUnit">Unit</label>
+                        <input type="text" id="productUnit" placeholder="Auto-filled" readonly class="readonly-input">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productPrice">Price (Pula) *</label>
+                        <input type="number" id="productPrice" placeholder="Enter price" 
+                               required min="0" step="0.01">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productCost">Cost Price (Pula)</label>
+                        <input type="number" id="productCost" placeholder="Enter cost price" 
+                               min="0" step="0.01">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="productDescription">Description</label>
+                    <textarea id="productDescription" rows="3" placeholder="Enter product description (optional)"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="productImage">Product Image</label>
+                    <input type="file" id="productImage" accept="image/*" onchange="previewProductImage(this)">
+                    <div id="imagePreview" class="image-preview"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="productSupplier">Supplier</label>
+                    <input type="text" id="productSupplier" placeholder="Enter supplier name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="productLocation">Storage Location</label>
+                    <input type="text" id="productLocation" placeholder="e.g., Shelf A, Barn 1">
+                </div>
+                
+                <div class="form-group">
+                    <label for="productMinStock">Minimum Stock Level</label>
+                    <input type="number" id="productMinStock" placeholder="Enter minimum stock" 
+                           min="0" value="10">
+                </div>
+                
+                <div class="form-group">
+                    <label for="productMaxStock">Maximum Stock Level</label>
+                    <input type="number" id="productMaxStock" placeholder="Enter maximum stock" 
+                           min="0" value="100">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productExpiryDate">Expiry Date</label>
+                        <input type="date" id="productExpiryDate">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productBatch">Batch Number</label>
+                        <input type="text" id="productBatch" placeholder="Enter batch number">
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">➕ Add Product</button>
+                    <button type="button" onclick="clearProductForm()" class="btn-outline">Clear Form</button>
+                </div>
+            </form>
+        </div>
+    `;
+}
+
+// ========== MANAGE STOCK TAB ==========
+function renderManageStockTab() {
+    return `
+        <div class="manage-stock-tab">
+            <h3>📋 Manage Inventory</h3>
+            
+            <div class="stock-controls">
+                <div class="search-box">
+                    <input type="text" id="stockSearch" placeholder="Search products..." 
+                           onkeyup="filterInventory()">
+                    <span class="search-icon">🔍</span>
+                </div>
+                
+                <div class="filter-controls">
+                    <select id="categoryFilter" onchange="filterInventory()">
+                        <option value="">All Categories</option>
+                        ${Object.entries(INVENTORY_CONFIG.categories).map(([value, cat]) => 
+                            `<option value="${value}">${cat.icon} ${cat.name}</option>`
+                        ).join('')}
+                    </select>
+                    
+                    <select id="stockFilter" onchange="filterInventory()">
+                        <option value="">All Items</option>
+                        <option value="low">Low Stock</option>
+                        <option value="out">Out of Stock</option>
+                        <option value="expiring">Expiring Soon</option>
+                    </select>
+                </div>
+                
+                <div class="bulk-actions">
+                    <button onclick="exportInventory()" class="btn-outline">📤 Export</button>
+                    <button onclick="showBulkUpdate()" class="btn-outline">📦 Bulk Update</button>
+                </div>
+            </div>
+            
+            <div id="inventoryList" class="inventory-grid">
+                <!-- Inventory items will be loaded here -->
+            </div>
+        </div>
+    `;
+}
+
+// ========== CATEGORIES TAB ==========
+function renderCategoriesTab() {
+    return `
+        <div class="categories-tab">
+            <h3>🏷️ Category Management</h3>
+            
+            <div class="categories-grid" id="categoriesGrid">
+                <!-- Categories will be loaded here -->
+            </div>
+        </div>
+    `;
+}
+
+// ========== REPORTS TAB ==========
+function renderInventoryReportsTab() {
+    return `
+        <div class="inventoryreports-tab">
+           
+            
+            <div class="report-controls">
+                <select id="reportType" onchange="generateInventoryReports()">
+                    <option value="summary">Summary Report</option>
+                    <option value="valuation">Inventory Valuation</option>
+                    <option value="movement">Stock Movement</option>
+                    <option value="expiry">Expiry Report</option>
+                    <option value="reorder">Reorder Report</option>
+                </select>
+                
+                <input type="date" id="reportStartDate">
+                <input type="date" id="reportEndDate">
+                
+                <button onclick="exportReport()" class="btn-outline">📥 Export Report</button>
+                <button onclick="printReport()" class="btn-outline">🖨️ Print</button>
+            </div>
+            
+            <div id="reportContent" class="report-content">
+                <!-- Report content will be loaded here -->
+            </div>
+        </div>
+    `;
+}
+
+// ========== ALERTS TAB ==========
+function renderAlertsTab() {
+    return `
+        <div class="alerts-tab">
+            <h3>⚠️ Inventory Alerts</h3>
+            
+            <div class="alert-filters">
+                <button class="alert-filter active" onclick="filterAlerts('all')">All</button>
+                <button class="alert-filter" onclick="filterAlerts('low')">Low Stock</button>
+                <button class="alert-filter" onclick="filterAlerts('expiring')">Expiring</button>
+                <button class="alert-filter" onclick="filterAlerts('overstock')">Overstock</button>
+            </div>
+            
+            <div id="alertsList" class="alerts-list">
+                <!-- Alerts will be loaded here -->
+            </div>
+        </div>
+    `;
+}
+
+// ========== PRODUCT MANAGEMENT ==========
+function handleAddProduct(event) {
+    event.preventDefault();
+    
+    try {
+        // Validate form data
+        const productData = validateProductForm();
+        
+        // Process image if uploaded
+        const imageFile = document.getElementById('productImage').files[0];
+        if (imageFile) {
+            productData.image = processProductImage(imageFile);
+        }
+        
+        // Add product to inventory
+        addProduct(productData);
+        
+    } catch (error) {
+        showNotification(error.message, 'error');
+    }
+}
+
+function validateProductForm() {
+    const name = document.getElementById('productName')?.value.trim();
+    const category = document.getElementById('productCategory')?.value;
+    const quantity = parseInt(document.getElementById('productQuantity')?.value);
+    const price = parseFloat(document.getElementById('productPrice')?.value);
+    const cost = parseFloat(document.getElementById('productCost')?.value) || price;
+    const description = document.getElementById('productDescription')?.value.trim();
+    const supplier = document.getElementById('productSupplier')?.value.trim();
+    const location = document.getElementById('productLocation')?.value.trim();
+    const minStock = parseInt(document.getElementById('productMinStock')?.value) || 10;
+    const maxStock = parseInt(document.getElementById('productMaxStock')?.value) || 100;
+    const expiryDate = document.getElementById('productExpiryDate')?.value;
+    const batch = document.getElementById('productBatch')?.value.trim();
+    
+    // Validation
+    if (!name) throw new Error('Product name is required');
+    if (!category) throw new Error('Category is required');
+    if (isNaN(quantity) || quantity < 0) throw new Error('Valid quantity is required');
+    if (isNaN(price) || price < 0) throw new Error('Valid price is required');
+    if (cost > price) showNotification('Warning: Cost price is higher than selling price', 'warning');
+    
+    return {
+        id: generateProductId(),
+        name,
+        category,
+        quantity,
+        price,
+        cost,
+        description,
+        supplier,
+        location,
+        minStock,
+        maxStock,
+        expiryDate,
+        batch,
+        added: new Date().toISOString(),
+        updated: new Date().toISOString(),
+        status: quantity === 0 ? 'out' : quantity <= minStock ? 'low' : 'normal',
+        sku: generateSKU(name, category)
+    };
+}
+
+function generateProductId() {
+    return 'PRD_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
+
+function generateSKU(name, category) {
+    const catPrefix = category.substr(0, 3).toUpperCase();
+    const namePrefix = name.replace(/[^A-Za-z]/g, '').substr(0, 3).toUpperCase();
+    const unique = Math.floor(1000 + Math.random() * 9000);
+    return `${catPrefix}-${namePrefix}-${unique}`;
+}
+
+function processProductImage(file) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            resolve({
+                data: e.target.result,
+                name: file.name,
+                type: file.type
+            });
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function previewProductImage(input) {
+    const preview = document.getElementById('imagePreview');
+    if (!preview) return;
+    
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        
+        if (!INVENTORY_CONFIG.allowedImageTypes.includes(file.type)) {
+            showNotification('Invalid image type', 'error');
+            input.value = '';
+            preview.innerHTML = '';
+            return;
+        }
+        
+        if (file.size > INVENTORY_CONFIG.maxUploadSize) {
+            showNotification('Image too large', 'error');
+            input.value = '';
+            preview.innerHTML = '';
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.innerHTML = '';
+    }
+}
+
+function addProduct(productData) {
+    if (!farmData.inventory) farmData.inventory = [];
+    
+    farmData.inventory.push(productData);
+    
+    if (safeSaveData()) {
+        showNotification(`✅ ${productData.name} added successfully!`, 'success');
+        clearProductForm();
+        loadInventoryOverview();
+        checkInventoryAlerts();
+    } else {
+        farmData.inventory.pop();
+        showNotification('Failed to save product', 'error');
+    }
+}
+
+function clearProductForm() {
+    document.getElementById('addProductForm').reset();
+    document.getElementById('imagePreview').innerHTML = '';
+    
+    // Reset unit field based on category
+    updateUnitField();
+}
+
+// Update unit field based on category selection
+document.addEventListener('change', function(e) {
+    if (e.target.id === 'productCategory') {
+        updateUnitField();
+    }
+});
+
+function updateUnitField() {
+    const category = document.getElementById('productCategory')?.value;
+    const unitField = document.getElementById('productUnit');
+    if (unitField && category) {
+        unitField.value = INVENTORY_CONFIG.units[category] || 'units';
+    }
+}
+
+// ========== INVENTORY DISPLAY ==========
+
+
+function loadRecentAdditions(inventory) {
+    const container = document.getElementById('recentAdditions');
+    if (!container) return;
+    
+    const recent = [...inventory]
+        .sort((a, b) => new Date(b.added) - new Date(a.added))
+        .slice(0, 5);
+    
+    if (recent.length === 0) {
+        container.innerHTML = '<div class="empty-message">No products added yet</div>';
         return;
     }
     
-    if (!farmData.inventory) farmData.inventory = [];
+    container.innerHTML = recent.map(item => `
+        <div class="recent-item">
+            <div class="recent-info">
+                <strong>${escapeHtml(item.name)}</strong>
+                <small>${formatDate(item.added)}</small>
+            </div>
+            <span class="recent-value">${formatCurrency(item.price)}</span>
+        </div>
+    `).join('');
+}
+
+function loadLowStockAlerts(inventory) {
+    const container = document.getElementById('lowStockAlerts');
+    if (!container) return;
     
-    farmData.inventory.push({
-        name: name,
-        category: category,
-        quantity: quantity,
-        price: price,
-        added: new Date().toISOString()
+    const lowStock = inventory.filter(item => 
+        item.quantity <= (item.minStock || INVENTORY_CONFIG.lowStockThreshold)
+    ).slice(0, 5);
+    
+    if (lowStock.length === 0) {
+        container.innerHTML = '<div class="empty-message">No low stock alerts</div>';
+        return;
+    }
+    
+    container.innerHTML = lowStock.map(item => `
+        <div class="alert-item ${item.quantity === 0 ? 'danger' : 'warning'}">
+            <div class="alert-info">
+                <strong>${escapeHtml(item.name)}</strong>
+                <small>Stock: ${item.quantity} ${getUnit(item.category)}</small>
+            </div>
+            <button onclick="restockProduct('${item.id}')" class="btn-small">Restock</button>
+        </div>
+    `).join('');
+}
+
+function loadCategoryDistribution(inventory) {
+    const container = document.getElementById('categoryChart');
+    if (!container) return;
+    
+    const distribution = {};
+    inventory.forEach(item => {
+        distribution[item.category] = (distribution[item.category] || 0) + 1;
     });
     
+    const total = inventory.length;
+    
+    container.innerHTML = Object.entries(distribution).map(([category, count]) => {
+        const percentage = (count / total * 100).toFixed(1);
+        const catInfo = INVENTORY_CONFIG.categories[category] || { icon: '📦', name: category };
+        return `
+            <div class="category-bar">
+                <div class="category-label">
+                    <span>${catInfo.icon} ${catInfo.name}</span>
+                    <span>${count} items (${percentage}%)</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${percentage}%"></div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function loadInventoryList(view = 'manage') {
+    const container = document.getElementById('inventoryList');
+    if (!container) return;
+    
+    const inventory = farmData.inventory || [];
+    const searchTerm = document.getElementById('stockSearch')?.value.toLowerCase() || '';
+    const categoryFilter = document.getElementById('categoryFilter')?.value || '';
+    const stockFilter = document.getElementById('stockFilter')?.value || '';
+    
+    let filtered = inventory;
+    
+    // Apply filters
+    if (searchTerm) {
+        filtered = filtered.filter(item => 
+            item.name.toLowerCase().includes(searchTerm) ||
+            item.sku?.toLowerCase().includes(searchTerm)
+        );
+    }
+    
+    if (categoryFilter) {
+        filtered = filtered.filter(item => item.category === categoryFilter);
+    }
+    
+    if (stockFilter === 'low') {
+        filtered = filtered.filter(item => 
+            item.quantity <= (item.minStock || INVENTORY_CONFIG.lowStockThreshold) && item.quantity > 0
+        );
+    } else if (stockFilter === 'out') {
+        filtered = filtered.filter(item => item.quantity === 0);
+    } else if (stockFilter === 'expiring') {
+        const thirtyDays = new Date();
+        thirtyDays.setDate(thirtyDays.getDate() + 30);
+        filtered = filtered.filter(item => 
+            item.expiryDate && new Date(item.expiryDate) <= thirtyDays
+        );
+    }
+    
+    if (filtered.length === 0) {
+        container.innerHTML = '<div class="empty-state">No products found</div>';
+        return;
+    }
+    
+    container.innerHTML = filtered.map(item => `
+        <div class="inventory-card ${item.status || ''}" data-id="${item.id}">
+            <div class="card-header">
+                ${item.image ? 
+                    `<img src="${item.image.data}" alt="${escapeHtml(item.name)}" class="product-thumb">` :
+                    `<div class="product-icon">${INVENTORY_CONFIG.categories[item.category]?.icon || '📦'}</div>`
+                }
+                <div class="product-title">
+                    <h4>${escapeHtml(item.name)}</h4>
+                    <div class="product-meta">
+                        <span class="category">${INVENTORY_CONFIG.categories[item.category]?.name || item.category}</span>
+                        <span class="sku">SKU: ${item.sku || 'N/A'}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <div class="stock-info">
+                    <div class="stock-level ${getStockClass(item)}">
+                        <span class="stock-value">${item.quantity}</span>
+                        <span class="stock-unit">${getUnit(item.category)}</span>
+                    </div>
+                    ${item.minStock ? `
+                        <div class="stock-threshold">
+                            Min: ${item.minStock} | Max: ${item.maxStock || '∞'}
+                        </div>
+                    ` : ''}
+                </div>
+                
+                <div class="price-info">
+                    <div class="price-row">
+                        <span>Selling Price:</span>
+                        <strong>${formatCurrency(item.price)}</strong>
+                    </div>
+                    ${item.cost ? `
+                        <div class="price-row">
+                            <span>Cost Price:</span>
+                            <span>${formatCurrency(item.cost)}</span>
+                        </div>
+                        <div class="price-row profit">
+                            <span>Profit Margin:</span>
+                            <span>${calculateMargin(item.price, item.cost)}%</span>
+                        </div>
+                    ` : ''}
+                </div>
+                
+                ${item.expiryDate ? `
+                    <div class="expiry-info ${isExpiringSoon(item.expiryDate) ? 'warning' : ''}">
+                        <span>Expires: ${formatDate(item.expiryDate)}</span>
+                        ${getExpiryWarning(item.expiryDate)}
+                    </div>
+                ` : ''}
+                
+                ${item.location ? `
+                    <div class="location-info">
+                        <span>📍 ${escapeHtml(item.location)}</span>
+                    </div>
+                ` : ''}
+            </div>
+            
+            <div class="card-actions">
+        
+                <button onclick="removeProduct('${item.id}')" class="btn-small btn-danger">🗑️ Remove</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// ========== STOCK MANAGEMENT ==========
+function adjustStock(productId) {
+    const product = farmData.inventory.find(p => p.id === productId);
+    if (!product) return;
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Adjust Stock: ${escapeHtml(product.name)}</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Current Stock: <strong>${product.quantity}</strong> ${getUnit(product.category)}</p>
+                
+                <div class="form-group">
+                    <label>Adjustment Type:</label>
+                    <select id="adjustmentType" onchange="toggleAdjustmentFields()">
+                        <option value="add">Add Stock</option>
+                        <option value="remove">Remove Stock</option>
+                        <option value="set">Set to Exact Value</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="quantityField">
+                    <label>Quantity:</label>
+                    <input type="number" id="adjustmentQuantity" min="0" step="1" value="1">
+                </div>
+                
+                <div class="form-group" id="reasonField">
+                    <label>Reason:</label>
+                    <select id="adjustmentReason">
+                        <option value="purchase">New Purchase</option>
+                        <option value="sale">Sale</option>
+                        <option value="return">Return</option>
+                        <option value="damage">Damaged/Lost</option>
+                        <option value="count">Stock Count</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Notes:</label>
+                    <textarea id="adjustmentNotes" rows="2" placeholder="Optional notes"></textarea>
+                </div>
+                
+                <div class="modal-actions">
+                    <button onclick="processStockAdjustment('${productId}')" class="btn-primary">Apply Adjustment</button>
+                    <button onclick="this.closest('.modal').remove()" class="btn-outline">Cancel</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+function processStockAdjustment(productId) {
+    const product = farmData.inventory.find(p => p.id === productId);
+    if (!product) return;
+    
+    const type = document.getElementById('adjustmentType').value;
+    const quantity = parseInt(document.getElementById('adjustmentQuantity').value);
+    const reason = document.getElementById('adjustmentReason').value;
+    const notes = document.getElementById('adjustmentNotes').value;
+    
+    if (isNaN(quantity) || quantity < 0) {
+        showNotification('Invalid quantity', 'error');
+        return;
+    }
+    
+    const oldQuantity = product.quantity;
+    let newQuantity = oldQuantity;
+    
+    switch(type) {
+        case 'add':
+            newQuantity = oldQuantity + quantity;
+            break;
+        case 'remove':
+            if (quantity > oldQuantity) {
+                showNotification('Cannot remove more than current stock', 'error');
+                return;
+            }
+            newQuantity = oldQuantity - quantity;
+            break;
+        case 'set':
+            newQuantity = quantity;
+            break;
+    }
+    
+    // Record transaction
+    if (!product.transactions) product.transactions = [];
+    product.transactions.push({
+        date: new Date().toISOString(),
+        type: type,
+        oldQuantity: oldQuantity,
+        newQuantity: newQuantity,
+        quantity: quantity,
+        reason: reason,
+        notes: notes,
+        user: 'current-user' // You can add user tracking
+    });
+    
+    product.quantity = newQuantity;
+    product.updated = new Date().toISOString();
+    product.status = newQuantity === 0 ? 'out' : 
+                    newQuantity <= (product.minStock || 10) ? 'low' : 'normal';
+    
     if (safeSaveData()) {
-        loadInventory();
-        getElement('productName').value = '';
-        getElement('productQuantity').value = '';
-        getElement('productPrice').value = '';
-        showNotification('Product added!');
+        showNotification(`Stock adjusted successfully`, 'success');
+        document.querySelector('.modal').remove();
+        loadInventoryList();
+        loadInventoryOverview();
+        checkInventoryAlerts();
     } else {
-        farmData.inventory.pop();
-        showNotification('Failed to save product.', 'error');
+        showNotification('Failed to save adjustment', 'error');
     }
 }
 
-function removeProduct(index) {
-    if (confirm('Remove this product?')) {
+// ========== CATEGORY MANAGEMENT ==========
+function loadCategories() {
+    const container = document.getElementById('categoriesGrid');
+    if (!container) return;
+    
+    const inventory = farmData.inventory || [];
+    const categoryStats = {};
+    
+    Object.entries(INVENTORY_CONFIG.categories).forEach(([key, cat]) => {
+        const items = inventory.filter(item => item.category === key);
+        const totalValue = items.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+        const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+        
+        categoryStats[key] = {
+            ...cat,
+            count: items.length,
+            items: totalItems,
+            value: totalValue
+        };
+    });
+    
+    container.innerHTML = Object.entries(categoryStats).map(([key, stats]) => `
+        <div class="category-card" onclick="filterByCategory('${key}')">
+            <div class="category-icon">${stats.icon}</div>
+            <div class="category-details">
+                <h4>${stats.name}</h4>
+                <div class="category-stats">
+                    <span>📦 ${stats.count} products</span>
+                    <span>📊 ${stats.items} units</span>
+                    <span>💰 ${formatCurrency(stats.value)}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+
+
+
+
+function generateReorderReport(inventory) {
+    const toReorder = inventory.filter(item => 
+        item.quantity <= (item.minStock || 10)
+    ).sort((a, b) => a.quantity - b.quantity);
+    
+    return `
+        <div class="report">
+            <h4>Reorder Recommendations</h4>
+            
+            ${toReorder.length === 0 ? 
+                '<p class="success">✅ No items need reordering</p>' :
+                `
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Current Stock</th>
+                            <th>Min Stock</th>
+                            <th>Recommended Order</th>
+                            <th>Supplier</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${toReorder.map(item => {
+                            const recommended = (item.maxStock || 100) - item.quantity;
+                            return `
+                                <tr>
+                                    <td>${escapeHtml(item.name)}</td>
+                                    <td class="warning">${item.quantity}</td>
+                                    <td>${item.minStock || 10}</td>
+                                    <td>${Math.max(recommended, item.minStock * 2)}</td>
+                                    <td>${item.supplier || 'Not specified'}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+                `
+            }
+        </div>
+    `;
+}
+
+// ========== ALERT MANAGEMENT ==========
+function checkInventoryAlerts() {
+    const inventory = farmData.inventory || [];
+    
+    const lowStock = inventory.filter(item => 
+        item.quantity <= (item.minStock || INVENTORY_CONFIG.lowStockThreshold) && item.quantity > 0
+    );
+    
+    const outOfStock = inventory.filter(item => item.quantity === 0);
+    
+    const expiring = inventory.filter(item => {
+        if (!item.expiryDate) return false;
+        const daysUntilExpiry = Math.ceil((new Date(item.expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
+        return daysUntilExpiry <= 30 && daysUntilExpiry > 0;
+    });
+    
+    const overstock = inventory.filter(item => 
+        item.maxStock && item.quantity > item.maxStock
+    );
+    
+    // Store alerts
+    farmData.alerts = {
+        lowStock,
+        outOfStock,
+        expiring,
+        overstock,
+        total: lowStock.length + outOfStock.length + expiring.length + overstock.length,
+        timestamp: new Date().toISOString()
+    };
+    
+    // Show notification if there are alerts
+    if (farmData.alerts.total > 0) {
+        showNotification(`⚠️ ${farmData.alerts.total} inventory alerts need attention`, 'warning');
+    }
+    
+    return farmData.alerts;
+}
+
+function renderAlertsTab() {
+    const alerts = farmData.alerts || checkInventoryAlerts();
+    const container = document.getElementById('alertsList');
+    if (!container) return;
+    
+    const alertSections = [
+        {
+            title: '🟠 Low Stock',
+            items: alerts.lowStock,
+            icon: '⚠️',
+            class: 'warning',
+            action: 'Restock'
+        },
+        {
+            title: '🔴 Out of Stock',
+            items: alerts.outOfStock,
+            icon: '❌',
+            class: 'danger',
+            action: 'Order'
+        },
+        {
+            title: '🟡 Expiring Soon',
+            items: alerts.expiring,
+            icon: '📅',
+            class: 'warning',
+            action: 'Check'
+        },
+        {
+            title: '🔵 Overstock',
+            items: alerts.overstock,
+            icon: '📦',
+            class: 'info',
+            action: 'Reduce'
+        }
+    ];
+    
+    container.innerHTML = alertSections.map(section => `
+        <div class="alert-section">
+            <h4>${section.title} (${section.items.length})</h4>
+            ${section.items.length === 0 ? 
+                '<p class="no-alerts">No alerts</p>' :
+                section.items.map(item => `
+                    <div class="alert-item ${section.class}">
+                        <div class="alert-content">
+                            <strong>${escapeHtml(item.name)}</strong>
+                            ${section.title === '🔴 Out of Stock' ? 
+                                '<span>Out of stock</span>' :
+                                section.title === '🟠 Low Stock' ?
+                                `<span>Stock: ${item.quantity} (Min: ${item.minStock || 10})</span>` :
+                                section.title === '🟡 Expiring Soon' ?
+                                `<span>Expires: ${formatDate(item.expiryDate)}</span>` :
+                                `<span>Stock: ${item.quantity} (Max: ${item.maxStock})</span>`
+                            }
+                        </div>
+                        <button onclick="handleAlertAction('${section.action}', '${item.id}')" 
+                                class="btn-small">
+                            ${section.action}
+                        </button>
+                    </div>
+                `).join('')
+            }
+        </div>
+    `).join('');
+}
+
+function handleAlertAction(action, productId) {
+    switch(action) {
+        case 'Restock':
+        case 'Order':
+            adjustStock(productId);
+            break;
+        case 'Check':
+            viewProductDetails(productId);
+            break;
+        case 'Reduce':
+            adjustStock(productId);
+            break;
+    }
+}
+
+// ========== PRODUCT HISTORY ==========
+function viewProductHistory(productId) {
+    const product = farmData.inventory.find(p => p.id === productId);
+    if (!product) return;
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal modal-large';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Stock History: ${escapeHtml(product.name)}</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="product-info">
+                    <p><strong>SKU:</strong> ${product.sku || 'N/A'}</p>
+                    <p><strong>Current Stock:</strong> ${product.quantity}</p>
+                    <p><strong>Added:</strong> ${formatDate(product.added)}</p>
+                    <p><strong>Last Updated:</strong> ${formatDate(product.updated)}</p>
+                </div>
+                
+                <h4>Transaction History</h4>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Change</th>
+                            <th>New Stock</th>
+                            <th>Reason</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${(product.transactions || []).map(t => `
+                            <tr>
+                                <td>${formatDate(t.date)}</td>
+                                <td>${t.type}</td>
+                                <td class="${t.type === 'add' ? 'positive' : 'negative'}">
+                                    ${t.type === 'add' ? '+' : '-'}${t.quantity}
+                                </td>
+                                <td>${t.newQuantity}</td>
+                                <td>${t.reason}</td>
+                                <td>${t.notes || '-'}</td>
+                            </tr>
+                        `).join('')}
+                        ${(!product.transactions || product.transactions.length === 0) ?
+                            '<tr><td colspan="6">No transaction history</td></tr>' : ''
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+// ========== EXPORT FUNCTIONS ==========
+function exportInventory() {
+    const inventory = farmData.inventory || [];
+    
+    const data = inventory.map(item => ({
+        'SKU': item.sku,
+        'Name': item.name,
+        'Category': item.category,
+        'Quantity': item.quantity,
+        'Unit': getUnit(item.category),
+        'Price': item.price,
+        'Cost': item.cost || '',
+        'Value': item.quantity * item.price,
+        'Location': item.location || '',
+        'Supplier': item.supplier || '',
+        'Min Stock': item.minStock || '',
+        'Max Stock': item.maxStock || '',
+        'Expiry Date': item.expiryDate || '',
+        'Status': item.status,
+        'Added': item.added,
+        'Last Updated': item.updated || ''
+    }));
+    
+    const csv = convertToCSV(data);
+    downloadFile(`inventory_${new Date().toISOString().split('T')[0]}.csv`, csv);
+    showNotification('Inventory exported successfully', 'success');
+}
+
+function convertToCSV(data) {
+    if (data.length === 0) return '';
+    
+    const headers = Object.keys(data[0]);
+    const rows = data.map(row => 
+        headers.map(header => JSON.stringify(row[header] || '')).join(',')
+    );
+    
+    return [headers.join(','), ...rows].join('\n');
+}
+
+function downloadFile(filename, content) {
+    const blob = new Blob([content], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// ========== HELPER FUNCTIONS ==========
+function getElement(id) {
+    return document.getElementById(id);
+}
+
+function updateElement(id, value) {
+    const el = getElement(id);
+    if (el) el.textContent = value;
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('en-BW', {
+        style: 'currency',
+        currency: 'BWP',
+        minimumFractionDigits: 2
+    }).format(amount || 0);
+}
+
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    try {
+        return new Date(dateString).toLocaleDateString('en-BW', INVENTORY_CONFIG.dateFormat);
+    } catch {
+        return 'Invalid date';
+    }
+}
+
+function getUnit(category) {
+    return INVENTORY_CONFIG.units[category] || 'units';
+}
+
+function getStockClass(item) {
+    if (item.quantity === 0) return 'out';
+    if (item.quantity <= (item.minStock || INVENTORY_CONFIG.lowStockThreshold)) return 'low';
+    if (item.maxStock && item.quantity > item.maxStock) return 'over';
+    return 'normal';
+}
+
+function calculateMargin(price, cost) {
+    if (!cost || cost === 0) return 'N/A';
+    return ((price - cost) / cost * 100).toFixed(1);
+}
+
+function isExpiringSoon(dateString) {
+    if (!dateString) return false;
+    const daysUntil = Math.ceil((new Date(dateString) - new Date()) / (1000 * 60 * 60 * 24));
+    return daysUntil <= 30 && daysUntil > 0;
+}
+
+function getExpiryWarning(dateString) {
+    if (!dateString) return '';
+    const daysUntil = Math.ceil((new Date(dateString) - new Date()) / (1000 * 60 * 60 * 24));
+    if (daysUntil <= 7) return '<span class="badge danger">Expiring soon!</span>';
+    if (daysUntil <= 30) return '<span class="badge warning">Expiring in ' + daysUntil + ' days</span>';
+    return '';
+}
+
+// ========== INITIALIZATION ==========
+document.addEventListener('DOMContentLoaded', function() {
+    // Load inventory if on inventory page
+    if (window.location.hash === '#inventory') {
+        loadInventoryOverview();
+        checkInventoryAlerts();
+    }
+});
+// =============================================
+// MISSING INVENTORY FUNCTIONS - COMPLETE
+// =============================================
+
+/**
+ * Filter inventory based on search and filters
+ */
+function filterInventory() {
+    loadInventoryList('manage');
+}
+
+/**
+ * Edit product
+ * @param {string} productId - Product ID to edit
+ */
+function editProduct(productId) {
+    const product = farmData.inventory.find(p => p.id === productId);
+    if (!product) return;
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Product: ${escapeHtml(product.name)}</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editProductForm" onsubmit="saveProductEdit('${productId}', event)">
+                    <div class="form-group">
+                        <label>Product Name:</label>
+                        <input type="text" id="edit_name" value="${escapeHtml(product.name)}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Category:</label>
+                        <select id="edit_category" required>
+                            ${Object.entries(INVENTORY_CONFIG.categories).map(([value, cat]) => 
+                                `<option value="${value}" ${product.category === value ? 'selected' : ''}>
+                                    ${cat.icon} ${cat.name}
+                                </option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Price (Pula):</label>
+                            <input type="number" id="edit_price" step="0.01" value="${product.price}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Cost Price:</label>
+                            <input type="number" id="edit_cost" step="0.01" value="${product.cost || ''}">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Description:</label>
+                        <textarea id="edit_description" rows="3">${product.description || ''}</textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Supplier:</label>
+                        <input type="text" id="edit_supplier" value="${product.supplier || ''}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Location:</label>
+                        <input type="text" id="edit_location" value="${product.location || ''}">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Min Stock:</label>
+                            <input type="number" id="edit_minStock" value="${product.minStock || 10}">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Max Stock:</label>
+                            <input type="number" id="edit_maxStock" value="${product.maxStock || 100}">
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Save Changes</button>
+                        <button type="button" onclick="this.closest('.modal').remove()" class="btn-outline">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+/**
+ * Save product edits
+ * @param {string} productId - Product ID
+ * @param {Event} event - Form submit event
+ */
+function saveProductEdit(productId, event) {
+    event.preventDefault();
+    
+    const product = farmData.inventory.find(p => p.id === productId);
+    if (!product) return;
+    
+    // Update product with new values
+    product.name = document.getElementById('edit_name').value.trim();
+    product.category = document.getElementById('edit_category').value;
+    product.price = parseFloat(document.getElementById('edit_price').value);
+    product.cost = parseFloat(document.getElementById('edit_cost').value) || product.cost;
+    product.description = document.getElementById('edit_description').value.trim();
+    product.supplier = document.getElementById('edit_supplier').value.trim();
+    product.location = document.getElementById('edit_location').value.trim();
+    product.minStock = parseInt(document.getElementById('edit_minStock').value) || 10;
+    product.maxStock = parseInt(document.getElementById('edit_maxStock').value) || 100;
+    product.updated = new Date().toISOString();
+    
+    if (safeSaveData()) {
+        showNotification('Product updated successfully', 'success');
+        document.querySelector('.modal').remove();
+        loadInventoryList('manage');
+        loadInventoryOverview();
+    } else {
+        showNotification('Failed to update product', 'error');
+    }
+}
+
+/**
+ * View product details
+ * @param {string} productId - Product ID
+ */
+function viewProductDetails(productId) {
+    const product = farmData.inventory.find(p => p.id === productId);
+    if (!product) return;
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal modal-large';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Product Details: ${escapeHtml(product.name)}</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">SKU:</span>
+                        <span class="detail-value">${product.sku || 'N/A'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Category:</span>
+                        <span class="detail-value">${INVENTORY_CONFIG.categories[product.category]?.name || product.category}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Current Stock:</span>
+                        <span class="detail-value ${getStockClass(product)}">${product.quantity} ${getUnit(product.category)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Price:</span>
+                        <span class="detail-value">${formatCurrency(product.price)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Cost Price:</span>
+                        <span class="detail-value">${formatCurrency(product.cost || 0)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Profit Margin:</span>
+                        <span class="detail-value">${calculateMargin(product.price, product.cost)}%</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Min Stock:</span>
+                        <span class="detail-value">${product.minStock || 10}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Max Stock:</span>
+                        <span class="detail-value">${product.maxStock || 100}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Location:</span>
+                        <span class="detail-value">${product.location || 'Not specified'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Supplier:</span>
+                        <span class="detail-value">${product.supplier || 'Not specified'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Added:</span>
+                        <span class="detail-value">${formatDate(product.added)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Last Updated:</span>
+                        <span class="detail-value">${formatDate(product.updated)}</span>
+                    </div>
+                    ${product.expiryDate ? `
+                    <div class="detail-item">
+                        <span class="detail-label">Expiry Date:</span>
+                        <span class="detail-value ${isExpiringSoon(product.expiryDate) ? 'warning' : ''}">
+                            ${formatDate(product.expiryDate)}
+                            ${getExpiryWarning(product.expiryDate)}
+                        </span>
+                    </div>
+                    ` : ''}
+                </div>
+                
+                ${product.description ? `
+                <div class="detail-section">
+                    <h4>Description</h4>
+                    <p>${escapeHtml(product.description)}</p>
+                </div>
+                ` : ''}
+                
+                ${product.image ? `
+                <div class="detail-section">
+                    <h4>Product Image</h4>
+                    <img src="${product.image.data}" alt="${escapeHtml(product.name)}" class="product-detail-image">
+                </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+/**
+ * Toggle adjustment fields in modal
+ */
+function toggleAdjustmentFields() {
+    const type = document.getElementById('adjustmentType')?.value;
+    const quantityField = document.getElementById('quantityField');
+    const reasonField = document.getElementById('reasonField');
+    
+    if (type === 'set') {
+        quantityField.style.display = 'block';
+        reasonField.style.display = 'none';
+    } else {
+        quantityField.style.display = 'block';
+        reasonField.style.display = 'block';
+    }
+}
+
+/**
+ * Restock product (quick action)
+ * @param {string} productId - Product ID
+ */
+function restockProduct(productId) {
+    adjustStock(productId);
+}
+
+/**
+ * Filter by category
+ * @param {string} category - Category to filter
+ */
+function filterByCategory(category) {
+    // Switch to manage tab
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        if (btn.textContent.includes('Manage')) {
+            btn.click();
+        }
+    });
+    
+    // Set category filter
+    setTimeout(() => {
+        const filter = document.getElementById('categoryFilter');
+        if (filter) {
+            filter.value = category;
+            filterInventory();
+        }
+    }, 100);
+}
+
+/**
+ * Filter alerts
+ * @param {string} type - Alert type to filter
+ */
+function filterAlerts(type) {
+    // Update active filter button
+    document.querySelectorAll('.alert-filter').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    const alerts = farmData.alerts || checkInventoryAlerts();
+    const container = document.getElementById('alertsList');
+    if (!container) return;
+    
+    let filteredItems = [];
+    let title = '';
+    
+    switch(type) {
+        case 'all':
+            renderAlertsTab();
+            return;
+        case 'low':
+            filteredItems = alerts.lowStock;
+            title = 'Low Stock Items';
+            break;
+        case 'expiring':
+            filteredItems = alerts.expiring;
+            title = 'Expiring Soon';
+            break;
+        case 'overstock':
+            filteredItems = alerts.overstock;
+            title = 'Overstock Items';
+            break;
+    }
+    
+    container.innerHTML = `
+        <div class="alert-section">
+            <h4>${title} (${filteredItems.length})</h4>
+            ${filteredItems.length === 0 ? 
+                '<p class="no-alerts">No alerts</p>' :
+                filteredItems.map(item => `
+                    <div class="alert-item ${type === 'low' ? 'warning' : type === 'expiring' ? 'warning' : 'info'}">
+                        <div class="alert-content">
+                            <strong>${escapeHtml(item.name)}</strong>
+                            ${type === 'low' ? 
+                                `<span>Stock: ${item.quantity} (Min: ${item.minStock || 10})</span>` :
+                                type === 'expiring' ?
+                                `<span>Expires: ${formatDate(item.expiryDate)}</span>` :
+                                `<span>Stock: ${item.quantity} (Max: ${item.maxStock})</span>`
+                            }
+                        </div>
+                        <button onclick="adjustStock('${item.id}')" class="btn-small">
+                            ${type === 'low' ? 'Restock' : type === 'expiring' ? 'Check' : 'Reduce'}
+                        </button>
+                    </div>
+                `).join('')
+            }
+        </div>
+    `;
+}
+
+/**
+ * Show bulk update modal
+ */
+function showBulkUpdate() {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Bulk Stock Update</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Upload a CSV file with columns: SKU, Quantity, Price (optional)</p>
+                
+                <div class="form-group">
+                    <label>Choose CSV File:</label>
+                    <input type="file" id="bulkFile" accept=".csv" onchange="previewBulkUpdate()">
+                </div>
+                
+                <div id="bulkPreview" class="bulk-preview"></div>
+                
+                <div class="modal-actions">
+                    <button onclick="processBulkUpdate()" class="btn-primary" id="processBulkBtn" disabled>Process Update</button>
+                    <button onclick="downloadBulkTemplate()" class="btn-outline">Download Template</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+/**
+ * Preview bulk update
+ */
+function previewBulkUpdate() {
+    const file = document.getElementById('bulkFile').files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const content = e.target.result;
+        const rows = content.split('\n').map(row => row.split(','));
+        const headers = rows[0].map(h => h.trim());
+        
+        // Validate headers
+        if (!headers.includes('SKU') || !headers.includes('Quantity')) {
+            showNotification('Invalid CSV format. Required columns: SKU, Quantity', 'error');
+            return;
+        }
+        
+        const preview = document.getElementById('bulkPreview');
+        const updates = [];
+        
+        for (let i = 1; i < rows.length; i++) {
+            if (rows[i].length < 2) continue;
+            
+            const row = {};
+            headers.forEach((header, index) => {
+                row[header.toLowerCase()] = rows[i][index]?.trim();
+            });
+            
+            const product = farmData.inventory.find(p => p.sku === row.sku);
+            if (product) {
+                updates.push({
+                    sku: row.sku,
+                    name: product.name,
+                    currentStock: product.quantity,
+                    newStock: parseInt(row.quantity) || product.quantity,
+                    newPrice: parseFloat(row.price) || product.price
+                });
+            }
+        }
+        
+        window.bulkUpdates = updates;
+        
+        preview.innerHTML = `
+            <h4>Preview (${updates.length} items to update)</h4>
+            <table class="preview-table">
+                <thead>
+                    <tr>
+                        <th>SKU</th>
+                        <th>Product</th>
+                        <th>Current Stock</th>
+                        <th>New Stock</th>
+                        <th>New Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${updates.map(u => `
+                        <tr>
+                            <td>${u.sku}</td>
+                            <td>${escapeHtml(u.name)}</td>
+                            <td>${u.currentStock}</td>
+                            <td>${u.newStock}</td>
+                            <td>${formatCurrency(u.newPrice)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+        
+        document.getElementById('processBulkBtn').disabled = false;
+    };
+    
+    reader.readAsText(file);
+}
+
+/**
+ * Process bulk update
+ */
+function processBulkUpdate() {
+    if (!window.bulkUpdates || window.bulkUpdates.length === 0) {
+        showNotification('No updates to process', 'error');
+        return;
+    }
+    
+    let updated = 0;
+    
+    window.bulkUpdates.forEach(update => {
+        const product = farmData.inventory.find(p => p.sku === update.sku);
+        if (product) {
+            // Record transaction
+            if (!product.transactions) product.transactions = [];
+            product.transactions.push({
+                date: new Date().toISOString(),
+                type: 'bulk',
+                oldQuantity: product.quantity,
+                newQuantity: update.newStock,
+                quantity: update.newStock - product.quantity,
+                reason: 'bulk update',
+                notes: 'Bulk CSV update'
+            });
+            
+            product.quantity = update.newStock;
+            product.price = update.newPrice;
+            product.updated = new Date().toISOString();
+            updated++;
+        }
+    });
+    
+    if (safeSaveData()) {
+        showNotification(`Successfully updated ${updated} products`, 'success');
+        document.querySelector('.modal').remove();
+        loadInventoryList('manage');
+        loadInventoryOverview();
+        checkInventoryAlerts();
+    } else {
+        showNotification('Failed to save bulk updates', 'error');
+    }
+}
+
+/**
+ * Download bulk update template
+ */
+function downloadBulkTemplate() {
+    const headers = ['SKU', 'Quantity', 'Price'];
+    const rows = [headers];
+    
+    // Add existing products as example
+    (farmData.inventory || []).slice(0, 5).forEach(product => {
+        rows.push([product.sku || '', '', '']);
+    });
+    
+    const csv = rows.map(row => row.join(',')).join('\n');
+    downloadFile('bulk_update_template.csv', csv);
+}
+
+/**
+ * Export report
+ */
+function exportReport() {
+    const reportType = document.getElementById('reportType')?.value || 'summary';
+    const reportContent = document.getElementById('reportContent')?.innerHTML;
+    
+    // Simple export - you can enhance this to generate PDF/Excel
+    const style = `
+        <style>
+            body { font-family: Arial; padding: 20px; }
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background: #f5f5f5; }
+        </style>
+    `;
+    
+    const html = `
+        <html>
+            <head><title>Inventory Report - ${reportType}</title>${style}</head>
+            <body>${reportContent}</body>
+        </html>
+    `;
+    
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `inventory_report_${reportType}_${new Date().toISOString().split('T')[0]}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    showNotification('Report exported successfully', 'success');
+}
+
+/**
+ * Print report
+ */
+function printReport() {
+    const reportContent = document.getElementById('reportContent')?.innerHTML;
+    if (!reportContent) return;
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Inventory Report</title>
+                <style>
+                    body { font-family: Arial; padding: 20px; }
+                    table { border-collapse: collapse; width: 100%; }
+                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                    th { background: #f5f5f5; }
+                    .report { max-width: 1200px; margin: 0 auto; }
+                    @media print {
+                        body { margin: 0; padding: 0.5in; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="report">
+                    <h1>Inventory Report</h1>
+                    <p>Generated: ${new Date().toLocaleString()}</p>
+                    ${reportContent}
+                </div>
+            </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+}
+
+/**
+ * Generate valuation report
+ * @param {Array} inventory - Inventory array
+ * @returns {string} HTML report
+ */
+function generateValuationReport(inventory) {
+    const totalValue = inventory.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+    const totalCost = inventory.reduce((sum, item) => sum + (item.quantity * (item.cost || 0)), 0);
+    const potentialProfit = totalValue - totalCost;
+    
+    return `
+        <div class="report">
+            <h4>Inventory Valuation Report</h4>
+            
+            <div class="report-stats">
+                <div class="stat-row">
+                    <span>Total Products:</span>
+                    <strong>${inventory.length}</strong>
+                </div>
+                <div class="stat-row">
+                    <span>Total Units:</span>
+                    <strong>${inventory.reduce((sum, item) => sum + item.quantity, 0)}</strong>
+                </div>
+                <div class="stat-row">
+                    <span>Total Value (Selling Price):</span>
+                    <strong>${formatCurrency(totalValue)}</strong>
+                </div>
+                <div class="stat-row">
+                    <span>Total Cost:</span>
+                    <strong>${formatCurrency(totalCost)}</strong>
+                </div>
+                <div class="stat-row highlight">
+                    <span>Potential Profit:</span>
+                    <strong>${formatCurrency(potentialProfit)}</strong>
+                </div>
+            </div>
+            
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>SKU</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Unit Cost</th>
+                        <th>Total Value</th>
+                        <th>Total Cost</th>
+                        <th>Profit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${inventory.map(item => {
+                        const itemValue = item.quantity * item.price;
+                        const itemCost = item.quantity * (item.cost || 0);
+                        const itemProfit = itemValue - itemCost;
+                        return `
+                            <tr>
+                                <td>${escapeHtml(item.name)}</td>
+                                <td>${item.sku || 'N/A'}</td>
+                                <td>${item.quantity}</td>
+                                <td>${formatCurrency(item.price)}</td>
+                                <td>${formatCurrency(item.cost || 0)}</td>
+                                <td>${formatCurrency(itemValue)}</td>
+                                <td>${formatCurrency(itemCost)}</td>
+                                <td class="${itemProfit >= 0 ? 'positive' : 'negative'}">
+                                    ${formatCurrency(itemProfit)}
+                                </td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+/**
+ * Generate movement report
+ * @param {Array} inventory - Inventory array
+ * @param {Array} sales - Sales array
+ * @param {string} startDate - Start date filter
+ * @param {string} endDate - End date filter
+ * @returns {string} HTML report
+ */
+function generateMovementReport(inventory, sales, startDate, endDate) {
+    // Filter sales by date
+    let filteredSales = sales;
+    if (startDate && endDate) {
+        filteredSales = sales.filter(s => 
+            s.date >= startDate && s.date <= endDate
+        );
+    }
+    
+    // Calculate movement for each product
+    const movement = {};
+    
+    filteredSales.forEach(sale => {
+        sale.items.forEach(item => {
+            if (!movement[item.name]) {
+                movement[item.name] = {
+                    sold: 0,
+                    revenue: 0
+                };
+            }
+            movement[item.name].sold += item.quantity || 0;
+            movement[item.name].revenue += (item.price * (item.quantity || 0));
+        });
+    });
+    
+    return `
+        <div class="report">
+            <h4>Stock Movement Report</h4>
+            <p>Period: ${startDate ? formatDate(startDate) : 'All time'} to ${endDate ? formatDate(endDate) : 'present'}</p>
+            
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Units Sold</th>
+                        <th>Revenue</th>
+                        <th>Current Stock</th>
+                        <th>Turnover Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${Object.entries(movement).map(([name, data]) => {
+                        const product = inventory.find(p => p.name === name);
+                        const turnoverRate = product ? (data.sold / (product.quantity + data.sold) * 100).toFixed(1) : 0;
+                        return `
+                            <tr>
+                                <td>${escapeHtml(name)}</td>
+                                <td>${data.sold}</td>
+                                <td>${formatCurrency(data.revenue)}</td>
+                                <td>${product ? product.quantity : 'N/A'}</td>
+                                <td>${turnoverRate}%</td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+/**
+ * Generate expiry report
+ * @param {Array} inventory - Inventory array
+ * @returns {string} HTML report
+ */
+function generateExpiryReport(inventory) {
+    const expiringItems = inventory
+        .filter(item => item.expiryDate)
+        .map(item => ({
+            ...item,
+            daysUntilExpiry: Math.ceil((new Date(item.expiryDate) - new Date()) / (1000 * 60 * 60 * 24))
+        }))
+        .filter(item => item.daysUntilExpiry > 0)
+        .sort((a, b) => a.daysUntilExpiry - b.daysUntilExpiry);
+    
+    return `
+        <div class="report">
+            <h4>Expiry Report</h4>
+            
+            ${expiringItems.length === 0 ? 
+                '<p>No items with expiry dates</p>' :
+                `
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Batch</th>
+                            <th>Quantity</th>
+                            <th>Expiry Date</th>
+                            <th>Days Left</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${expiringItems.map(item => {
+                            let status = 'normal';
+                            let statusClass = '';
+                            if (item.daysUntilExpiry <= 7) {
+                                status = 'Critical';
+                                statusClass = 'danger';
+                            } else if (item.daysUntilExpiry <= 30) {
+                                status = 'Warning';
+                                statusClass = 'warning';
+                            }
+                            
+                            return `
+                                <tr>
+                                    <td>${escapeHtml(item.name)}</td>
+                                    <td>${item.batch || 'N/A'}</td>
+                                    <td>${item.quantity}</td>
+                                    <td>${formatDate(item.expiryDate)}</td>
+                                    <td>${item.daysUntilExpiry}</td>
+                                    <td class="${statusClass}">${status}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+                `
+            }
+        </div>
+    `;
+}
+
+// Make all functions globally available
+window.filterInventory = filterInventory;
+window.editProduct = editProduct;
+window.saveProductEdit = saveProductEdit;
+window.viewProductDetails = viewProductDetails;
+window.toggleAdjustmentFields = toggleAdjustmentFields;
+window.restockProduct = restockProduct;
+window.filterByCategory = filterByCategory;
+window.filterAlerts = filterAlerts;
+window.showBulkUpdate = showBulkUpdate;
+window.previewBulkUpdate = previewBulkUpdate;
+window.processBulkUpdate = processBulkUpdate;
+window.downloadBulkTemplate = downloadBulkTemplate;
+window.exportReport = exportReport;
+window.printReport = printReport;
+window.generateValuationReport = generateValuationReport;
+window.generateMovementReport = generateMovementReport;
+window.generateExpiryReport = generateExpiryReport;
+// =============================================
+// FIXED INVENTORY FUNCTIONS
+// =============================================
+
+/**
+ * Load inventory list (basic version for backward compatibility)
+ */
+function loadInventory() {
+    const inventoryList = document.getElementById('inventoryList');
+    if (!inventoryList) return;
+    
+    if (!farmData.inventory) farmData.inventory = [];
+    
+    if (farmData.inventory.length === 0) {
+        inventoryList.innerHTML = '<div class="empty-state">No inventory items</div>';
+        return;
+    }
+    
+    inventoryList.innerHTML = farmData.inventory.map((item, index) => {
+        let statusClass = '';
+        if (item.quantity === 0) statusClass = 'out-of-stock';
+        else if (item.quantity < (item.minStock || 10)) statusClass = 'low-stock';
+        
+        return `
+            <div class="inventory-item ${statusClass}">
+                <h4>${escapeHtml(item.name)}</h4>
+                <div class="muted">${item.category}</div>
+                <div><strong>Quantity:</strong> ${item.quantity}</div>
+                <div><strong>Price:</strong> ${formatCurrency(item.price)}</div>
+                <div><strong>Value:</strong> ${formatCurrency(item.quantity * item.price)}</div>
+                <button onclick="removeProduct('${item.id || index}')" class="small btn-outline">Remove</button>
+            </div>
+        `;
+    }).join('');
+}
+
+/**
+ * Remove product from inventory
+ * @param {string|number} identifier - Product ID or index
+ */
+function removeProduct(identifier) {
+    if (!confirm('Are you sure you want to remove this product?')) return;
+    
+    let index = -1;
+    
+    // Find product by ID or index
+    if (typeof identifier === 'string' && identifier.startsWith('PRD_')) {
+        index = farmData.inventory.findIndex(p => p.id === identifier);
+    } else {
+        index = parseInt(identifier);
+    }
+    
+    if (index >= 0 && index < farmData.inventory.length) {
+        const product = farmData.inventory[index];
         farmData.inventory.splice(index, 1);
+        
         if (safeSaveData()) {
-            loadInventory();
-            showNotification('Product removed!');
+            showNotification(`✅ ${product.name} removed successfully`, 'success');
+            loadInventory(); // Reload basic view
+            loadInventoryOverview(); // Reload overview
+            checkInventoryAlerts(); // Update alerts
         } else {
-            showNotification('Failed to remove product.', 'error');
+            showNotification('Failed to remove product', 'error');
         }
     }
 }
 
+// =============================================
+// FIXED INVENTORY OVERVIEW
+// =============================================
+
+/**
+ * Load inventory overview with correct data
+ */
+function loadInventoryOverview() {
+    const inventory = farmData.inventory || [];
+    
+    // Update stats
+    const totalProducts = inventory.length;
+    const totalValue = inventory.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+    const lowStockCount = inventory.filter(item => 
+        item.quantity <= (item.minStock || INVENTORY_CONFIG.lowStockThreshold) && item.quantity > 0
+    ).length;
+    const outOfStockCount = inventory.filter(item => item.quantity === 0).length;
+    
+    updateElement('totalProducts', totalProducts);
+    updateElement('totalValue', formatCurrency(totalValue));
+    updateElement('lowStockCount', lowStockCount);
+    updateElement('outOfStockCount', outOfStockCount);
+    updateElement('categoryCount', countCategories(inventory));
+    
+    // Load recent additions
+    loadRecentAdditions(inventory);
+    
+    // Load low stock alerts
+    loadLowStockAlerts(inventory);
+    
+    // Load category distribution
+    loadCategoryDistribution(inventory);
+    
+    // Load top products
+    loadTopProducts(inventory);
+}
+
+/**
+ * Count unique categories in inventory
+ */
+function countCategories(inventory) {
+    const categories = new Set(inventory.map(item => item.category));
+    return categories.size;
+}
+
+/**
+ * Load recent additions to inventory
+ */
+function loadRecentAdditions(inventory) {
+    const container = document.getElementById('recentAdditions');
+    if (!container) return;
+    
+    const recent = [...inventory]
+        .sort((a, b) => new Date(b.added || 0) - new Date(a.added || 0))
+        .slice(0, 5);
+    
+    if (recent.length === 0) {
+        container.innerHTML = '<div class="empty-message">No products added yet</div>';
+        return;
+    }
+    
+    container.innerHTML = recent.map(item => `
+        <div class="recent-item" onclick="viewProductDetails('${item.id}')">
+            <div class="recent-info">
+                <strong>${escapeHtml(item.name)}</strong>
+                <small>Added: ${formatDate(item.added)}</small>
+            </div>
+            <span class="recent-value">${formatCurrency(item.price)}</span>
+        </div>
+    `).join('');
+}
+
+/**
+ * Load low stock alerts for overview
+ */
+function loadLowStockAlerts(inventory) {
+    const container = document.getElementById('lowStockAlerts');
+    if (!container) return;
+    
+    const lowStock = inventory.filter(item => 
+        item.quantity <= (item.minStock || INVENTORY_CONFIG.lowStockThreshold) && item.quantity > 0
+    ).slice(0, 5);
+    
+    const outOfStock = inventory.filter(item => item.quantity === 0).slice(0, 3);
+    
+    if (lowStock.length === 0 && outOfStock.length === 0) {
+        container.innerHTML = '<div class="empty-message">No stock alerts</div>';
+        return;
+    }
+    
+    let html = '';
+    
+    if (outOfStock.length > 0) {
+        html += '<div class="alert-section"><h5>🔴 Out of Stock</h5>';
+        outOfStock.forEach(item => {
+            html += `
+                <div class="alert-item danger" onclick="viewProductDetails('${item.id}')">
+                    <span>${escapeHtml(item.name)}</span>
+                    <button onclick="event.stopPropagation(); adjustStock('${item.id}')" class="btn-small">Restock</button>
+                </div>
+            `;
+        });
+        html += '</div>';
+    }
+    
+    if (lowStock.length > 0) {
+        html += '<div class="alert-section"><h5>🟠 Low Stock</h5>';
+        lowStock.forEach(item => {
+            html += `
+                <div class="alert-item warning" onclick="viewProductDetails('${item.id}')">
+                    <span>${escapeHtml(item.name)} (${item.quantity} left)</span>
+                    <button onclick="event.stopPropagation(); adjustStock('${item.id}')" class="btn-small">Restock</button>
+                </div>
+            `;
+        });
+        html += '</div>';
+    }
+    
+    container.innerHTML = html;
+}
+
+/**
+ * Load category distribution chart
+ */
+function loadCategoryDistribution(inventory) {
+    const container = document.getElementById('categoryChart');
+    if (!container) return;
+    
+    if (inventory.length === 0) {
+        container.innerHTML = '<div class="empty-message">No products to display</div>';
+        return;
+    }
+    
+    const distribution = {};
+    inventory.forEach(item => {
+        distribution[item.category] = (distribution[item.category] || 0) + 1;
+    });
+    
+    const total = inventory.length;
+    
+    container.innerHTML = Object.entries(distribution).map(([category, count]) => {
+        const percentage = (count / total * 100).toFixed(1);
+        const catInfo = INVENTORY_CONFIG.categories[category] || { icon: '📦', name: category };
+        return `
+            <div class="category-bar" onclick="filterByCategory('${category}')">
+                <div class="category-label">
+                    <span>${catInfo.icon} ${catInfo.name}</span>
+                    <span>${count} items (${percentage}%)</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${percentage}%"></div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+/**
+ * Load top products by value
+ */
+function loadTopProducts(inventory) {
+    const container = document.getElementById('topProducts');
+    if (!container) return;
+    
+    const topProducts = [...inventory]
+        .sort((a, b) => (b.quantity * b.price) - (a.quantity * a.price))
+        .slice(0, 5);
+    
+    if (topProducts.length === 0) {
+        container.innerHTML = '<div class="empty-message">No products</div>';
+        return;
+    }
+    
+    container.innerHTML = topProducts.map(item => `
+        <div class="top-product" onclick="viewProductDetails('${item.id}')">
+            <div class="product-rank">
+                <span class="product-name">${escapeHtml(item.name)}</span>
+                <span class="product-value">${formatCurrency(item.quantity * item.price)}</span>
+            </div>
+            <div class="product-stats">
+                <small>${item.quantity} units @ ${formatCurrency(item.price)}</small>
+            </div>
+        </div>
+    `).join('');
+}
+
+// =============================================
+// FIXED INVENTORY REPORTS
+// =============================================
+
+/**
+ * Generate inventory reports (not finance)
+ */
+function generateInventoryReports() {
+    const reportType = document.getElementById('reportType')?.value || 'summary';
+    const container = document.getElementById('reportContent');
+    if (!container) return;
+    
+    const inventory = farmData.inventory || [];
+    const sales = farmData.sales || [];
+    
+    let reportHTML = '';
+    
+    switch(reportType) {
+        case 'summary':
+            reportHTML = generateInventorySummaryReport(inventory);
+            break;
+        case 'valuation':
+            reportHTML = generateInventoryValuationReport(inventory);
+            break;
+        case 'movement':
+            reportHTML = generateInventoryMovementReport(inventory, sales);
+            break;
+        case 'expiry':
+            reportHTML = generateInventoryExpiryReport(inventory);
+            break;
+        case 'reorder':
+            reportHTML = generateInventoryReorderReport(inventory);
+            break;
+        default:
+            reportHTML = generateInventorySummaryReport(inventory);
+    }
+    
+    container.innerHTML = reportHTML;
+}
+
+/**
+ * Generate inventory summary report
+ */
+function generateInventorySummaryReport(inventory) {
+    const totalItems = inventory.reduce((sum, item) => sum + item.quantity, 0);
+    const totalValue = inventory.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+    const totalCost = inventory.reduce((sum, item) => sum + (item.quantity * (item.cost || 0)), 0);
+    const potentialProfit = totalValue - totalCost;
+    const lowStock = inventory.filter(item => 
+        item.quantity <= (item.minStock || 10) && item.quantity > 0
+    ).length;
+    const outOfStock = inventory.filter(item => item.quantity === 0).length;
+    
+    return `
+        <div class="inventory-report">
+            <h4>📊 Inventory Summary Report</h4>
+            
+            <div class="report-stats">
+                <div class="stat-row">
+                    <span>Total Products:</span>
+                    <strong>${inventory.length}</strong>
+                </div>
+                <div class="stat-row">
+                    <span>Total Units in Stock:</span>
+                    <strong>${totalItems}</strong>
+                </div>
+                <div class="stat-row">
+                    <span>Total Inventory Value:</span>
+                    <strong>${formatCurrency(totalValue)}</strong>
+                </div>
+                <div class="stat-row">
+                    <span>Total Cost Value:</span>
+                    <strong>${formatCurrency(totalCost)}</strong>
+                </div>
+                <div class="stat-row highlight">
+                    <span>Potential Profit:</span>
+                    <strong>${formatCurrency(potentialProfit)}</strong>
+                </div>
+                <div class="stat-row ${lowStock > 0 ? 'warning' : ''}">
+                    <span>Low Stock Items:</span>
+                    <strong>${lowStock}</strong>
+                </div>
+                <div class="stat-row ${outOfStock > 0 ? 'danger' : ''}">
+                    <span>Out of Stock:</span>
+                    <strong>${outOfStock}</strong>
+                </div>
+            </div>
+            
+            <h5>Category Breakdown</h5>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Products</th>
+                        <th>Units</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${Object.entries(INVENTORY_CONFIG.categories).map(([key, cat]) => {
+                        const catItems = inventory.filter(item => item.category === key);
+                        if (catItems.length === 0) return '';
+                        
+                        const catValue = catItems.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+                        const catUnits = catItems.reduce((sum, item) => sum + item.quantity, 0);
+                        
+                        return `
+                            <tr>
+                                <td>${cat.icon} ${cat.name}</td>
+                                <td>${catItems.length}</td>
+                                <td>${catUnits}</td>
+                                <td>${formatCurrency(catValue)}</td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+/**
+ * Generate inventory valuation report
+ */
+function generateInventoryValuationReport(inventory) {
+    return `
+        <div class="inventory-report">
+            <h4>💰 Inventory Valuation Report</h4>
+            
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>SKU</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Unit Cost</th>
+                        <th>Total Value</th>
+                        <th>Total Cost</th>
+                        <th>Profit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${inventory.map(item => {
+                        const itemValue = item.quantity * item.price;
+                        const itemCost = item.quantity * (item.cost || 0);
+                        const itemProfit = itemValue - itemCost;
+                        const margin = itemCost > 0 ? ((itemProfit / itemCost) * 100).toFixed(1) : 'N/A';
+                        
+                        return `
+                            <tr>
+                                <td>${escapeHtml(item.name)}</td>
+                                <td>${item.sku || 'N/A'}</td>
+                                <td>${item.quantity}</td>
+                                <td>${formatCurrency(item.price)}</td>
+                                <td>${formatCurrency(item.cost || 0)}</td>
+                                <td>${formatCurrency(itemValue)}</td>
+                                <td>${formatCurrency(itemCost)}</td>
+                                <td class="${itemProfit >= 0 ? 'positive' : 'negative'}">
+                                    ${formatCurrency(itemProfit)} (${margin}%)
+                                </td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="5">Totals:</th>
+                        <th>${formatCurrency(inventory.reduce((sum, item) => sum + (item.quantity * item.price), 0))}</th>
+                        <th>${formatCurrency(inventory.reduce((sum, item) => sum + (item.quantity * (item.cost || 0)), 0))}</th>
+                        <th>${formatCurrency(inventory.reduce((sum, item) => sum + (item.quantity * item.price) - (item.quantity * (item.cost || 0)), 0))}</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    `;
+}
+
+/**
+ * Generate inventory movement report
+ */
+function generateInventoryMovementReport(inventory, sales) {
+    // Calculate movement for each product
+    const movement = {};
+    
+    sales.forEach(sale => {
+        (sale.items || []).forEach(item => {
+            if (!movement[item.name]) {
+                movement[item.name] = { sold: 0, revenue: 0 };
+            }
+            movement[item.name].sold += item.quantity || 0;
+            movement[item.name].revenue += (item.price * (item.quantity || 0));
+        });
+    });
+    
+    return `
+        <div class="inventory-report">
+            <h4>📈 Stock Movement Report</h4>
+            
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Current Stock</th>
+                        <th>Units Sold</th>
+                        <th>Revenue</th>
+                        <th>Turnover Rate</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${inventory.map(product => {
+                        const data = movement[product.name] || { sold: 0, revenue: 0 };
+                        const turnoverRate = (product.quantity + data.sold) > 0 
+                            ? ((data.sold / (product.quantity + data.sold)) * 100).toFixed(1) 
+                            : 0;
+                        
+                        let status = 'Normal';
+                        let statusClass = '';
+                        if (data.sold === 0 && product.quantity > 0) {
+                            status = 'No Movement';
+                            statusClass = 'warning';
+                        } else if (turnoverRate > 50) {
+                            status = 'High Turnover';
+                            statusClass = 'success';
+                        } else if (turnoverRate < 10 && product.quantity > 0) {
+                            status = 'Slow Moving';
+                            statusClass = 'warning';
+                        }
+                        
+                        return `
+                            <tr>
+                                <td>${escapeHtml(product.name)}</td>
+                                <td>${product.quantity}</td>
+                                <td>${data.sold}</td>
+                                <td>${formatCurrency(data.revenue)}</td>
+                                <td>${turnoverRate}%</td>
+                                <td class="${statusClass}">${status}</td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+/**
+ * Generate inventory expiry report
+ */
+function generateInventoryExpiryReport(inventory) {
+    const expiringItems = inventory
+        .filter(item => item.expiryDate)
+        .map(item => ({
+            ...item,
+            daysUntilExpiry: Math.ceil((new Date(item.expiryDate) - new Date()) / (1000 * 60 * 60 * 24))
+        }))
+        .filter(item => item.daysUntilExpiry > 0)
+        .sort((a, b) => a.daysUntilExpiry - b.daysUntilExpiry);
+    
+    const expiredItems = inventory
+        .filter(item => item.expiryDate && new Date(item.expiryDate) < new Date());
+    
+    return `
+        <div class="inventory-report">
+            <h4>⏰ Expiry Report</h4>
+            
+            ${expiredItems.length > 0 ? `
+                <div class="alert-section danger">
+                    <h5>🔴 Expired Products (${expiredItems.length})</h5>
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Batch</th>
+                                <th>Quantity</th>
+                                <th>Expired On</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${expiredItems.map(item => `
+                                <tr>
+                                    <td>${escapeHtml(item.name)}</td>
+                                    <td>${item.batch || 'N/A'}</td>
+                                    <td>${item.quantity}</td>
+                                    <td>${formatDate(item.expiryDate)}</td>
+                                    <td><button onclick="adjustStock('${item.id}')" class="btn-small">Remove</button></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            ` : ''}
+            
+            ${expiringItems.length > 0 ? `
+                <div class="alert-section warning">
+                    <h5>🟠 Expiring Soon (${expiringItems.length})</h5>
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Batch</th>
+                                <th>Quantity</th>
+                                <th>Expiry Date</th>
+                                <th>Days Left</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${expiringItems.map(item => {
+                                let statusClass = item.daysUntilExpiry <= 7 ? 'danger' : 'warning';
+                                return `
+                                    <tr>
+                                        <td>${escapeHtml(item.name)}</td>
+                                        <td>${item.batch || 'N/A'}</td>
+                                        <td>${item.quantity}</td>
+                                        <td>${formatDate(item.expiryDate)}</td>
+                                        <td class="${statusClass}">${item.daysUntilExpiry} days</td>
+                                        <td>
+                                            <button onclick="adjustStock('${item.id}')" class="btn-small">Adjust</button>
+                                            <button onclick="viewProductDetails('${item.id}')" class="btn-small">View</button>
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            ` : ''}
+            
+            ${expiredItems.length === 0 && expiringItems.length === 0 ? 
+                '<p>No products with expiry dates</p>' : ''}
+        </div>
+    `;
+}
+
+/**
+ * Generate inventory reorder report
+ */
+function generateInventoryReorderReport(inventory) {
+    const needsReorder = inventory.filter(item => 
+        item.quantity <= (item.minStock || 10)
+    ).sort((a, b) => a.quantity - b.quantity);
+    
+    const reorderSuggestions = needsReorder.map(item => {
+        const recommended = (item.maxStock || 100) - item.quantity;
+        return {
+            ...item,
+            recommendedOrder: Math.max(recommended, (item.minStock || 10) * 2)
+        };
+    });
+    
+    return `
+        <div class="inventory-report">
+            <h4>📋 Reorder Recommendations</h4>
+            
+            ${reorderSuggestions.length === 0 ? 
+                '<p class="success">✅ All stock levels are healthy. No reordering needed.</p>' :
+                `
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>SKU</th>
+                            <th>Current Stock</th>
+                            <th>Min Stock</th>
+                            <th>Max Stock</th>
+                            <th>Recommended Order</th>
+                            <th>Supplier</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${reorderSuggestions.map(item => `
+                            <tr>
+                                <td>${escapeHtml(item.name)}</td>
+                                <td>${item.sku || 'N/A'}</td>
+                                <td class="warning">${item.quantity}</td>
+                                <td>${item.minStock || 10}</td>
+                                <td>${item.maxStock || 100}</td>
+                                <td><strong>${item.recommendedOrder}</strong></td>
+                                <td>${item.supplier || 'Not specified'}</td>
+                                <td>
+                                    <button onclick="adjustStock('${item.id}')" class="btn-small">Restock</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="5">Total to Order:</th>
+                            <th>${reorderSuggestions.reduce((sum, item) => sum + item.recommendedOrder, 0)} units</th>
+                            <th colspan="2"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+                
+                <div class="report-actions">
+                    <button onclick="generatePurchaseOrder()" class="btn-primary">Generate Purchase Order</button>
+                </div>
+                `
+            }
+        </div>
+    `;
+}
+
+/**
+ * Generate purchase order from reorder recommendations
+ */
+function generatePurchaseOrder() {
+    const inventory = farmData.inventory || [];
+    const toOrder = inventory.filter(item => 
+        item.quantity <= (item.minStock || 10)
+    ).map(item => ({
+        ...item,
+        orderQuantity: (item.maxStock || 100) - item.quantity
+    }));
+    
+    if (toOrder.length === 0) {
+        showNotification('No items to order', 'info');
+        return;
+    }
+    
+    const poNumber = 'PO-' + Date.now();
+    const poDate = new Date().toLocaleDateString();
+    
+    let poHTML = `
+        <html>
+        <head>
+            <title>Purchase Order ${poNumber}</title>
+            <style>
+                body { font-family: Arial; padding: 20px; }
+                .po-header { text-align: center; margin-bottom: 30px; }
+                .po-details { margin-bottom: 20px; }
+                table { width: 100%; border-collapse: collapse; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                th { background: #f5f5f5; }
+                .total { font-weight: bold; margin-top: 20px; text-align: right; }
+            </style>
+        </head>
+        <body>
+            <div class="po-header">
+                <h1>PURCHASE ORDER</h1>
+                <p>PO Number: ${poNumber}</p>
+                <p>Date: ${poDate}</p>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>SKU</th>
+                        <th>Current Stock</th>
+                        <th>Order Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${toOrder.map(item => `
+                        <tr>
+                            <td>${escapeHtml(item.name)}</td>
+                            <td>${item.sku || 'N/A'}</td>
+                            <td>${item.quantity}</td>
+                            <td>${item.orderQuantity}</td>
+                            <td>${formatCurrency(item.price)}</td>
+                            <td>${formatCurrency(item.price * item.orderQuantity)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="5">Total:</th>
+                        <th>${formatCurrency(toOrder.reduce((sum, item) => sum + (item.price * item.orderQuantity), 0))}</th>
+                    </tr>
+                </tfoot>
+            </table>
+            
+            <div class="total">
+                <p>Authorized By: ___________________</p>
+                <p>Date: ___________________</p>
+            </div>
+        </body>
+        </html>
+    `;
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(poHTML);
+    printWindow.document.close();
+    printWindow.print();
+}
+
+// =============================================
+// FIXED ALERTS DISPLAY
+// =============================================
+
+/**
+ * Check inventory alerts and display them
+ */
+function checkInventoryAlerts() {
+    const inventory = farmData.inventory || [];
+    
+    const alerts = {
+        lowStock: inventory.filter(item => 
+            item.quantity <= (item.minStock || INVENTORY_CONFIG.lowStockThreshold) && item.quantity > 0
+        ),
+        outOfStock: inventory.filter(item => item.quantity === 0),
+        expiring: inventory.filter(item => {
+            if (!item.expiryDate) return false;
+            const daysUntil = Math.ceil((new Date(item.expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
+            return daysUntil <= 30 && daysUntil > 0;
+        }),
+        overstock: inventory.filter(item => 
+            item.maxStock && item.quantity > item.maxStock
+        ),
+        total: 0
+    };
+    
+    alerts.total = alerts.lowStock.length + alerts.outOfStock.length + 
+                   alerts.expiring.length + alerts.overstock.length;
+    
+    // Store alerts
+    farmData.alerts = alerts;
+    
+    // Show notification if there are alerts
+    if (alerts.total > 0) {
+        showNotification(`⚠️ ${alerts.total} inventory ${alerts.total === 1 ? 'alert' : 'alerts'} need attention`, 'warning');
+    }
+    
+    // Display alerts in the alerts tab
+    displayInventoryAlerts(alerts);
+    
+    return alerts;
+}
+
+/**
+ * Display inventory alerts in the alerts tab
+ */
+function displayInventoryAlerts(alerts) {
+    const container = document.getElementById('alertsList');
+    if (!container) return;
+    
+    if (alerts.total === 0) {
+        container.innerHTML = `
+            <div class="no-alerts">
+                <div class="success-icon">✅</div>
+                <h3>All Good!</h3>
+                <p>No inventory alerts at this time.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '';
+    
+    if (alerts.outOfStock.length > 0) {
+        html += `
+            <div class="alert-section">
+                <h4 class="danger">🔴 Out of Stock (${alerts.outOfStock.length})</h4>
+                ${alerts.outOfStock.map(item => `
+                    <div class="alert-item danger">
+                        <div class="alert-content">
+                            <strong>${escapeHtml(item.name)}</strong>
+                            <span>Out of stock - needs immediate attention</span>
+                        </div>
+                        <div class="alert-actions">
+                            <button onclick="adjustStock('${item.id}')" class="btn-small">Restock</button>
+                            <button onclick="viewProductDetails('${item.id}')" class="btn-small">View</button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+    
+    if (alerts.lowStock.length > 0) {
+        html += `
+            <div class="alert-section">
+                <h4 class="warning">🟠 Low Stock (${alerts.lowStock.length})</h4>
+                ${alerts.lowStock.map(item => `
+                    <div class="alert-item warning">
+                        <div class="alert-content">
+                            <strong>${escapeHtml(item.name)}</strong>
+                            <span>Only ${item.quantity} left (Min: ${item.minStock || 10})</span>
+                        </div>
+                        <div class="alert-actions">
+                            <button onclick="adjustStock('${item.id}')" class="btn-small">Restock</button>
+                            <button onclick="viewProductDetails('${item.id}')" class="btn-small">View</button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+    
+    if (alerts.expiring.length > 0) {
+        html += `
+            <div class="alert-section">
+                <h4 class="warning">🟡 Expiring Soon (${alerts.expiring.length})</h4>
+                ${alerts.expiring.map(item => {
+                    const daysLeft = Math.ceil((new Date(item.expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
+                    return `
+                        <div class="alert-item ${daysLeft <= 7 ? 'danger' : 'warning'}">
+                            <div class="alert-content">
+                                <strong>${escapeHtml(item.name)}</strong>
+                                <span>Expires in ${daysLeft} days (${formatDate(item.expiryDate)})</span>
+                            </div>
+                            <div class="alert-actions">
+                                <button onclick="adjustStock('${item.id}')" class="btn-small">Adjust</button>
+                                <button onclick="viewProductDetails('${item.id}')" class="btn-small">View</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+    }
+    
+    if (alerts.overstock.length > 0) {
+        html += `
+            <div class="alert-section">
+                <h4 class="info">🔵 Overstock (${alerts.overstock.length})</h4>
+                ${alerts.overstock.map(item => `
+                    <div class="alert-item info">
+                        <div class="alert-content">
+                            <strong>${escapeHtml(item.name)}</strong>
+                            <span>${item.quantity} units (Max: ${item.maxStock})</span>
+                        </div>
+                        <div class="alert-actions">
+                            <button onclick="adjustStock('${item.id}')" class="btn-small">Reduce</button>
+                            <button onclick="viewProductDetails('${item.id}')" class="btn-small">View</button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+    
+    container.innerHTML = html;
+}
+
+// =============================================
+// UPDATE THE OVERVIEW TAB HTML
+// =============================================
+
+function renderOverviewTab() {
+    return `
+        <div class="inventory-overview">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📦</div>
+                    <div class="stat-content">
+                        <span class="stat-label">Total Products</span>
+                        <span class="stat-value" id="totalProducts">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-content">
+                        <span class="stat-label">Inventory Value</span>
+                        <span class="stat-value" id="totalValue">P 0.00</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-content">
+                        <span class="stat-label">Low Stock</span>
+                        <span class="stat-value warning" id="lowStockCount">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">❌</div>
+                    <div class="stat-content">
+                        <span class="stat-label">Out of Stock</span>
+                        <span class="stat-value danger" id="outOfStockCount">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="overview-grid">
+                <div class="overview-card">
+                    <h3>📋 Recent Additions</h3>
+                    <div id="recentAdditions" class="recent-list"></div>
+                </div>
+                <div class="overview-card">
+                    <h3>⚠️ Stock Alerts</h3>
+                    <div id="lowStockAlerts" class="alert-list"></div>
+                </div>
+            </div>
+            
+            <div class="overview-card">
+                <h3>📊 Category Distribution</h3>
+                <div id="categoryChart" class="category-chart"></div>
+            </div>
+            
+            <div class="overview-card">
+                <h3>🏆 Top Products by Value</h3>
+                <div id="topProducts" class="top-products-list"></div>
+            </div>
+        </div>
+    `;
+}
+
+// Make all functions globally available
+window.loadInventory = loadInventory;
+window.removeProduct = removeProduct;
+window.loadInventoryOverview = loadInventoryOverview;
+window.generateInventoryReports = generateInventoryReports;
+window.checkInventoryAlerts = checkInventoryAlerts;
+window.displayInventoryAlerts = displayInventoryAlerts;
+window.generatePurchaseOrder = generatePurchaseOrder;
+   
 // =============================================
 // POS FUNCTIONS - WITH CONFIG TAB VISIBLE
 // =============================================
