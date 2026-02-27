@@ -4760,6 +4760,916 @@ if (!document.getElementById('expired-screen-styles')) {
 </head>
 
 <body>
+  <!-- Add this overlay HTML to your app -->
+<div id="simpleOverlay" class="overlay hidden">
+    <div class="overlay-content">
+        <!-- Grace Period Mode -->
+        <div id="gracePeriodMode" class="mode-grace">
+            <h2>👋 Welcome to FarmerPack!</h2>
+            <p>You have <span class="highlight">5 minutes</span> to explore before profile is required</p>
+            
+            <div class="grace-timer-container">
+                <div class="timer-label">Time remaining to explore:</div>
+                <div class="grace-timer" id="graceTimer">5:00</div>
+                <div class="grace-message">⏰ Create profile to avoid app lockout</div>
+            </div>
+            
+            <div class="reminder-container" id="reminderContainer">
+                <div class="reminder-icon">🔔</div>
+                <div class="reminder-text">We'll remind you every minute!</div>
+            </div>
+            
+            <button onclick="showSetupFromOverlay()" class="create-profile-btn">
+                Create Profile Now (Recommended)
+            </button>
+            
+            <button onclick="continueExploring()" class="explore-btn">
+                Continue Exploring
+            </button>
+            
+            <p class="small-note">After 5 minutes, the app will lock and data will be deleted if no profile exists</p>
+        </div>
+        
+        <!-- Lockout Mode (shown after grace period) -->
+        <div id="lockoutMode" class="mode-lockout hidden">
+            <h2>🔒 APP LOCKED</h2>
+            <p>Create your farmer profile to unlock the app</p>
+            
+            <div class="lock-info">
+                <div class="lock-icon">⛓️</div>
+                <div class="lock-status" id="lockStatus">ACCESS DENIED</div>
+            </div>
+            
+            <div class="timer-container">
+                <div class="timer-label">Lockout period remaining:</div>
+                <div class="timer" id="lockoutTimer">5:00</div>
+                <div class="lockout-message">App is completely locked</div>
+            </div>
+            
+            <div class="lock-counter" id="lockCounter">
+                Lockout #1 - Penalty: 5 minutes
+            </div>
+            
+            <div class="warning-message" id="warningMessage">
+                💀 DATA DELETED! Your farm data has been permanently erased.
+            </div>
+            
+            <div class="next-penalty" id="nextPenalty">
+                Next lockout: 10 minutes (data will be deleted again)
+            </div>
+            
+            <button onclick="showSetupFromOverlay()" class="create-profile-btn">
+                Create Profile Now (Unlock App)
+            </button>
+            
+            <button onclick="showLockoutWarning()" class="warning-btn">
+                ⚠️ Why is my data deleted?
+            </button>
+            
+            <p class="danger-note">💀 DATA DELETED ON EVERY LOCKOUT - Create profile to stop deletions</p>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Overlay Styles */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(8px);
+}
+
+.overlay.hidden {
+    display: none;
+}
+
+.overlay-content {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    max-width: 450px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: slideIn 0.5s ease;
+}
+
+/* Grace Period Mode */
+.mode-grace {
+    display: block;
+}
+
+.mode-grace h2 {
+    color: #27ae60;
+    margin-bottom: 15px;
+    font-size: 32px;
+}
+
+.mode-grace .highlight {
+    color: #27ae60;
+    font-weight: bold;
+    font-size: 24px;
+}
+
+.grace-timer-container {
+    background: #f0f9f0;
+    padding: 25px;
+    border-radius: 15px;
+    margin: 20px 0;
+    border-left: 4px solid #27ae60;
+}
+
+.grace-timer {
+    font-size: 72px;
+    font-weight: bold;
+    color: #27ae60;
+    font-family: monospace;
+    line-height: 1;
+    margin: 10px 0;
+}
+
+.grace-message {
+    color: #2c3e50;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+.reminder-container {
+    background: #f1c40f;
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    animation: gentlePulse 2s infinite;
+}
+
+@keyframes gentlePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.9; background: #f39c12; }
+}
+
+.reminder-icon {
+    font-size: 20px;
+}
+
+.reminder-text {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.explore-btn {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    margin: 5px 0;
+    transition: background 0.3s;
+}
+
+.explore-btn:hover {
+    background: #2980b9;
+}
+
+/* Lockout Mode */
+.mode-lockout {
+    display: none;
+}
+
+.mode-lockout h2 {
+    color: #c0392b;
+    margin-bottom: 10px;
+    font-size: 32px;
+    text-transform: uppercase;
+}
+
+.lock-info {
+    background: #c0392b;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    animation: intensePulse 2s infinite;
+}
+
+@keyframes intensePulse {
+    0%, 100% { opacity: 1; background: #c0392b; }
+    50% { opacity: 0.8; background: #a93226; }
+}
+
+.lock-icon {
+    font-size: 28px;
+}
+
+.lock-status {
+    font-size: 24px;
+    font-weight: bold;
+    letter-spacing: 3px;
+}
+
+.timer-container {
+    background: #2c3e50;
+    padding: 25px;
+    border-radius: 15px;
+    margin: 20px 0;
+}
+
+.timer {
+    font-size: 72px;
+    font-weight: bold;
+    color: #e74c3c;
+    font-family: monospace;
+    line-height: 1;
+    margin: 10px 0;
+}
+
+.lockout-message {
+    color: #ecf0f1;
+    font-size: 14px;
+    margin-top: 10px;
+    text-transform: uppercase;
+}
+
+.lock-counter {
+    background: #34495e;
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.warning-message {
+    background: #c0392b;
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 15px 0;
+    font-size: 18px;
+    font-weight: bold;
+    animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.next-penalty {
+    background: #f39c12;
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    margin: 15px 0;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* Common Elements */
+.create-profile-btn {
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 18px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    width: 100%;
+    margin: 10px 0;
+    transition: all 0.3s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.create-profile-btn:hover {
+    background: #219a52;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+}
+
+.warning-btn {
+    background: #7f8c8d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    margin: 5px 0;
+}
+
+.small-note {
+    color: #7f8c8d;
+    font-size: 12px;
+    margin-top: 15px;
+}
+
+.danger-note {
+    color: #c0392b;
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 10px;
+    text-transform: uppercase;
+}
+
+/* Notifications */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 10px;
+    color: white;
+    font-weight: 500;
+    z-index: 10000;
+    animation: slideInRight 0.3s ease;
+}
+
+.notification.success { background: #27ae60; }
+.notification.warning { background: #f39c12; }
+.notification.error { background: #e74c3c; }
+.notification.reminder { background: #3498db; }
+.notification.deletion { background: #c0392b; }
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Progress Bar */
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: #ecf0f1;
+    border-radius: 3px;
+    margin: 10px 0;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #27ae60;
+    width: 0%;
+    transition: width 1s linear;
+}
+/* Complete scrollable overlay solution */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto; /* Make entire overlay scrollable */
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    align-items: flex-start; /* Changed from center to allow scrolling from top */
+    justify-content: center;
+    padding: 20px 0; /* Add padding for breathing room */
+}
+
+.overlay-content {
+    width: 90%;
+    max-width: 450px;
+    margin: auto; /* Center vertically in the scrollable area */
+    max-height: none; /* Remove height restriction */
+    overflow: visible; /* Content determines height */
+}
+
+/* Ensure buttons and interactive elements are accessible */
+.create-profile-btn,
+.explore-btn,
+.warning-btn {
+    position: relative; /* Maintain normal flow */
+    z-index: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .overlay-content {
+        width: 95%;
+        padding: 20px 15px;
+    }
+    
+    .timer, .grace-timer {
+        font-size: 56px; /* Slightly smaller on mobile */
+    }
+}
+
+/* Handle landscape orientation on mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    .overlay {
+        align-items: flex-start;
+        padding: 10px 0;
+    }
+    
+    .overlay-content {
+        padding: 15px;
+    }
+    
+    .timer, .grace-timer {
+        font-size: 40px;
+    }
+}
+</style>
+
+<script>
+// ==================== GRACE PERIOD + LOCKOUT SYSTEM ====================
+
+// State variables
+let gracePeriodSeconds = 300; // 5 minutes
+let lockoutSeconds = 300; // Start with 5 minutes lockout
+let lockoutCount = 0;
+let graceInterval;
+let lockoutInterval;
+let countdownInterval;
+let reminderCount = 0;
+let originalSaveFunction;
+
+// Required profile fields
+const REQUIRED_PROFILE_FIELDS = ['farmName', 'farmerName', 'location'];
+
+// Storage keys to delete on lockout
+const STORAGE_KEYS_TO_DELETE = [
+    'fa_farmProfile', 'fa_data', 'fa_settings', 'fa_cache',
+    'fa_userData', 'fa_preferences', 'fa_farmData', 'fa_crops',
+    'fa_inventory', 'fa_finances', 'fa_animals', 'fa_equipment'
+];
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    loadLockoutState();
+    
+    setTimeout(() => {
+        const splashScreen = document.getElementById('splashScreen');
+        if (splashScreen) splashScreen.style.display = 'none';
+        startGracePeriod();
+    }, 2000);
+    
+    if (typeof saveFarmerPackfile === 'function') {
+        originalSaveFunction = saveFarmerPackfile;
+        overrideSaveFunction();
+    }
+});
+
+// ==================== GRACE PERIOD (5 MINUTES) ====================
+
+function startGracePeriod() {
+    console.log('🎉 Starting 5-minute grace period for new user');
+    
+    if (isProfileComplete()) {
+        unlockApp();
+        return;
+    }
+    
+    // Show grace period mode
+    showGracePeriodMode();
+    
+    // Reset grace period timer
+    gracePeriodSeconds = 300;
+    reminderCount = 0;
+    updateGraceTimer();
+    
+    // Start grace period countdown
+    graceInterval = setInterval(() => {
+        gracePeriodSeconds--;
+        updateGraceTimer();
+        updateProgressBar();
+        
+        // Send friendly reminders every minute
+        if (gracePeriodSeconds > 0 && gracePeriodSeconds % 60 === 0) {
+            reminderCount++;
+            sendFriendlyReminder(reminderCount);
+        }
+        
+        // Grace period ended
+        if (gracePeriodSeconds <= 0) {
+            clearInterval(graceInterval);
+            console.log('⏰ Grace period ended - starting lockout system');
+            showNotification('⏰ Grace period ended! Create profile to avoid lockout', 'warning');
+            startLockoutSystem();
+        }
+    }, 1000);
+}
+
+function showGracePeriodMode() {
+    const overlay = document.getElementById('simpleOverlay');
+    const graceMode = document.getElementById('gracePeriodMode');
+    const lockoutMode = document.getElementById('lockoutMode');
+    
+    if (overlay) overlay.classList.remove('hidden');
+    if (graceMode) graceMode.style.display = 'block';
+    if (lockoutMode) lockoutMode.style.display = 'none';
+    
+    // Add progress bar
+    addProgressBar('grace');
+}
+
+function updateGraceTimer() {
+    const timerElement = document.getElementById('graceTimer');
+    if (timerElement) {
+        const minutes = Math.floor(gracePeriodSeconds / 60);
+        const seconds = gracePeriodSeconds % 60;
+        timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        
+        // Change color as time runs out
+        if (gracePeriodSeconds < 60) {
+            timerElement.style.color = '#e74c3c';
+        } else if (gracePeriodSeconds < 120) {
+            timerElement.style.color = '#f39c12';
+        }
+    }
+}
+
+function sendFriendlyReminder(count) {
+    const reminders = [
+        "🔔 Friendly reminder: Create your profile to save your farm data!",
+        "⏰ 4 minutes left! Profiles keep your farm safe from lockouts.",
+        "📝 3 minutes remaining - quick profile creation protects your data!",
+        "⚠️ 2 minutes left! Don't lose your farm progress - create profile!",
+        "🔴 Final minute! Create profile NOW to avoid app lockout!"
+    ];
+    
+    const message = reminders[count - 1] || "⏰ Time running out! Create profile to continue seamlessly.";
+    showNotification(message, 'reminder');
+}
+
+function continueExploring() {
+    showNotification('Enjoy exploring! Remember to create your profile.', 'info');
+    hideOverlay();
+}
+
+// ==================== LOCKOUT SYSTEM ====================
+
+function startLockoutSystem() {
+    if (isProfileComplete()) {
+        unlockApp();
+        return;
+    }
+    
+    // Increment lockout count and delete data
+    lockoutCount++;
+    saveLockoutState();
+    permanentlyDeleteAllData();
+    
+    // Calculate lockout time (5min, 10min, 15min, etc.)
+    lockoutSeconds = 300 + ((lockoutCount - 1) * 300);
+    
+    // Show lockout mode
+    showLockoutMode();
+    
+    // Start lockout timer
+    startLockoutTimer();
+}
+
+function showLockoutMode() {
+    const overlay = document.getElementById('simpleOverlay');
+    const graceMode = document.getElementById('gracePeriodMode');
+    const lockoutMode = document.getElementById('lockoutMode');
+    
+    if (overlay) overlay.classList.remove('hidden');
+    if (graceMode) graceMode.style.display = 'none';
+    if (lockoutMode) lockoutMode.style.display = 'block';
+    
+    // Update lockout display
+    updateLockoutDisplay();
+    
+    // Disable app access
+    disableAppAccess();
+    
+    // Add progress bar
+    addProgressBar('lockout');
+}
+
+function startLockoutTimer() {
+    // Clear any existing lockout interval
+    if (lockoutInterval) clearInterval(lockoutInterval);
+    
+    // Set timer for next lockout
+    lockoutInterval = setInterval(() => {
+        if (!isProfileComplete()) {
+            // Start next lockout
+            lockoutCount++;
+            saveLockoutState();
+            
+            // Calculate new lockout time
+            lockoutSeconds = 300 + ((lockoutCount - 1) * 300);
+            
+            // Delete data AGAIN
+            permanentlyDeleteAllData();
+            
+            // Update display
+            updateLockoutDisplay();
+            showLockoutWarning();
+            
+            // Reset timer display
+            startCountdown();
+            
+        } else {
+            unlockApp();
+        }
+    }, lockoutSeconds * 1000);
+    
+    // Start countdown display
+    startCountdown();
+}
+
+function startCountdown() {
+    if (countdownInterval) clearInterval(countdownInterval);
+    
+    let timeLeft = lockoutSeconds;
+    
+    countdownInterval = setInterval(() => {
+        timeLeft--;
+        updateLockoutTimer(timeLeft);
+        updateProgressBar();
+        
+        // Warnings
+        if (timeLeft === 60) {
+            showNotification('⏰ 1 minute until next lockout & data deletion!', 'warning');
+        } else if (timeLeft === 30) {
+            showNotification('⚠️ 30 seconds - prepare for data deletion!', 'error');
+        } else if (timeLeft === 10) {
+            showNotification('🔴 10 SECONDS - DATA WILL BE DELETED!', 'deletion');
+        }
+        
+        if (timeLeft <= 0) {
+            clearInterval(countdownInterval);
+        }
+    }, 1000);
+}
+
+function updateLockoutTimer(timeLeft) {
+    const timerElement = document.getElementById('lockoutTimer');
+    if (timerElement) {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+}
+
+function updateLockoutDisplay() {
+    const lockCounter = document.getElementById('lockCounter');
+    const nextPenalty = document.getElementById('nextPenalty');
+    const warningMsg = document.getElementById('warningMessage');
+    
+    if (lockCounter) {
+        lockCounter.textContent = `Lockout #${lockoutCount} - Penalty: ${lockoutSeconds/60} minutes`;
+    }
+    
+    if (nextPenalty) {
+        const nextMinutes = (lockoutSeconds/60) + 5;
+        nextPenalty.innerHTML = `⚠️ Next lockout: ${nextMinutes} minutes (data will be deleted again)`;
+    }
+    
+    if (warningMsg) {
+        warningMsg.innerHTML = `💀 DATA DELETED (Lockout #${lockoutCount}) - All farm information erased`;
+    }
+}
+
+// ==================== DATA DELETION ====================
+
+function permanentlyDeleteAllData() {
+    console.log(`💀 LOCKOUT #${lockoutCount}: PERMANENTLY DELETING ALL DATA`);
+    
+    STORAGE_KEYS_TO_DELETE.forEach(key => {
+        try {
+            localStorage.removeItem(key);
+            sessionStorage.removeItem(key);
+        } catch (e) {}
+    });
+    
+    // Clear all farmer-related items
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('fa_')) {
+            localStorage.removeItem(key);
+        }
+    }
+    
+    showNotification(`⛔ LOCKOUT #${lockoutCount}: ALL DATA PERMANENTLY DELETED!`, 'deletion');
+}
+
+// ==================== PROFILE CHECK ====================
+
+function isProfileComplete() {
+    try {
+        const profile = localStorage.getItem('fa_farmProfile');
+        if (profile && profile.trim() !== '') return true;
+        
+        const data = localStorage.getItem('fa_data');
+        if (data) {
+            const parsed = JSON.parse(data);
+            return REQUIRED_PROFILE_FIELDS.every(field => 
+                parsed[field] && parsed[field].toString().trim() !== ''
+            );
+        }
+    } catch (e) {}
+    return false;
+}
+
+// ==================== APP CONTROL ====================
+
+function unlockApp() {
+    console.log('✅ Profile created - UNLOCKING APP');
+    
+    // Hide overlay
+    hideOverlay();
+    
+    // Clear all intervals
+    [graceInterval, lockoutInterval, countdownInterval].forEach(interval => {
+        if (interval) clearInterval(interval);
+    });
+    
+    // Show app interface
+    const setupScreen = document.getElementById('setupScreen');
+    const appInterface = document.getElementById('appInterface');
+    
+    if (setupScreen) setupScreen.style.display = 'none';
+    if (appInterface) appInterface.style.display = 'block';
+    
+    // Enable app access
+    enableAppAccess();
+    
+    // Reset lockout count
+    lockoutCount = 0;
+    saveLockoutState();
+    
+    showNotification('✅ Welcome to FarmerPack! Your data is now safe.', 'success');
+}
+
+function showSetupFromOverlay() {
+    hideOverlay();
+    
+    const setupScreen = document.getElementById('setupScreen');
+    const appInterface = document.getElementById('appInterface');
+    
+    if (setupScreen) setupScreen.style.display = 'block';
+    if (appInterface) appInterface.style.display = 'none';
+}
+
+function hideOverlay() {
+    const overlay = document.getElementById('simpleOverlay');
+    if (overlay) overlay.classList.add('hidden');
+}
+
+// ==================== ACCESS CONTROL ====================
+
+function disableAppAccess() {
+    document.querySelectorAll('button, input, select, textarea, a').forEach(el => {
+        el.disabled = true;
+        el.style.pointerEvents = 'none';
+        el.style.opacity = '0.5';
+    });
+    
+    document.addEventListener('keydown', blockKeys, true);
+    document.addEventListener('contextmenu', preventDefault, true);
+}
+
+function enableAppAccess() {
+    document.querySelectorAll('button, input, select, textarea, a').forEach(el => {
+        el.disabled = false;
+        el.style.pointerEvents = 'auto';
+        el.style.opacity = '1';
+    });
+    
+    document.removeEventListener('keydown', blockKeys, true);
+    document.removeEventListener('contextmenu', preventDefault, true);
+}
+
+function blockKeys(e) {
+    const blockedKeys = ['Escape', 'F5', 'F11', 'Tab'];
+    if (blockedKeys.includes(e.key) || e.ctrlKey || e.altKey) {
+        e.preventDefault();
+    }
+}
+
+function preventDefault(e) {
+    e.preventDefault();
+}
+
+// ==================== UI HELPERS ====================
+
+function addProgressBar(type) {
+    const container = type === 'grace' 
+        ? document.querySelector('.grace-timer-container')
+        : document.querySelector('.timer-container');
+    
+    if (container) {
+        const existingBar = document.querySelector('.progress-bar');
+        if (existingBar) existingBar.remove();
+        
+        const progressDiv = document.createElement('div');
+        progressDiv.className = 'progress-bar';
+        
+        const progressFill = document.createElement('div');
+        progressFill.className = 'progress-fill';
+        progressFill.id = 'progressFill';
+        
+        progressDiv.appendChild(progressFill);
+        container.appendChild(progressDiv);
+    }
+}
+
+function updateProgressBar() {
+    const progressFill = document.getElementById('progressFill');
+    if (progressFill) {
+        let percentage;
+        if (gracePeriodSeconds > 0) {
+            percentage = (gracePeriodSeconds / 300) * 100;
+            progressFill.style.background = '#27ae60';
+        } else {
+            percentage = (lockoutSeconds / (300 + ((lockoutCount - 1) * 300))) * 100;
+            progressFill.style.background = '#e74c3c';
+        }
+        progressFill.style.width = `${percentage}%`;
+    }
+}
+
+// ==================== NOTIFICATIONS ====================
+
+function showNotification(message, type = 'info') {
+    const existing = document.querySelector('.notification');
+    if (existing) existing.remove();
+    
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => notification.remove(), 5000);
+}
+
+// ==================== STATE MANAGEMENT ====================
+
+function loadLockoutState() {
+    try {
+        const saved = localStorage.getItem('fa_lockoutCount');
+        if (saved) lockoutCount = parseInt(saved);
+    } catch (e) {}
+}
+
+function saveLockoutState() {
+    try {
+        localStorage.setItem('fa_lockoutCount', lockoutCount.toString());
+    } catch (e) {}
+}
+
+// ==================== HELPER FUNCTIONS ====================
+
+function showLockoutWarning() {
+    showNotification(`🔴 LOCKOUT #${lockoutCount} - Create profile to stop data loss!`, 'error');
+}
+
+function overrideSaveFunction() {
+    window.saveFarmerPackfile = function() {
+        if (!document.getElementById('simpleOverlay').classList.contains('hidden')) {
+            showNotification('❌ App is LOCKED - create profile first!', 'error');
+            return;
+        }
+        
+        if (originalSaveFunction) originalSaveFunction();
+        
+        setTimeout(() => {
+            if (isProfileComplete()) {
+                showNotification('✅ Profile saved! Data is now safe.', 'success');
+            }
+        }, 500);
+    };
+}
+
+// ==================== EXPOSE FUNCTIONS ====================
+
+window.showSetupFromOverlay = showSetupFromOverlay;
+window.continueExploring = continueExploring;
+window.showLockoutWarning = showLockoutWarning;
+  </script>
 <!-- Splash Screen -->
 <div class="app-splash" id="splashScreen">
   <div class="splash-logo">🎁</div>
