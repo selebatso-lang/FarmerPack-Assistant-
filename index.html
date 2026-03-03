@@ -45401,5 +45401,780 @@ window.BURSModule = {
 
 console.log('✅ BURS Tax Module loaded successfully');
 </script>
+      <script>
+// =============================================
+// 5-DAY WEATHER FORECAST - GPS COORDINATES FOR FARMING
+// =============================================
+
+// Weather API configuration
+const WEATHER_API_KEY = '903159f17eba6be1fdf17d0e9af5eed1';
+const DEFAULT_LAT = -24.6282; // Gaborone, Botswana
+const DEFAULT_LON = 25.9231;
+
+function loadWeatherWidget() {
+    // Get saved coordinates or use default
+    const savedCoords = localStorage.getItem('farmWeatherCoords');
+    let displayLocation = 'Farm Location';
+    
+    if (savedCoords) {
+        try {
+            const coords = JSON.parse(savedCoords);
+            displayLocation = coords.name || 'Farm Location';
+        } catch (e) {
+            console.error('Error parsing saved coordinates', e);
+        }
+    }
+    
+    return `
+        <div class="farming-weather-widget">
+            <div class="weather-header-farming">
+                <div class="weather-title-farming">
+                    <span>🌾</span>
+                    <span id="farmLocationName">${displayLocation}</span>
+                </div>
+                <div class="weather-actions-farming">
+                    <button onclick="getFarmLocationGPS()" class="weather-btn-farming" title="Use GPS">📍</button>
+                    <button onclick="refreshFarmWeather()" class="weather-btn-farming" title="Refresh">🔄</button>
+                </div>
+            </div>
+            
+            <div id="farmWeatherLoading" style="text-align: center; padding: 0.5rem;">
+                <div class="weather-spinner-farming"></div>
+                <div style="font-size: 0.8rem; margin-top: 0.25rem;">Loading farm weather...</div>
+            </div>
+            
+            <div id="farmWeatherError" style="display: none; text-align: center; padding: 0.5rem; color: #ffcdd2; font-size: 0.85rem;">
+                ⚠️ Failed to load
+                <button onclick="refreshFarmWeather()" style="background: none; border: none; color: white; text-decoration: underline; cursor: pointer; margin-left: 0.5rem;">Retry</button>
+            </div>
+            
+            <div id="farmWeatherContent" style="display: none;">
+                <div class="weather-current-farming" id="currentFarmWeather"></div>
+                <div class="weather-farming-highlights" id="farmingHighlights"></div>
+                <div class="weather-forecast-farming" id="forecastFarmWeather"></div>
+            </div>
+            
+            <div class="weather-footer-farming">
+                <small>🌱 Farming weather • Updated just now</small>
+                <button onclick="showManualCoordinatesModal()" class="btn-link-farming">Set manually</button>
+            </div>
+        </div>
+        
+        <style>
+            .farming-weather-widget {
+                background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+                border-radius: 8px;
+                padding: 0.75rem;
+                color: white;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                margin: 0.5rem 0;
+                font-size: 0.9rem;
+                max-width: 100%;
+                border-left: 4px solid #ffd54f;
+            }
+            
+            .weather-header-farming {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 0.5rem;
+            }
+            
+            .weather-title-farming {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-weight: 600;
+                font-size: 0.95rem;
+            }
+            
+            .weather-actions-farming {
+                display: flex;
+                gap: 0.25rem;
+            }
+            
+            .weather-btn-farming {
+                background: rgba(255,255,255,0.2);
+                border: none;
+                color: white;
+                width: 26px;
+                height: 26px;
+                border-radius: 4px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.9rem;
+                transition: all 0.2s ease;
+            }
+            
+            .weather-btn-farming:hover {
+                background: rgba(255,255,255,0.3);
+                transform: scale(1.05);
+            }
+            
+            .weather-spinner-farming {
+                width: 24px;
+                height: 24px;
+                border: 2px solid rgba(255,255,255,0.3);
+                border-top: 2px solid white;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                margin: 0 auto;
+            }
+            
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+            
+            .weather-current-farming {
+                background: rgba(255,255,255,0.1);
+                border-radius: 6px;
+                padding: 0.5rem;
+                margin-bottom: 0.5rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+            
+            .weather-temp-farming {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            
+            .weather-temp-large-farming {
+                font-size: 1.6rem;
+                font-weight: bold;
+                line-height: 1;
+            }
+            
+            .weather-icon-farming {
+                font-size: 1.8rem;
+            }
+            
+            .weather-desc-farming {
+                font-size: 0.8rem;
+                opacity: 0.9;
+                text-transform: capitalize;
+            }
+            
+            .weather-details-farming {
+                display: flex;
+                gap: 1rem;
+                font-size: 0.8rem;
+            }
+            
+            .weather-detail-farming {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                min-width: 45px;
+            }
+            
+            .weather-detail-label-farming {
+                font-size: 0.7rem;
+                opacity: 0.8;
+            }
+            
+            .weather-detail-value-farming {
+                font-weight: 600;
+            }
+            
+            .weather-farming-highlights {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 0.25rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .farming-highlight-item {
+                background: rgba(255,255,255,0.1);
+                border-radius: 4px;
+                padding: 0.35rem 0.25rem;
+                text-align: center;
+                font-size: 0.7rem;
+            }
+            
+            .farming-highlight-icon {
+                font-size: 1rem;
+                margin-bottom: 0.1rem;
+            }
+            
+            .farming-highlight-label {
+                opacity: 0.9;
+                margin-bottom: 0.1rem;
+            }
+            
+            .farming-highlight-value {
+                font-weight: 600;
+                font-size: 0.8rem;
+            }
+            
+            .weather-forecast-farming {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 0.25rem;
+            }
+            
+            .forecast-day-farming {
+                background: rgba(255,255,255,0.1);
+                border-radius: 4px;
+                padding: 0.35rem 0.15rem;
+                text-align: center;
+                font-size: 0.7rem;
+            }
+            
+            .forecast-day-name-farming {
+                font-weight: 600;
+                margin-bottom: 0.1rem;
+                font-size: 0.65rem;
+            }
+            
+            .forecast-icon-farming {
+                font-size: 0.9rem;
+                margin: 0.1rem 0;
+            }
+            
+            .forecast-temp-farming {
+                font-weight: 600;
+                font-size: 0.75rem;
+            }
+            
+            .forecast-temp-min-farming {
+                font-size: 0.6rem;
+                opacity: 0.8;
+            }
+            
+            .forecast-pop-farming {
+                font-size: 0.6rem;
+                color: #a5d6a5;
+                margin-top: 0.1rem;
+            }
+            
+            .weather-footer-farming {
+                margin-top: 0.5rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-size: 0.7rem;
+                opacity: 0.8;
+            }
+            
+            .btn-link-farming {
+                background: none;
+                border: none;
+                color: white;
+                text-decoration: underline;
+                cursor: pointer;
+                font-size: 0.7rem;
+            }
+            
+            .btn-link-farming:hover {
+                opacity: 1;
+            }
+            
+            @media (max-width: 480px) {
+                .weather-current-farming {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+                
+                .weather-details-farming {
+                    width: 100%;
+                    justify-content: space-around;
+                }
+                
+                .weather-farming-highlights {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+                
+                .weather-forecast-farming {
+                    grid-template-columns: repeat(3, 1fr);
+                }
+            }
+        </style>
+    `;
+}
+
+function getFarmLocationGPS() {
+    const loadingEl = document.getElementById('farmWeatherLoading');
+    if (loadingEl) loadingEl.innerHTML = '<div class="weather-spinner-farming"></div><div style="font-size: 0.8rem; margin-top: 0.25rem;">Getting GPS location...</div>';
+    
+    if (!navigator.geolocation) {
+        showFarmWeatherError('GPS not supported on this device');
+        return;
+    }
+    
+    navigator.geolocation.getCurrentPosition(
+        // Success
+        (position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            
+            // Get location name from coordinates (reverse geocoding)
+            fetch(`https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${WEATHER_API_KEY}`)
+                .then(response => response.json())
+                .then(data => {
+                    let locationName = 'Farm Location';
+                    if (data && data.length > 0) {
+                        const loc = data[0];
+                        locationName = loc.name || loc.state || loc.country || 'Farm Location';
+                    }
+                    
+                    // Save coordinates with name
+                    localStorage.setItem('farmWeatherCoords', JSON.stringify({
+                        lat: lat,
+                        lon: lon,
+                        name: locationName,
+                        timestamp: new Date().getTime()
+                    }));
+                    
+                    refreshFarmWeather();
+                    showFarmNotification(`📍 Using GPS location: ${locationName}`, 'success');
+                })
+                .catch(() => {
+                    // Still save coordinates even if reverse geocoding fails
+                    localStorage.setItem('farmWeatherCoords', JSON.stringify({
+                        lat: lat,
+                        lon: lon,
+                        name: 'GPS Location',
+                        timestamp: new Date().getTime()
+                    }));
+                    
+                    refreshFarmWeather();
+                    showFarmNotification('📍 GPS location saved', 'success');
+                });
+        },
+        // Error
+        (error) => {
+            let message = 'GPS error';
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    message = 'Please allow GPS access for farming weather';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    message = 'GPS position unavailable';
+                    break;
+                case error.TIMEOUT:
+                    message = 'GPS timeout - try again';
+                    break;
+            }
+            showFarmWeatherError(message);
+        },
+        // Options
+        {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+        }
+    );
+}
+
+function refreshFarmWeather() {
+    const loadingEl = document.getElementById('farmWeatherLoading');
+    const errorEl = document.getElementById('farmWeatherError');
+    const contentEl = document.getElementById('farmWeatherContent');
+    const locationEl = document.getElementById('farmLocationName');
+    
+    if (loadingEl) loadingEl.style.display = 'block';
+    if (errorEl) errorEl.style.display = 'none';
+    if (contentEl) contentEl.style.display = 'none';
+    
+    // Get saved coordinates or use default
+    const savedCoords = localStorage.getItem('farmWeatherCoords');
+    let lat = DEFAULT_LAT;
+    let lon = DEFAULT_LON;
+    let locationName = 'Farm Location';
+    
+    if (savedCoords) {
+        try {
+            const coords = JSON.parse(savedCoords);
+            lat = coords.lat;
+            lon = coords.lon;
+            locationName = coords.name || 'Farm Location';
+        } catch (e) {
+            console.error('Error parsing saved coordinates', e);
+        }
+    }
+    
+    if (locationEl) locationEl.textContent = locationName;
+    
+    // Fetch current weather by coordinates
+    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${WEATHER_API_KEY}`)
+        .then(response => {
+            if (!response.ok) throw new Error('Weather data fetch failed');
+            return response.json();
+        })
+        .then(currentData => {
+            // Fetch 5-day forecast
+            return fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${WEATHER_API_KEY}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Forecast data fetch failed');
+                    return response.json();
+                })
+                .then(forecastData => {
+                    displayFarmWeather(currentData, forecastData, locationName);
+                });
+        })
+        .catch(error => {
+            console.error('Weather API Error:', error);
+            if (loadingEl) loadingEl.style.display = 'none';
+            if (errorEl) errorEl.style.display = 'block';
+            
+            // Try to load from cache
+            loadCachedFarmWeather();
+        });
+}
+
+function displayFarmWeather(currentData, forecastData, locationName) {
+    const loadingEl = document.getElementById('farmWeatherLoading');
+    const errorEl = document.getElementById('farmWeatherError');
+    const contentEl = document.getElementById('farmWeatherContent');
+    const currentWeatherEl = document.getElementById('currentFarmWeather');
+    const highlightsEl = document.getElementById('farmingHighlights');
+    const forecastWeatherEl = document.getElementById('forecastFarmWeather');
+    
+    if (!currentWeatherEl || !forecastWeatherEl || !highlightsEl) return;
+    
+    // Cache the data
+    cacheFarmWeather(currentData, forecastData);
+    
+    // Get weather icon based on condition
+    const getWeatherIcon = (condition) => {
+        const icons = {
+            'Clear': '☀️',
+            'Clouds': '☁️',
+            'Rain': '🌧️',
+            'Drizzle': '🌦️',
+            'Thunderstorm': '⛈️',
+            'Snow': '❄️',
+            'Mist': '🌫️',
+            'Fog': '🌫️',
+            'Haze': '🌫️'
+        };
+        return icons[condition] || '🌤️';
+    };
+    
+    // Get farming advice based on conditions
+    const getFarmingAdvice = (weather, temp, humidity, wind) => {
+        const advice = [];
+        
+        if (weather.includes('Rain') || weather.includes('Drizzle')) {
+            advice.push({ icon: '💧', label: 'Rain', value: 'Good for planting' });
+        } else if (weather.includes('Clear')) {
+            advice.push({ icon: '☀️', label: 'Sun', value: 'Good for harvesting' });
+        } else if (weather.includes('Clouds')) {
+            advice.push({ icon: '☁️', label: 'Cloudy', value: 'Good for spraying' });
+        }
+        
+        if (temp > 35) {
+            advice.push({ icon: '🔥', label: 'Heat', value: 'Protect seedlings' });
+        } else if (temp < 10) {
+            advice.push({ icon: '❄️', label: 'Cold', value: 'Protect crops' });
+        }
+        
+        if (humidity > 80) {
+            advice.push({ icon: '💦', label: 'Humidity', value: 'Fungal risk' });
+        }
+        
+        if (wind > 8) {
+            advice.push({ icon: '🌬️', label: 'Wind', value: 'Delay spraying' });
+        }
+        
+        return advice.slice(0, 4); // Max 4 items
+    };
+    
+    // Display current weather
+    const weatherMain = currentData.weather[0].main;
+    const currentIcon = getWeatherIcon(weatherMain);
+    const currentTemp = Math.round(currentData.main.temp);
+    const feelsLike = Math.round(currentData.main.feels_like);
+    const humidity = currentData.main.humidity;
+    const windSpeed = currentData.wind.speed;
+    const pressure = currentData.main.pressure;
+    const visibility = (currentData.visibility / 1000).toFixed(1);
+    const description = currentData.weather[0].description;
+    
+    currentWeatherEl.innerHTML = `
+        <div class="weather-temp-farming">
+            <span class="weather-icon-farming">${currentIcon}</span>
+            <span class="weather-temp-large-farming">${currentTemp}°C</span>
+            <span class="weather-desc-farming">${description}</span>
+        </div>
+        <div class="weather-details-farming">
+            <div class="weather-detail-farming">
+                <span class="weather-detail-label-farming">Feels</span>
+                <span class="weather-detail-value-farming">${feelsLike}°</span>
+            </div>
+            <div class="weather-detail-farming">
+                <span class="weather-detail-label-farming">Hum</span>
+                <span class="weather-detail-value-farming">${humidity}%</span>
+            </div>
+            <div class="weather-detail-farming">
+                <span class="weather-detail-label-farming">Wind</span>
+                <span class="weather-detail-value-farming">${windSpeed}m/s</span>
+            </div>
+        </div>
+    `;
+    
+    // Farming highlights
+    const farmingAdvice = getFarmingAdvice(weatherMain, currentTemp, humidity, windSpeed);
+    
+    highlightsEl.innerHTML = farmingAdvice.map(advice => `
+        <div class="farming-highlight-item">
+            <div class="farming-highlight-icon">${advice.icon}</div>
+            <div class="farming-highlight-label">${advice.label}</div>
+            <div class="farming-highlight-value">${advice.value}</div>
+        </div>
+    `).join('');
+    
+    // Add extra farming metrics if less than 4 items
+    if (farmingAdvice.length < 4) {
+        const extraMetrics = [
+            { icon: '📊', label: 'Pressure', value: `${pressure} hPa` },
+            { icon: '👁️', label: 'Visibility', value: `${visibility}km` },
+            { icon: '🌡️', label: 'Dew Point', value: `${Math.round(currentData.main.temp_min)}°` },
+            { icon: '🌅', label: 'Sunrise', value: new Date(currentData.sys.sunrise * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }
+        ];
+        
+        for (let i = farmingAdvice.length; i < 4; i++) {
+            const metric = extraMetrics[i - farmingAdvice.length];
+            highlightsEl.innerHTML += `
+                <div class="farming-highlight-item">
+                    <div class="farming-highlight-icon">${metric.icon}</div>
+                    <div class="farming-highlight-label">${metric.label}</div>
+                    <div class="farming-highlight-value">${metric.value}</div>
+                </div>
+            `;
+        }
+    }
+    
+    // Process 5-day forecast with farming data
+    const dailyForecasts = {};
+    
+    forecastData.list.forEach(item => {
+        const date = new Date(item.dt * 1000);
+        const day = date.toLocaleDateString('en-US', { weekday: 'short' });
+        const dateStr = date.toISOString().split('T')[0];
+        
+        if (!dailyForecasts[dateStr]) {
+            dailyForecasts[dateStr] = {
+                day: day,
+                temp_max: item.main.temp_max,
+                temp_min: item.main.temp_min,
+                icon: getWeatherIcon(item.weather[0].main),
+                condition: item.weather[0].main,
+                pop: item.pop || 0, // Probability of precipitation
+                humidity: item.main.humidity,
+                date: date
+            };
+        } else {
+            // Update max/min temps
+            dailyForecasts[dateStr].temp_max = Math.max(dailyForecasts[dateStr].temp_max, item.main.temp_max);
+            dailyForecasts[dateStr].temp_min = Math.min(dailyForecasts[dateStr].temp_min, item.main.temp_min);
+            dailyForecasts[dateStr].pop = Math.max(dailyForecasts[dateStr].pop || 0, item.pop || 0);
+        }
+    });
+    
+    // Convert to array and take first 5 days
+    const forecasts = Object.values(dailyForecasts).slice(0, 5);
+    
+    forecastWeatherEl.innerHTML = forecasts.map(day => {
+        const rainChance = day.pop ? Math.round(day.pop * 100) : 0;
+        return `
+            <div class="forecast-day-farming">
+                <div class="forecast-day-name-farming">${day.day}</div>
+                <div class="forecast-icon-farming">${day.icon}</div>
+                <div class="forecast-temp-farming">${Math.round(day.temp_max)}°</div>
+                <div class="forecast-temp-min-farming">${Math.round(day.temp_min)}°</div>
+                ${rainChance > 0 ? `<div class="forecast-pop-farming">${rainChance}% 🌧️</div>` : ''}
+            </div>
+        `;
+    }).join('');
+    
+    // Hide loading, show content
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (errorEl) errorEl.style.display = 'none';
+    if (contentEl) contentEl.style.display = 'block';
+}
+
+function cacheFarmWeather(current, forecast) {
+    const cache = {
+        current: current,
+        forecast: forecast,
+        timestamp: new Date().getTime()
+    };
+    localStorage.setItem('farmWeatherCache', JSON.stringify(cache));
+}
+
+function loadCachedFarmWeather() {
+    const cached = localStorage.getItem('farmWeatherCache');
+    if (!cached) return;
+    
+    try {
+        const cache = JSON.parse(cached);
+        const now = new Date().getTime();
+        const cacheAge = now - cache.timestamp;
+        const oneHour = 60 * 60 * 1000;
+        
+        // Use cache if less than 1 hour old
+        if (cacheAge < oneHour) {
+            displayFarmWeather(cache.current, cache.forecast, 'Cached location');
+        }
+    } catch (e) {
+        console.error('Error loading cached weather', e);
+    }
+}
+
+function showManualCoordinatesModal() {
+    const savedCoords = localStorage.getItem('farmWeatherCoords');
+    let lat = DEFAULT_LAT;
+    let lon = DEFAULT_LON;
+    
+    if (savedCoords) {
+        try {
+            const coords = JSON.parse(savedCoords);
+            lat = coords.lat;
+            lon = coords.lon;
+        } catch (e) {}
+    }
+    
+    if (typeof showModal === 'function') {
+        const modalContent = `
+            <div class="modal-header">
+                <h3>🌾 Set Farm Coordinates</h3>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 1rem;">Enter your farm's GPS coordinates for accurate weather:</p>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Latitude:</label>
+                    <input type="number" id="farmLatInput" step="0.0001" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" value="${lat}" placeholder="e.g., -24.6282">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Longitude:</label>
+                    <input type="number" id="farmLonInput" step="0.0001" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" value="${lon}" placeholder="e.g., 25.9231">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Farm Name (optional):</label>
+                    <input type="text" id="farmNameInput" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" placeholder="e.g., North Field">
+                </div>
+                <p style="font-size: 0.85rem; color: #666;">You can also use the 📍 button to get your current GPS location.</p>
+            </div>
+            <div class="modal-actions" style="display: flex; gap: 0.5rem; justify-content: flex-end; padding: 1rem;">
+                <button onclick="saveFarmCoordinates()" class="btn-harvest" style="padding: 0.5rem 1rem;">Save</button>
+                <button onclick="closeModal()" class="btn-outline" style="padding: 0.5rem 1rem;">Cancel</button>
+            </div>
+        `;
+        
+        showModal(modalContent);
+    } else {
+        // Fallback
+        const newLat = prompt('Enter latitude (e.g., -24.6282):', lat);
+        if (newLat) {
+            const newLon = prompt('Enter longitude (e.g., 25.9231):', lon);
+            if (newLon) {
+                localStorage.setItem('farmWeatherCoords', JSON.stringify({
+                    lat: parseFloat(newLat),
+                    lon: parseFloat(newLon),
+                    name: 'Manual Location'
+                }));
+                refreshFarmWeather();
+                alert('Farm coordinates saved!');
+            }
+        }
+    }
+}
+
+function saveFarmCoordinates() {
+    const lat = parseFloat(document.getElementById('farmLatInput')?.value);
+    const lon = parseFloat(document.getElementById('farmLonInput')?.value);
+    const name = document.getElementById('farmNameInput')?.value.trim() || 'Farm Location';
+    
+    if (isNaN(lat) || isNaN(lon)) {
+        if (typeof showNotification === 'function') {
+            showNotification('Please enter valid coordinates', 'error');
+        } else {
+            alert('Please enter valid coordinates');
+        }
+        return;
+    }
+    
+    if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+        if (typeof showNotification === 'function') {
+            showNotification('Invalid coordinates range', 'error');
+        } else {
+            alert('Invalid coordinates range');
+        }
+        return;
+    }
+    
+    localStorage.setItem('farmWeatherCoords', JSON.stringify({
+        lat: lat,
+        lon: lon,
+        name: name,
+        timestamp: new Date().getTime()
+    }));
+    
+    if (typeof closeModal === 'function') {
+        closeModal();
+    }
+    
+    refreshFarmWeather();
+    
+    if (typeof showNotification === 'function') {
+        showNotification(`✅ Farm location saved: ${name}`, 'success');
+    }
+}
+
+function showFarmWeatherError(message) {
+    const loadingEl = document.getElementById('farmWeatherLoading');
+    const errorEl = document.getElementById('farmWeatherError');
+    
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (errorEl) {
+        errorEl.style.display = 'block';
+        errorEl.innerHTML = `⚠️ ${message} <button onclick="refreshFarmWeather()" style="background: none; border: none; color: white; text-decoration: underline; cursor: pointer; margin-left: 0.5rem;">Retry</button>`;
+    }
+    
+    if (typeof showNotification === 'function') {
+        showNotification(message, 'error');
+    }
+}
+
+function showFarmNotification(message, type) {
+    if (typeof showNotification === 'function') {
+        showNotification(message, type);
+    }
+}
+
+// Initialize weather on page load
+if (typeof window !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(refreshFarmWeather, 100);
+        });
+    } else {
+        setTimeout(refreshFarmWeather, 100);
+    }
+}
+
+// Manual refresh function
+function refreshFarmWeatherData() {
+    refreshFarmWeather();
+}
+// Make sure this runs after the DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('farmWeatherWidgetContainer');
+    if (container) {
+        container.innerHTML = loadWeatherWidget();
+        // Give it a moment to render then load the weather
+        setTimeout(refreshFarmWeather, 100);
+    }
+});
+</script>
 </body>
 </html>
